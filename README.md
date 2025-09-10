@@ -3,4 +3,4 @@ Since the PeerPort backend is written in TypeScript, it must be transpiled befor
 
 Once you download the source, make sure you run `npm i` to install the necessary packages, then run `npm run build` or 
 `npx tsc` to build the project.
-to run the project, run `node ./dist/[main file]` or `npm run start`
+to run the project, run `node .` or `npm run start`
