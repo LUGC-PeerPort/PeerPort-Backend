@@ -13,8 +13,13 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/temp.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+      "start": "node ./dist/temp.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
   }
 }
