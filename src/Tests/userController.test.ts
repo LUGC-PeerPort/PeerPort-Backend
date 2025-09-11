@@ -9,6 +9,9 @@ describe("UserController w test DB", () => {
         await TestDataSource.initialize();
         const userRepo = TestDataSource.getRepository(User);
         controller = new UserController(userRepo);
+
+        // Create a role for the user to use
+        await TestDataSource.getRepository("Role").save({ name: "student" });
     });
 
     afterAll(async () => {
@@ -20,7 +23,17 @@ describe("UserController w test DB", () => {
         const json = jest.fn();
         
         await controller.create(
-            { body: { name: "Test User", email: "testuser@example.com" } } as any,
+            {
+                body: { 
+                    name: "Test User", 
+                    email: "testuser@example.com", 
+                    password: "test", 
+                    idNumber: "smth", 
+                    role: { 
+                        name: "student"
+                    }
+                }
+            } as any,
             { status, json } as any
         );
 
