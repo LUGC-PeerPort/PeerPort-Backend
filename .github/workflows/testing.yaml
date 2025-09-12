@@ -9,9 +9,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
-jobs:
-  build:
+permissions:
+  contents: read
+  pull-requests: write
 
+jobs:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -27,7 +30,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     
-    - name: Install dependinces
+    - name: Install dependencies
       run: npm ci
       
     - name: Build project
@@ -50,5 +53,6 @@ jobs:
     - name: Comment coverage report
       uses: MishaKav/jest-coverage-comment@main
       with:
+        coverage-summary-path: ./src/Tests/coverage/coverage-final.json
         report-only-changed-files: true
         title: "Code Coverage Report of Changed Files"
