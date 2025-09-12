@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
-import { Role } from "./Role";
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, ManyToMany, JoinColumn, OneToMany } from "typeorm";
+import { Role } from "./Role.js";
+import { UsersToClasses } from "./UsersToClasses.js";
 
 @Entity("Users")
 export class User {
@@ -41,4 +42,6 @@ export class User {
     @JoinColumn()
     role!: Role;
 
+    @OneToMany(() => UsersToClasses, (usersToClasses) => usersToClasses.user)
+    classes!: UsersToClasses[];
 }
