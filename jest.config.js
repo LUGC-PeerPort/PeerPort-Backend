@@ -25,7 +25,8 @@ export default {
                 appVersion: "1.0.0",
             }
         ],
-        ["github-actions", {silent: false}]
+        ["github-actions", {silent: false}],
+        ["jest-junit", {outputDirectory: "src/Tests", outputName: "junit.xml"}]
     ],
 
     modulePathIgnorePatterns: [
