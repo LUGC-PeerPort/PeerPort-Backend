@@ -53,6 +53,6 @@ jobs:
     - name: Comment coverage report
       uses: MishaKav/jest-coverage-comment@main
       with:
-        coverage-summary-path: ./src/Tests/coverage/coverage-final.json
+        coverage-summary-path: ./src/Tests/coverage/coverage-summary.json
         report-only-changed-files: true
         title: "Code Coverage Report of Changed Files"

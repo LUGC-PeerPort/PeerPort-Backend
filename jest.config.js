@@ -13,7 +13,7 @@ export default {
 
     // Coverage configuration
     collectCoverage: true,
-    coverageReporters: ["json", "lcov", "text", "clover"],
+    coverageReporters: ["json-summary", "lcov", "text", "clover"],
     coverageDirectory: "src/Tests/coverage",
     reporters: [
         "default",
