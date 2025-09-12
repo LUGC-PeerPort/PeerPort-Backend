@@ -26,7 +26,7 @@ export default {
             }
         ],
         ["github-actions", {silent: false}],
-        ["jest-junit", {outputDirectory: "src/Tests", outputName: "junit.xml"}]
+        ["jest-junit", {outputDirectory: "src/Tests/coverage", outputName: "junit.xml"}]
     ],
 
     modulePathIgnorePatterns: [
