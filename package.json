@@ -25,6 +25,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.3.1",
     "jest-ctrf-json-reporter": "^0.0.9",
+    "jest-junit": "^16.0.0",
     "ts-jest": "^29.4.1",
     "typeorm-ts-node-esm": "^0.3.20",
     "typescript": "^5.9.2"
