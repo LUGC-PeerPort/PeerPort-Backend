@@ -1,8 +1,8 @@
 import { DataSource } from "typeorm";
-import { User } from "../Database/entities/User";
-import { Role } from "../Database/entities/Role";
-import { Class } from "../Database/entities/Class";
-import { UsersToClasses } from "../Database/entities/UsersToClasses";
+import { User } from "../Database/entities/User.js";
+import { Role } from "../Database/entities/Role.js";
+import { Class } from "../Database/entities/Class.js";
+import { UsersToClasses } from "../Database/entities/UsersToClasses.js";
 
 export const TestDataSource = new DataSource({
     type: "sqlite",

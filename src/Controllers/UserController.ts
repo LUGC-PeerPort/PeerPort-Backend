@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { User } from "../Database/entities/User";
+import { User } from "../Database/entities/User.js";
 import { Request, Response } from "express";
 
 export class UserController {

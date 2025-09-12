@@ -46,3 +46,9 @@ jobs:
         on-fail-only: true
         collapse-large-reports: true
       if: always()
+
+    - name: Comment coverage report
+      uses: MishaKav/jest-coverage-comment@main
+      with:
+        report-only-changed-files: true
+        title: "Code Coverage Report of Changed Files"

@@ -4,8 +4,17 @@ export default {
     testMatch: ["**/src/**/*.test.ts"],
     moduleFileExtensions: ["ts", "js", "json", "node"],
     transform: {
-        "^.+\\.ts$": ["ts-jest", { isolatedModules: true }],
+        "^.+\\.(t|j)sx?$": ["ts-jest", { useESM: true }],
     },
+    extensionsToTreatAsEsm: [".ts"],
+    moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1", // strip .js for TS imports in tests
+    },
+
+    // Coverage configuration
+    collectCoverage: true,
+    coverageReporters: ["json", "lcov", "text", "clover"],
+    coverageDirectory: "src/Tests/coverage",
     reporters: [
         "default",
         [
