@@ -18,10 +18,10 @@ AppDataSource.initialize().then(() => {
 
     app.get("/users", (req, res) => userController.getAllUsers(req, res));
     app.post("/users", (req, res) => userController.create(req, res));
-})
+});
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000 at http://localhost:3000/");
-})
+});
 
 export default app;

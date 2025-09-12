@@ -19,6 +19,7 @@ describe("UserController w test DB", () => {
     });
 
     it("Temp test", async () => {
+        console.log(controller); // To avoid unused variable error
         expect(true).toBe(true);
     });
 });

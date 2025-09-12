@@ -1,49 +1,52 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { UsersToClasses } from "./UsersToClasses.js";
 
+/**
+ *
+ */
 @Entity("Classes")
 export class Class {
     @PrimaryGeneratedColumn("uuid")
-    classId!: string;
+        classId!: string;
 
     @Column({
         type: "text",
         nullable: false,
     })
-    name!: string;
+        name!: string;
 
     @Column({
-        type: "text",
-        nullable: false,
+    	type: "text",
+    	nullable: false,
     })
-    courseCode!: string;
+    	courseCode!: string;
 
     @Column({
-        type: "boolean",
-        nullable: false,
+    	type: "boolean",
+    	nullable: false,
     })
-    isOpen!: boolean;
+    	isOpen!: boolean;
 
     @Column({
-        type: "text",
-        nullable: true,
+    	type: "text",
+    	nullable: true,
     })
-    description?: string;
+    	description?: string;
     
     @Column({
-        type: "date",
-        nullable: false,
+    	type: "date",
+    	nullable: false,
     })
-    startDate!: string;
+    	startDate!: string;
 
     @Column({
-        type: "date",
-        nullable: true,
+    	type: "date",
+    	nullable: true,
     })
-    endDate?: string;
+    	endDate?: string;
 
     // Connections
     @OneToMany(() => UsersToClasses, (usersToClasses) => usersToClasses.classEntity)
-    users!: UsersToClasses[];
+    	users!: UsersToClasses[];
 
 }

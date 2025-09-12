@@ -1,47 +1,50 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, ManyToMany, JoinColumn, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from "typeorm";
 import { Role } from "./Role.js";
 import { UsersToClasses } from "./UsersToClasses.js";
 
+/**
+ *
+ */
 @Entity("Users")
 export class User {
     @PrimaryGeneratedColumn("uuid")
-    userId!: string;
+    	userId!: string;
 
     @Column({
-        type: "text",
-        nullable: false,
+    	type: "text",
+    	nullable: false,
     })
-    name!: string;
+    	name!: string;
 
     @Column({
-        type: "text",
-        nullable: false,
+    	type: "text",
+    	nullable: false,
     })
-    email!: string;
+    	email!: string;
 
     @Column({
-        type: "text",
-        nullable: false,
+    	type: "text",
+    	nullable: false,
     })
-    password!: string;
+    	password!: string;
 
     @Column({
-        type: "text",
-        nullable: true,
+    	type: "text",
+    	nullable: true,
     })
-    profilePictureUrl?: string;
+    	profilePictureUrl?: string;
     
     @Column({
-        type: "text",
-        nullable: false,
+    	type: "text",
+    	nullable: false,
     })
-    idNumber!: string;
+    	idNumber!: string;
 
     // Connections
     @OneToOne(() => Role, (role) => role.user)
     @JoinColumn()
-    role!: Role;
+    	role!: Role;
 
     @OneToMany(() => UsersToClasses, (usersToClasses) => usersToClasses.user)
-    classes?: UsersToClasses[];
+    	classes?: UsersToClasses[];
 }
