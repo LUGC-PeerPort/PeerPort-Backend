@@ -43,5 +43,5 @@ export class User {
     role!: Role;
 
     @OneToMany(() => UsersToClasses, (usersToClasses) => usersToClasses.user)
-    classes!: UsersToClasses[];
+    classes?: UsersToClasses[];
 }
