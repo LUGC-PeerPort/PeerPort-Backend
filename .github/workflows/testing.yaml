@@ -50,9 +50,13 @@ jobs:
         collapse-large-reports: true
       if: always()
 
+    - name: Get coverage data
+      run: npx jest --coverage | tee ./coverage.txt && exit ${PIPESTATUS[0]}
+
     - name: Comment coverage report
       uses: MishaKav/jest-coverage-comment@main
       with:
+        coverage-path: ./coverage.txt
         coverage-summary-path: ./src/Tests/coverage/coverage-summary.json
         report-only-changed-files: true
         title: "Code Coverage Report of Changed Files"
