@@ -13,6 +13,7 @@ export class UserController {
     /**
 	 * Creates an instance of UserController.
 	 * @param UserRepo - The user repository from TypeORM
+	 * @param ClassRepo
 	 */
     constructor(UserRepo: Repository<User>, ClassRepo: Repository<Class>) {
         this.userRepo = UserRepo;
@@ -170,7 +171,9 @@ export class UserController {
     }
 
     /**
-     *
+     * Gets a specific course a user is in
+     * @param req - The Request object
+     * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
         const userID = this.checkUserId(req.params.id);
@@ -228,6 +231,11 @@ export class UserController {
         return userID;
     }
 
+    /**
+     * Checks if the courseID is valid or in use
+     * @param id - The UUID of the course
+     * @returns The UUID if valid, undefined otherwise
+     */
     private checkCourseId(id: string): string | void {
         const courseID = id.trim();
         if (courseID.length < 10) return;
