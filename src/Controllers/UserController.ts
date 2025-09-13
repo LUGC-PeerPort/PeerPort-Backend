@@ -169,6 +169,9 @@ export class UserController {
         res.json(user.classes);
     }
 
+    /**
+     *
+     */
     async getCourse(req: Request, res: Response): Promise<void> {
         const userID = this.checkUserId(req.params.id);
         if (userID == undefined) {
