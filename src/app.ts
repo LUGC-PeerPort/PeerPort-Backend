@@ -1,4 +1,3 @@
-import { User } from "./Database/entities/User.js";
 import express from "express";
 import { AppDataSource } from "./Database/DB.js";
 import { UserController } from "./Controllers/UserController.js";
@@ -13,8 +12,7 @@ if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || 
 }
 
 AppDataSource.initialize().then(() => {
-    const userRepo = AppDataSource.getRepository(User);
-    const userController = new UserController(userRepo);
+    const userController = new UserController(AppDataSource);
 
     app.get("/users", (req, res) => userController.getAllUsers(req, res));
     app.post("/users", (req, res) => userController.create(req, res));
