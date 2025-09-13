@@ -1,7 +1,8 @@
 import type { Repository } from "typeorm";
-import type { User } from "../Database/entities/User.js";
+import { User } from "../Database/entities/User.js";
 import type { Request, Response } from "express";
-import type { Class } from "../Database/entities/Class.js";
+import { Class } from "../Database/entities/Class.js";
+import type { AppDataSource } from "../Database/DB.js";
 
 /**
  * Used to handle user related requests
@@ -14,10 +15,11 @@ export class UserController {
 	 * Creates an instance of UserController.
 	 * @param UserRepo - The user repository from TypeORM
 	 * @param ClassRepo
+	 * @param appDataSource
 	 */
-    constructor(UserRepo: Repository<User>, ClassRepo: Repository<Class>) {
-        this.userRepo = UserRepo;
-        this.courseRepo = ClassRepo;
+    constructor(appDataSource: typeof AppDataSource) {
+        this.userRepo = appDataSource.getRepository(User);
+        this.courseRepo = appDataSource.getRepository(Class);
     }
 
 

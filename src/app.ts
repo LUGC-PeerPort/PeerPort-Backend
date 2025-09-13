@@ -1,8 +1,6 @@
-import { User } from "./Database/entities/User.js";
 import express from "express";
 import { AppDataSource } from "./Database/DB.js";
 import { UserController } from "./Controllers/UserController.js";
-import { Class } from "./Database/entities/Class.js";
 
 const app = express();
 app.use(express.json());
@@ -14,9 +12,7 @@ if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || 
 }
 
 AppDataSource.initialize().then(() => {
-    const userRepo = AppDataSource.getRepository(User);
-    const courseRepo = AppDataSource.getRepository(Class);
-    const userController = new UserController(userRepo, courseRepo);
+    const userController = new UserController(AppDataSource);
 
     app.get("/users", (req, res) => userController.getAllUsers(req, res));
     app.post("/users", (req, res) => userController.create(req, res));
