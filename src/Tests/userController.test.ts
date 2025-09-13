@@ -7,8 +7,7 @@ describe("UserController w test DB", () => {
 
     beforeAll(async () => {
         await TestDataSource.initialize();
-        const userRepo = TestDataSource.getRepository(User);
-        controller = new UserController(userRepo);
+        controller = new UserController(TestDataSource);
 
         // Create a role for the user to use
         await TestDataSource.getRepository("Role").save({ name: "student" });
