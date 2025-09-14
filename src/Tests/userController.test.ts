@@ -1,8 +1,7 @@
 import { TestDataSource } from "./test-data-source.js";
 import { UserController } from "../Controllers/UserController.js";
-import { User } from "../Database/entities/User.js";
 
-describe("UserController w test DB", () => {
+describe("UserController test:", () => {
     let controller: UserController;
 
     beforeAll(async () => {
@@ -17,8 +16,49 @@ describe("UserController w test DB", () => {
         await TestDataSource.destroy();
     });
 
-    it("Temp test", async () => {
-        console.log(controller); // To avoid unused variable error
-        expect(true).toBe(true);
+    describe("Create a user in the database", () => {
+        it("Should not create a user with an invalid structure", async () => {
+            const req: any = {
+                body: {
+                    name: "Tesrt User",
+                    email: "",
+
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.create(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
+        });
+
+        it("Should create a user with valid data", async () => {
+            const req: any = {
+                body: {
+                    name: "Test User",
+                    email: "testuser@example.com",
+                    password: "securepassword",
+                    profilePictureURL: "",
+                    idNumber: "123456789smth",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+
+            await controller.create(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                userId: expect.any(String),
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+            }));
+        });
     });
 });
