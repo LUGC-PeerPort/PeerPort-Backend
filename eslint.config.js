@@ -76,8 +76,16 @@ export default defineConfig([globalIgnores(["**/node_modules", "**/dist", "src/T
 
 
 		/* --- Functions --- */
-		// Warn if a function exceeds 150 lines (ignores comments and blank lines)
+		// Warn if a function exceeds 150 lines (ignores comments and blank lines, skip test files)
 		"max-lines-per-function": ["warn", { max: 150, skipComments: true, skipBlankLines: true }],
+		"overrides": [
+			{
+				"files": ["**/Tests/**/*.ts"],
+				"rules": {
+					"max-lines-per-function": "off"
+				}
+			}
+		],
 
 		// Warn if cyclomatic complexity (branches/paths) exceeds 20
 		"complexity": ["warn", { max: 20 }],
