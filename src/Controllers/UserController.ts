@@ -158,18 +158,19 @@ export class UserController {
         }
 
         // Get the profile from the database
-        const user = await this.userRepo
+        const classes = await this.userRepo
             .createQueryBuilder("user")
             .leftJoinAndSelect("user.classes", "class")
+            .leftJoinAndSelect("class.classEntity", "course")
             .where("user.userId = :id", { id: userID })
             .getOne();
-        
-        if (!user) {
-            res.status(404).json({ message: "User not found" });
+            
+        if (!classes) {
+            res.status(404).json({ message: "Classes not found" });
             return;
         }
 
-        res.json(user.classes);
+        res.json(classes.classes);
     }
 
     /**
@@ -214,6 +215,8 @@ export class UserController {
         }
         if ("password" in user && (typeof user.password !== "string" || user.password.trim() === "")) return false;
         if ("profilePic" in user && (typeof user.profilePic !== "string" || user.profilePic.trim() === "")) return false;
+
+        if ("idNumber" in user && (typeof user.idNumber !== "string" || user.idNumber.trim() === "")) return false; 
 
         return true;
     }
