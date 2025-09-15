@@ -47,6 +47,7 @@ jobs:
 
     - name: Get coverage
       run: npx jest --coverage | tee ./src/Tests/coverage/coverage.txt && exit ${PIPESTATUS[0]}
+      if: always()
 
     - name: Comment coverage report
       uses: MishaKav/jest-coverage-comment@main
@@ -59,3 +60,4 @@ jobs:
         coverage-summary-path: ./src/Tests/coverage/coverage-summary.json
         report-only-changed-files: true
         coverage-path-prefix: ./src/
+      if: always()
