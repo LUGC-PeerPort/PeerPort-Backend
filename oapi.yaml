@@ -1,0 +1,312 @@
+openapi: 3.1.1
+info:
+  title: PeerPort Backend API
+  description: PeerPort is an independent Learning Management System (LMS) designed by students for students.
+  version: 0.0.1
+  contact:
+    name: PeerPort Team
+    email: aidenlortie@aol.com
+    url: https://github.com/orgs/LUGC-PeerPort/
+servers:
+  - url: http://localhost:3000/api
+    description: Local server
+
+paths:
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Retrieve a list of users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Retrieve a specific user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single user'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      tags:
+        - Users
+      summary: Update a specific user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - Users
+      summary: Delete a specific user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+  /users/{userId}/courses:
+    get:
+      tags:
+        - Users
+        - Courses
+      summary: Retrieve classes for a specific user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of classes for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Class'
+        '404':
+          description: User not found
+  /users/{userId}/courses/{courseId}:
+    get:
+      tags:
+        - Users
+        - Courses
+      summary: Retrieve a specific class for a specific user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single class for the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Class'
+        '404':
+          description: User or class not found
+
+  /courses:
+    get:
+      tags:
+        - Courses
+      summary: Retrieve a list of classes
+      responses:
+        '200':
+          description: A list of classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Class'
+    post:
+      tags:
+        - Courses
+      summary: Create a new class
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Class'
+      responses:
+        '201':
+          description: Class created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Class'
+  /courses/{courseId}:
+    get:
+      tags:
+        - Courses
+      summary: Retrieve a specific class by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single class
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Class'
+        '404':
+          description: Class not found
+
+
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        profilePictureUrl:
+          type: string
+          format: uri
+          description: URL to the user's profile picture
+        institutionId:
+          type: string
+          description: Institution-specific ID number
+        role:
+          type: object
+          schema:
+            $ref: '#/components/schemas/Role'
+        classes:
+          type: array
+          items:
+            type: object
+            schema:
+              $ref: '#/components/schemas/Class'
+    Role:
+      type: object
+      properties:
+        roleId:
+          type: string
+          format: uuid
+          description: Unique Role Identifier
+        name:
+          type: string
+          description: Name of the role (e.g., Student, Instructor, Admin)
+    Class:
+      type: object
+      properties:
+        classId:
+          type: string
+          format: uuid
+          description: Unique Class Identifier
+        name:
+          type: string
+          description: Name of the class (e.g., Math 101)
+        courseCode:
+          type: string
+          description: Course Code (e.g., MATH101)
+        isOpen:
+          type: boolean
+          description: False value if the class is archived / not active
+        description:
+          type: string
+          description: Description of the class
+        startDate:
+          type: string
+          format: date
+          description: Start date of the class
+        endDate:
+          type: string
+          format: date
+          description: End date of the class
+        users:
+          type: array
+          items:
+            type: object
+            schema:
+              $ref: '#/components/schemas/UserToClasses'
+    UserToClasses:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user-class relationship
+        enrolledOn:
+          type: string
+          format: date
+          description: Date when the user enrolled in the class
+        user:
+          type: object
+          schema:
+            $ref: '#/components/schemas/User'
+        classEntity:
+          type: object
+          schema:
+            $ref: '#/components/schemas/Class'
