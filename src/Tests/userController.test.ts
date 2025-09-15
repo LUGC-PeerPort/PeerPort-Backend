@@ -264,7 +264,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.id
+                    id: user.userId
                 }
             };
 
@@ -275,12 +275,14 @@ describe("UserController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                userId: user.id,
+                userId: user.userId,
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
+                role: undefined,
+                classes: undefined,
             }));
         });
     });
