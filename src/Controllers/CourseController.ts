@@ -150,11 +150,15 @@ export class CourseController {
     }
 
     /**
-     *
-     * @param id
+     * Checks the validity of the course ID
+     * @param id - The course ID to check
+     * @returns Whether the course ID is valid or not
      */
-    private checkCourseId(id: string): boolean {
+    private async checkCourseId(id: string): Promise<boolean> {
         if (typeof id !== "string" || id.trim() === "") return false;
+
+        const course = await this.courseRepo.findOneBy({ classId: id });
+        if (!course) return false;
         return true;
     }
 }
