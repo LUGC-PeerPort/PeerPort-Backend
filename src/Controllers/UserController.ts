@@ -84,7 +84,7 @@ export class UserController {
             res.status(404).json({ message: "User not found" });
             return;
         }
-        res.json(user);
+        res.status(200).json(user);
     }
 
     /**
@@ -101,7 +101,7 @@ export class UserController {
 
         // Check user structure
         const userStructureUnknown = req.body as unknown;
-        if (!this.checkUserStructure(userStructureUnknown)) {
+        if (!this.checkUserStructure(userStructureUnknown, true)) {
             res.status(400).json({ message: "Invalid user structure" });
             return;
         }
@@ -123,7 +123,7 @@ export class UserController {
         user.profilePictureUrl = userStructure.profilePictureUrl ?? user.profilePictureUrl;
 
         const result = await this.userRepo.save(user);
-        res.json(result);
+        res.status(200).json(result);
     }
     
     /**
@@ -132,7 +132,7 @@ export class UserController {
      * @param res - The Response object
      */
     async deleteProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUserId(req.params.id);
+        const userID = await this.checkUserId(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -151,7 +151,7 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourses(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUserId(req.params.id);
+        const userID = await this.checkUserId(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -179,13 +179,13 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUserId(req.params.id);
+        const userID = await this.checkUserId(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
 
-        const courseID = this.checkCourseId(req.params.courseId);
+        const courseID = await this.checkCourseId(req.params.courseId);
         if (courseID == undefined) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -202,23 +202,49 @@ export class UserController {
     /**
      * Checks the validity of the user structure
      * @param user - The user object to check
+     * @param updating (Optional) - Whether the user to make the parameters optional
      * @returns true if the user structure is valid, false otherwise
      */
-    private checkUserStructure(user: unknown): boolean {
+    // eslint-disable-next-line complexity
+    private checkUserStructure(user: unknown, updating?: boolean): boolean {
         if (typeof user !== "object" || user === null) return false;
 
-        if ("name" in user && typeof user.name === "string" && user.name.trim() !== "") {
-            if (user.name.length < 2) return false;
+        const userKeys = ["name", "email", "password", "profilePictureUrl", "idNumber"];
+        for (const key of Object.keys(user)) {
+            if (key !in userKeys) return false;
         }
-        if ("email" in user && typeof user.email === "string" && user.email.trim() !== "") {
-            if (!RegExp(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).test(user.email)) return false;
-        }
-        if ("password" in user && (typeof user.password !== "string" || user.password.trim() === "")) return false;
-        if ("profilePic" in user && (typeof user.profilePic !== "string" || user.profilePic.trim() === "")) return false;
 
-        if ("idNumber" in user && (typeof user.idNumber !== "string" || user.idNumber.trim() === "")) return false; 
+        const userTyped = user as Partial<User>;
+        updating = updating ?? false;
+        let failedFlag = false;
 
-        return true;
+        // -- Required --
+        if (typeof userTyped.name === "string") {
+            if (userTyped.name.trim().length < 2) failedFlag = true;
+        } else if (typeof userTyped.name === "undefined" && !updating) failedFlag = true;
+        else failedFlag = true;
+
+        if (typeof userTyped.email === "string") {
+            if (!RegExp(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).test(userTyped.email.trim())) failedFlag = true;
+        } else if (typeof userTyped.email === "undefined" && !updating) failedFlag = true;
+        else failedFlag = true;
+
+        if (typeof userTyped.password === "string") {
+            if (userTyped.password.trim() === "" || userTyped.password.trim().length < 8) failedFlag = true;
+        } else if (typeof userTyped.password === "undefined" && !updating) failedFlag = true;
+        else failedFlag = true;
+
+        if (typeof userTyped.idNumber === "string") {
+            if (userTyped.idNumber.trim() === "") failedFlag = true;
+        } else if (typeof userTyped.idNumber === "undefined" && !updating) failedFlag = true;
+        else failedFlag = true;
+
+        // -- Optional --
+        if (typeof userTyped.profilePictureUrl === "string") {
+            if (userTyped.profilePictureUrl.trim() !== "" && userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;        }
+
+        if (failedFlag) return false;
+        else return true;
     }
 
     /**
@@ -228,11 +254,13 @@ export class UserController {
      */
     private checkUserId(id: string): string | void {
         const userID = id.trim();
-        if (userID.length < 10) return;
-
-        // Check if a user had that ID
-        const user = this.userRepo.findOneBy({ userId: userID });
-        if (!user) return;
+        // Check if the ID has content
+        if (userID == "") return;
+        
+        // Check if the ID is a valid UUID
+        if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(userID)) return;
+        
+        // Return the ID
         return userID;
     }
 
@@ -241,12 +269,12 @@ export class UserController {
      * @param id - The UUID of the course
      * @returns The UUID if valid, undefined otherwise
      */
-    private checkCourseId(id: string): string | void {
+    private async checkCourseId(id: string): Promise<string | void> {
         const courseID = id.trim();
         if (courseID.length < 10) return;
 
         // Check if a course has that ID
-        const course = this.courseRepo.findOneBy({ classId: courseID });
+        const course = await this.courseRepo.findOneBy({ classId: courseID });
         if (!course) return;
         return courseID;
     }
