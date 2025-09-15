@@ -119,28 +119,21 @@ export class CourseController {
 
         // Check if the course has any extra keys
         const courseKeys = ["name", "courseCode", "isOpen", "description", "startDate", "endDate"];
-        console.log(courseKeys);
-        console.log(Object.keys(course));
         for (const key of Object.keys(course)) {
-            if ((key !in courseKeys)) {
-                console.log(`Extra key found: ${key}`);
-                return false;
-            }
+            if ((key !in courseKeys)) return false;
         }
-        console.log("No extra keys");
-
         // Make a Course object that is partial (all fields optional)
         const courseTyped = course as Partial<Class>;
 
         // -- Required --
         if (typeof courseTyped.name !== "string" || courseTyped.name.trim() === "") return false;
-        console.log("name passed");
+        
         if (typeof courseTyped.courseCode !== "string" || courseTyped.courseCode.trim() === "") return false;
-        console.log("course code passed");
+        
         if (typeof courseTyped.isOpen !== "boolean") return false;
-        console.log("isOpen passed");
+        
         if (typeof courseTyped.startDate !== "string" || isNaN(Date.parse(courseTyped.startDate))) return false;
-        console.log("startDate passed");
+        
         // -- Nullable --
         if (courseTyped.description !== undefined && (typeof courseTyped.description !== "string" || courseTyped.description.trim() === "")) return false;
 
