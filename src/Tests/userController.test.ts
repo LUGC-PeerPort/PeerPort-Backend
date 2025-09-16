@@ -45,7 +45,7 @@ describe("UserController test:", () => {
                     name: "T",
                     email: "testuser@example.com",
                     password: "securepassword",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "123456789smth",
                 }
             };
@@ -64,7 +64,7 @@ describe("UserController test:", () => {
                 body: {
                     email: "testinguser@example.com",
                     password: "securepassword",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "123456789smth",
                 }
             };
@@ -84,7 +84,7 @@ describe("UserController test:", () => {
                     name: "Test User",
                     email: "notanemail",
                     password: "securepassword",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "123456789smth",
                 }
             };
@@ -104,7 +104,7 @@ describe("UserController test:", () => {
                     name: "Test User",
                     email: "",
                     password: "securepassword",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "123456789smth",
                 }
             };
@@ -123,7 +123,7 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     password: "securepassword",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "123456789smth",
                 }
             };
@@ -143,7 +143,7 @@ describe("UserController test:", () => {
                     name: "Test User",
                     email: "testuser@example.com",
                     password: "",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "123456789smth",
                 }
             };
@@ -163,7 +163,7 @@ describe("UserController test:", () => {
                     name: "Test User",
                     email: "testuser@example.com",
                     password: "securepassword",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "",
                 }
             };
@@ -183,7 +183,7 @@ describe("UserController test:", () => {
                     name: "Test User",
                     email: "testuser@example.com",
                     password: "securepassword",
-                    profilePictureURL: "",
+                    profilePictureUrl: "",
                     idNumber: "123456789smth",
                 }
             };
@@ -258,13 +258,13 @@ describe("UserController test:", () => {
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
-                profilePictureURL: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
             const req: any = {
                 params: {
-                    id: user.id
+                    id: user.userId
                 }
             };
 
@@ -275,12 +275,14 @@ describe("UserController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                userId: user.id,
+                userId: user.userId,
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
+                role: undefined,
+                classes: undefined,
             }));
         });
     });
@@ -330,13 +332,13 @@ describe("UserController test:", () => {
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
-                profilePictureURL: "",
+                profilePictureUrl: "",
                 idNumber: "123456789smth",
             });
 
             const req: any = {
                 params: {
-                    id: user.id
+                    id: user.userId
                 },
                 body: {
                     namee: "Updated User"
@@ -358,13 +360,13 @@ describe("UserController test:", () => {
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
-                profilePictureURL: "",
+                profilePictureUrl: "",
                 idNumber: "123456789smth",
             });
 
             const req: any = {
                 params: {
-                    id: user.id
+                    id: user.userId
                 },
                 body: {}
             };
@@ -384,13 +386,13 @@ describe("UserController test:", () => {
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
-                profilePictureURL: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
             const req: any = {
                 params: {
-                    id: user.id
+                    id: user.userId
                 },
                 body: {
                     name: "Updated User",
@@ -405,19 +407,21 @@ describe("UserController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                userId: user.id,
+                userId: user.userId,
                 name: "Updated User",
                 email: "updateduser@example.com",
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
+                role: undefined,
+                classes: undefined,
             }));
 
             // Verify that the user was actually updated in the database
             const updatedUser = await TestDataSource.getRepository("User").findOneBy({ userId: user.id });
             expect(updatedUser).toBeDefined();
             expect(updatedUser).toMatchObject({
-                userId: user.id,
+                userId: user.userId,
                 name: "Updated User",
                 email: "updateduser@example.com",
                 password: "securepassword",
@@ -452,13 +456,13 @@ describe("UserController test:", () => {
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
-                profilePictureURL: "",
+                profilePictureUrl: "",
                 idNumber: "123456789smth",
             });
 
             const req: any = {
                 params: {
-                    id: user.id
+                    id: user.userId
                 }
             };
 
@@ -467,7 +471,7 @@ describe("UserController test:", () => {
             res.json = jest.fn().mockReturnValue(res);
             await controller.deleteProfile(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.status).toHaveBeenCalledWith(204);
             expect(res.json).toHaveBeenCalledWith({ message: "User deleted successfully" });
 
             // Verify that the user was actually deleted from the database
