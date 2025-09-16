@@ -42,12 +42,17 @@ export class UserController {
         // Check user structure
         const userStructureUnknown = req.body as unknown;
         if (!this.checkUserStructure(userStructureUnknown)) {
+            console.log("invalid user structure", userStructureUnknown);
             res.status(400).json({ message: "Invalid user structure" });
             return;
         }
 
         // Convert to User type
         const userStructure = userStructureUnknown as User;
+
+        if (userStructure.profilePictureUrl === "") {
+            userStructure.profilePictureUrl = undefined;
+        }
 
         // Check if email already exists
         const existingUser = await this.userRepo.findOneBy({ email: userStructure.email });
@@ -102,6 +107,7 @@ export class UserController {
         // Check user structure
         const userStructureUnknown = req.body as unknown;
         if (!this.checkUserStructure(userStructureUnknown, true)) {
+            console.log("invalid user structure");
             res.status(400).json({ message: "Invalid user structure" });
             return;
         }
@@ -139,8 +145,8 @@ export class UserController {
         }
         
         // Delete the user
-        this.userRepo.delete(userID);
-        res.status(204).send();
+        await this.userRepo.delete(userID);
+        res.status(204).json({ message: "User deleted successfully" });
     }
 
 
@@ -211,39 +217,47 @@ export class UserController {
 
         const userKeys = ["name", "email", "password", "profilePictureUrl", "idNumber"];
         for (const key of Object.keys(user)) {
-            if (key !in userKeys) return false;
+            if (!userKeys.includes(key)) return false;
         }
 
         const userTyped = user as Partial<User>;
         updating = updating ?? false;
         let failedFlag = false;
+        let updated = false;
 
         // -- Required --
         if (typeof userTyped.name === "string") {
             if (userTyped.name.trim().length < 2) failedFlag = true;
-        } else if (typeof userTyped.name === "undefined" && !updating) failedFlag = true;
-        else failedFlag = true;
+            else updated = true;
+        } else if (typeof userTyped.name !== "undefined" && !updating) failedFlag = true;
+        else if (!updating) failedFlag = true;
 
         if (typeof userTyped.email === "string") {
             if (!RegExp(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).test(userTyped.email.trim())) failedFlag = true;
-        } else if (typeof userTyped.email === "undefined" && !updating) failedFlag = true;
-        else failedFlag = true;
+            else updated = true;
+        } else if (typeof userTyped.email !== "undefined" && !updating) failedFlag = true;
+        else if (!updating) failedFlag = true;
 
         if (typeof userTyped.password === "string") {
             if (userTyped.password.trim() === "" || userTyped.password.trim().length < 8) failedFlag = true;
-        } else if (typeof userTyped.password === "undefined" && !updating) failedFlag = true;
-        else failedFlag = true;
+            else updated = true;
+        } else if (typeof userTyped.password !== "undefined" && !updating) failedFlag = true;
+        else if (!updating) failedFlag = true;
 
         if (typeof userTyped.idNumber === "string") {
             if (userTyped.idNumber.trim() === "") failedFlag = true;
-        } else if (typeof userTyped.idNumber === "undefined" && !updating) failedFlag = true;
-        else failedFlag = true;
-
+            else updated = true;
+        } else if (typeof userTyped.idNumber !== "undefined" && !updating) failedFlag = true;
+        else if (!updating) failedFlag = true;
+        
         // -- Optional --
         if (typeof userTyped.profilePictureUrl === "string") {
-            if (userTyped.profilePictureUrl.trim() !== "" && userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;        }
+            if (userTyped.profilePictureUrl.trim() !== "" && userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
+            else updated = true;
+        }
 
         if (failedFlag) return false;
+        else if (updating && !updated) return false;
         else return true;
     }
 
@@ -254,6 +268,7 @@ export class UserController {
      */
     private checkUserId(id: string): string | void {
         const userID = id.trim();
+
         // Check if the ID has content
         if (userID == "") return;
         
