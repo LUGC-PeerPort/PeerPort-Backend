@@ -52,10 +52,10 @@ export default defineConfig([
 			//   - camelCase (myVar, doSomething)
 			//   - PascalCase (MyClass, UserComponent)
 			//   - UPPER_CASE_SNAKE_CASE (MY_CONST)
-			//   - Allow private names with leading underscore (_secret, _MY_CONST)
+			//   - Allow private names with leading underscore (_secret, _MY_CONST, __privateVar)
 			"id-match": [
 				"error",
-				"^(_?[a-z][a-zA-Z0-9]*|_?[A-Z][A-Z0-9_]*|[A-Z][a-zA-Z0-9]*)$",
+				"^(_{0,2}[a-z][a-zA-Z0-9]*|_{0,2}[A-Z][A-Z0-9_]*|_{0,2}[A-Z][a-zA-Z0-9]*)$",
 				{ properties: true, onlyDeclarations: true },
 			],
 
