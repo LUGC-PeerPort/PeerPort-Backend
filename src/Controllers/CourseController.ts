@@ -4,6 +4,16 @@ import { Class } from "../Database/entities/Class.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToClasses } from "../Database/entities/UsersToClasses.js";
 
+export interface CourseReturn {
+    courseId: string;
+    name: string;
+    courseCode: string;
+    isOpen: boolean;
+    description: string | null;
+    startDate: Date | string | null;
+    endDate: Date | string | null;
+};
+
 
 /**
  *
