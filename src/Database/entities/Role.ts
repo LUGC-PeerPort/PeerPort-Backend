@@ -8,7 +8,7 @@ import { User } from "./User.js";
 @Entity("Roles")
 export class Role {
     @PrimaryGeneratedColumn("uuid")
-    	userId!: string;
+    	roleId!: string;
 
     @Column({
     	type: "text",

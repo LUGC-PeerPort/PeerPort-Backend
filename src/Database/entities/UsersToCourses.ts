@@ -1,13 +1,13 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { Class } from "./Class.js";
+import { Course } from "./Course.js";
 import { User } from "./User.js";
 
 
 /**
  *
  */
-@Entity("UsersToClasses")
-export class UsersToClasses {
+@Entity("UsersToCourses")
+export class UsersToCourses {
     @PrimaryGeneratedColumn("uuid")
     	id!: string;
 
@@ -18,11 +18,11 @@ export class UsersToClasses {
     })
     	enrolledOn!: string;
 
-    @ManyToOne(() => User, (user) => user.classes)
+    @ManyToOne(() => User, (user) => user.courses)
     @JoinColumn({ name: "userId" })
     	user!: User;
 
-    @ManyToOne(() => Class, (classEntity) => classEntity.users)
-    @JoinColumn({ name: "classId" })
-    	classEntity!: Class;
+    @ManyToOne(() => Course, (course) => course.users)
+    @JoinColumn({ name: "courseId" })
+    	course!: Course;
 }

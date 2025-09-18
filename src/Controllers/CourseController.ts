@@ -1,8 +1,8 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
-import { Class } from "../Database/entities/Class.js";
+import { Class } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
-import { UsersToClasses } from "../Database/entities/UsersToClasses.js";
+import { UsersToClasses } from "../Database/entities/UsersToCourses.js";
 
 
 /**

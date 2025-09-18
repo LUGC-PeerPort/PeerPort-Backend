@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany } from "typeorm";
-import { Class } from "./Class.js";
+import { Class } from "./Course.js";
 import { AssignmentToFiles } from "./AssignmentToFiles.js";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 
