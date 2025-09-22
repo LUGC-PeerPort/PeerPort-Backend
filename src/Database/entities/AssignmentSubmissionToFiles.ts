@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { Class } from "./Class.js";
+import { Class } from "./Course.js";
 import { User } from "./User.js";
 
 

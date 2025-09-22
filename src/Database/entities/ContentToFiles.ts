@@ -1,15 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, OneToMany, JoinColumn } from "typeorm";
 import { Files } from "./Files.js";
 import { Content } from "./Content.js";
 
 
 /**
- *
+ * The link between the content and the files
  */
 @Entity("ContentToFiles")
 export class ContentToFiles {
     @PrimaryGeneratedColumn("uuid")
     	contentToFilesId!: string;
+
     @OneToMany(() => Files, (files) => files.filesId)
     @JoinColumn({ name: "FilesId" })
     	filesId!: Files;

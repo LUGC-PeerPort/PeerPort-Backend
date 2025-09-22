@@ -1,13 +1,13 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
-import { UsersToClasses } from "./UsersToClasses.js";
+import { UsersToCourses } from "./UsersToCourses.js";
 
 /**
  * Used to represent a class/course the the user can be enrolled in.
  */
-@Entity("Classes")
-export class Class {
+@Entity("Courses")
+export class Course {
     @PrimaryGeneratedColumn("uuid")
-        classId!: string;
+        courseId!: string;
 
     @Column({
         type: "text",
@@ -46,7 +46,7 @@ export class Class {
     	endDate?: string;
 
     // Connections
-    @OneToMany(() => UsersToClasses, (usersToClasses) => usersToClasses.classEntity)
-    	users!: UsersToClasses[];
+    @OneToMany(() => UsersToCourses, (usersToCourses) => usersToCourses.course)
+    	users!: UsersToCourses[];
 
 }

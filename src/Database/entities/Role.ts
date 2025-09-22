@@ -3,12 +3,12 @@ import { User } from "./User.js";
 
 
 /**
- *
+ * Used to keep track of diffrent roles for the users
  */
 @Entity("Roles")
 export class Role {
     @PrimaryGeneratedColumn("uuid")
-    	userId!: string;
+    	roleId!: string;
 
     @Column({
     	type: "text",
