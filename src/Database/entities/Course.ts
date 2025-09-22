@@ -49,4 +49,7 @@ export class Course {
     @OneToMany(() => UsersToCourses, (usersToCourses) => usersToCourses.course)
     	users!: UsersToCourses[];
 
+    @OneToMany(() => Course, (course) => course.courseId)
+    	assignments!: Course[];
+
 }
