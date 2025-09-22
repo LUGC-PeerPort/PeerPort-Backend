@@ -14,7 +14,9 @@ describe("UserController test:", () => {
 
     beforeEach(async () => {
         // Clear users before each test
+        await TestDataSource.getRepository("UsersToCourses").clear();
         await TestDataSource.getRepository("User").clear();
+        await TestDataSource.getRepository("Course").clear();
     });
 
     afterAll(async () => {
@@ -282,6 +284,67 @@ describe("UserController test:", () => {
                     name: "student"
                 },
                 courses: [],
+            }));
+        });
+
+        it("Should get a user and their courses", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+            });
+
+            // Then, create a course for the user
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "Test Course",
+                courseCode: "TC101",
+                isOpen: true,
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+            });
+
+            // Enroll the user in the course
+            const enrolledData = await TestDataSource.getRepository("UsersToCourses").save({
+                user: user,
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    id: user.userId
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getProfile(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                userId: user.userId,
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+                role: {
+                    name: "student"
+                },
+                courses: [expect.objectContaining({
+                    courseId: course.courseId,
+                    name: "Test Course",
+                    courseCode: "TC101",
+                    isOpen: true,
+                    description: "This is a test course",
+                    startDate: "2023-01-01",
+                    endDate: "2023-06-01",
+                    enrolledOn: enrolledData.enrolledOn,
+                })],
             }));
         });
     });
