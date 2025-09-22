@@ -198,7 +198,6 @@ describe("UserController test:", () => {
                 userId: expect.any(String),
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             }));
@@ -213,8 +212,6 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
             });
         });
     });
@@ -281,8 +278,10 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
+                role: {
+                    name: "student"
+                },
+                courses: [],
             }));
         });
     });
@@ -410,11 +409,8 @@ describe("UserController test:", () => {
                 userId: user.userId,
                 name: "Updated User",
                 email: "updateduser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
             }));
 
             // Verify that the user was actually updated in the database
@@ -427,8 +423,6 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
             });
         });
     });
