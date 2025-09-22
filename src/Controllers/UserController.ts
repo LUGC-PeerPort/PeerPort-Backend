@@ -237,7 +237,7 @@ export class UserController {
         }
 
         // Get the course from the DB
-        const course = await this.courseRepo.findOneBy({ classId: courseID });
+        const course = await this.courseRepo.findOneBy({ courseId: courseID });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
             return;
@@ -344,13 +344,13 @@ export class UserController {
             courses: userData.courses
                 ? userData.courses.map((cls: UsersToCourses) => ({
                     enrolledOn: cls.enrolledOn,
-                    courseId: cls.classEntity.classId,
-                    name: cls.classEntity.name,
-                    courseCode: cls.classEntity.courseCode,
-                    isOpen: cls.classEntity.isOpen,
-                    description: cls.classEntity.description ?? null,
-                    startDate: cls.classEntity.startDate ?? null,
-                    endDate: cls.classEntity.endDate ?? null,
+                    courseId: cls.course.courseId,
+                    name: cls.course.name,
+                    courseCode: cls.course.courseCode,
+                    isOpen: cls.course.isOpen,
+                    description: cls.course.description ?? null,
+                    startDate: cls.course.startDate ?? null,
+                    endDate: cls.course.endDate ?? null,
                 }))
                 : [],
         };

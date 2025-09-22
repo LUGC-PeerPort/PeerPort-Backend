@@ -1,6 +1,5 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
-<<<<<<< HEAD
 import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
@@ -14,11 +13,6 @@ export interface CourseReturn {
     startDate: Date | string | null;
     endDate: Date | string | null;
 };
-=======
-import { Class } from "../Database/entities/Course.js";
-import { User } from "../Database/entities/User.js";
-import { UsersToClasses } from "../Database/entities/UsersToCourses.js";
->>>>>>> 136f7b1e6eb1f8d0bc4b8bcdd101d79e4322df0a
 
 
 /**
@@ -27,7 +21,7 @@ import { UsersToClasses } from "../Database/entities/UsersToCourses.js";
 export class CourseController {
     private courseRepo: Repository<Course>;
     private userRepo: Repository<User>;
-    private usersToClassesRepo: Repository<UsersToCourses>;
+    private usersToCoursesRepo: Repository<UsersToCourses>;
 
     /**
      * Create an instance of the CourseController
@@ -36,7 +30,7 @@ export class CourseController {
     constructor(appDataSource: DataSource) {
         this.courseRepo = appDataSource.getRepository(Course);
         this.userRepo = appDataSource.getRepository(User);
-        this.usersToClassesRepo = appDataSource.getRepository(UsersToCourses);
+        this.usersToCoursesRepo = appDataSource.getRepository(UsersToCourses);
     }
 
     /**
@@ -88,11 +82,11 @@ export class CourseController {
         const result = await this.courseRepo.save(newCourse);
 
         // Add connection to user
-        const usersToClasses = this.usersToClassesRepo.create({
+        const usersToCourses = this.usersToCoursesRepo.create({
             user: user,
-            classEntity: result
+            course: result
         });
-        await this.usersToClassesRepo.save(usersToClasses);
+        await this.usersToCoursesRepo.save(usersToCourses);
 
         // Connect the user to the course
         res.status(201).json(result);
@@ -114,7 +108,7 @@ export class CourseController {
 
         // Get the course from the database
         const courseID = req.params.id;
-        const course = await this.courseRepo.findOneBy({ classId: courseID });
+        const course = await this.courseRepo.findOneBy({ courseId: courseID });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
             return;
@@ -166,7 +160,7 @@ export class CourseController {
     private async checkCourseId(id: string): Promise<boolean> {
         if (typeof id !== "string" || id.trim() === "") return false;
 
-        const course = await this.courseRepo.findOneBy({ classId: id });
+        const course = await this.courseRepo.findOneBy({ courseId: id });
         if (!course) return false;
         return true;
     }
