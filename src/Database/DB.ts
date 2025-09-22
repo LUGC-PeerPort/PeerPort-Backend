@@ -4,8 +4,8 @@ import { DataSource } from "typeorm";
 // Models
 import { User } from "./entities/User.js";
 import { Role } from "./entities/Role.js";
-import { Class } from "./entities/Class.js";
-import { UsersToClasses } from "./entities/UsersToClasses.js";
+import { Course } from "./entities/Course.js";
+import { UsersToCourses } from "./entities/UsersToCourses.js";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -18,8 +18,8 @@ export const AppDataSource = new DataSource({
     entities: [
         User, 
         Role, 
-        Class,
-        UsersToClasses
+        Course,
+        UsersToCourses
     ],
     synchronize: true,
 
