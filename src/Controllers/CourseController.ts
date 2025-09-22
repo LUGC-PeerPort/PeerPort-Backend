@@ -1,5 +1,6 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
+<<<<<<< HEAD
 import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
@@ -13,6 +14,11 @@ export interface CourseReturn {
     startDate: Date | string | null;
     endDate: Date | string | null;
 };
+=======
+import { Class } from "../Database/entities/Course.js";
+import { User } from "../Database/entities/User.js";
+import { UsersToClasses } from "../Database/entities/UsersToCourses.js";
+>>>>>>> 136f7b1e6eb1f8d0bc4b8bcdd101d79e4322df0a
 
 
 /**
