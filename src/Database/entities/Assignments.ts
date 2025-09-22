@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany } from "typeorm";
-import { Class } from "./Course.js";
+import { Course } from "./Course.js";
 import { AssignmentToFiles } from "./AssignmentToFiles.js";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 
@@ -31,9 +31,9 @@ export class Assignments {
     @JoinColumn({ name: "AssignmentToFileId" })
     	assignmentToFile!: AssignmentToFiles;
 
-    @ManyToOne(() => Class, (classEntity) => classEntity.users)
+    @ManyToOne(() => Course, (course) => course.assignments)
     @JoinColumn({ name: "classId" })
-    	classEntity!: Class;
+    	classEntity!: Course;
 
     @ManyToOne(() => AssignmentSubmissions, (assignmentSubmissions) => assignmentSubmissions.user)
     @JoinColumn({ name: "assignmentSubmissionsId" })
