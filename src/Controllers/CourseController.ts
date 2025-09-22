@@ -1,8 +1,8 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
-import { Class } from "../Database/entities/Class.js";
+import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
-import { UsersToClasses } from "../Database/entities/UsersToClasses.js";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -19,18 +19,18 @@ export interface CourseReturn {
  *
  */
 export class CourseController {
-    private courseRepo: Repository<Class>;
+    private courseRepo: Repository<Course>;
     private userRepo: Repository<User>;
-    private usersToClassesRepo: Repository<UsersToClasses>;
+    private usersToClassesRepo: Repository<UsersToCourses>;
 
     /**
      * Create an instance of the CourseController
      * @param appDataSource - The TypeORM DataSource
      */
     constructor(appDataSource: DataSource) {
-        this.courseRepo = appDataSource.getRepository(Class);
+        this.courseRepo = appDataSource.getRepository(Course);
         this.userRepo = appDataSource.getRepository(User);
-        this.usersToClassesRepo = appDataSource.getRepository(UsersToClasses);
+        this.usersToClassesRepo = appDataSource.getRepository(UsersToCourses);
     }
 
     /**
@@ -75,7 +75,7 @@ export class CourseController {
         }
 
         // Convert to Course type
-        const course = rawCourse.course as Class;
+        const course = rawCourse.course as Course;
 
         // Create and save the course
         const newCourse = this.courseRepo.create(course);
@@ -133,7 +133,7 @@ export class CourseController {
             if ((key !in courseKeys)) return false;
         }
         // Make a Course object that is partial (all fields optional)
-        const courseTyped = course as Partial<Class>;
+        const courseTyped = course as Partial<Course>;
 
         // -- Required --
         if (typeof courseTyped.name !== "string" || courseTyped.name.trim() === "") return false;

@@ -1,10 +1,10 @@
 import type { Repository } from "typeorm";
 import { User } from "../Database/entities/User.js";
 import type { Request, Response } from "express";
-import { Class } from "../Database/entities/Class.js";
+import { Course } from "../Database/entities/Course.js";
 import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
-import type { UsersToClasses } from "../Database/entities/UsersToClasses.js";
+import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import type { Role } from "../Database/entities/Role.js";
 
 interface UserReturn {
@@ -25,7 +25,7 @@ interface UserReturn {
  */
 export class UserController {
     private userRepo: Repository<User>;
-    private courseRepo: Repository<Class>;
+    private courseRepo: Repository<Course>;
 
     /**
 	 * Creates an instance of UserController.
@@ -35,7 +35,7 @@ export class UserController {
 	 */
     constructor(appDataSource: DataSource) {
         this.userRepo = appDataSource.getRepository(User);
-        this.courseRepo = appDataSource.getRepository(Class);
+        this.courseRepo = appDataSource.getRepository(Course);
     }
 
 
@@ -328,7 +328,7 @@ export class UserController {
      * @param userData - The user data from the database
      * @returns The user data acceptable for a return
      */
-    private userReturn(userData: User & { courses?: UsersToClasses[]; role?: Role }): UserReturn {
+    private userReturn(userData: User & { courses?: UsersToCourses[]; role?: Role }): UserReturn {
         return {
             userId: userData.userId,
             name: userData.name,
@@ -342,7 +342,7 @@ export class UserController {
                 }
                 : undefined,
             courses: userData.courses
-                ? userData.courses.map((cls: UsersToClasses) => ({
+                ? userData.courses.map((cls: UsersToCourses) => ({
                     enrolledOn: cls.enrolledOn,
                     courseId: cls.classEntity.classId,
                     name: cls.classEntity.name,
