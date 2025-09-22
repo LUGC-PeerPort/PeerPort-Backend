@@ -1,7 +1,12 @@
 import express from "express";
+import YAML from "yamljs";
+import path from "path/win32";
+import swaggerUi from "swagger-ui-express";
 import { AppDataSource } from "./Database/DB.js";
 import { UserController } from "./Controllers/UserController.js";
 import { CourseController } from "./Controllers/CourseController.js";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const app = express();
 app.use(express.json());
@@ -30,6 +35,12 @@ AppDataSource.initialize().then(() => {
     app.post("/courses", (req, res) => courseController.createCourse(req, res));
     app.get("/courses/:id", (req, res) => courseController.getCourse(req, res));
 });
+
+// Setting up swagger
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000 at http://localhost:3000/");

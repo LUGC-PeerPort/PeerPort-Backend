@@ -8,7 +8,7 @@ info:
     email: aidenlortie@aol.com
     url: https://github.com/orgs/LUGC-PeerPort/
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:3000
     description: Local server
 
 paths:
@@ -25,7 +25,8 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/UserBasic'
+
     post:
       tags:
         - Users
@@ -35,14 +36,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserPost'
       responses:
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '409':
+          description: Conflict - Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
         '201':
           description: User created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserWithId'
+                
   /users/{userId}:
     get:
       tags:
@@ -61,9 +75,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserGet'
         '404':
-          description: User not found
+          description: User not found or invalid ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
     put:
       tags:
         - Users
@@ -72,6 +90,7 @@ paths:
         - name: userId
           in: path
           required: true
+          description: The ID of the user to update
           schema:
             type: string
             format: uuid
@@ -80,16 +99,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserBasic'
       responses:
         '200':
           description: User updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserWithId'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
         '404':
           description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
     delete:
       tags:
         - Users
@@ -106,6 +135,17 @@ paths:
           description: User deleted successfully
         '404':
           description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid user ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
   /users/{userId}/courses:
     get:
       tags:
@@ -127,15 +167,25 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Class'
+                  $ref: '#/components/schemas/CourseWithEnrolledDate'
+        '400':
+          description: Bad request - Invalid user ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
         '404':
-          description: User not found
+          description: User not found | Classes not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
   /users/{userId}/courses/{courseId}:
     get:
       tags:
         - Users
         - Courses
-      summary: Retrieve a specific class for a specific user
+      summary: Retrieve a specific course for a specific user
       parameters:
         - name: userId
           in: path
@@ -151,13 +201,23 @@ paths:
             format: uuid
       responses:
         '200':
-          description: A single class for the user
+          description: A single course for the user
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Class'
+                $ref: '#/components/schemas/CourseBasicWithEnrolledDate'
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
         '404':
-          description: User or class not found
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
 
   /courses:
     get:
@@ -172,29 +232,41 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Class'
+                  $ref: '#/components/schemas/CourseBasic'
     post:
       tags:
         - Courses
-      summary: Create a new class
+      summary: Create a new course for an instructor and adds them to that course
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Class'
+              $ref: '#/components/schemas/CoursePost'
       responses:
         '201':
-          description: Class created successfully
+          description: Course created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Class'
+                $ref: '#/components/schemas/CourseBasic'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User(instructor) not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
   /courses/{courseId}:
     get:
       tags:
         - Courses
-      summary: Retrieve a specific class by ID
+      summary: Retrieve a specific course by ID
       parameters:
         - name: courseId
           in: path
@@ -204,109 +276,195 @@ paths:
             format: uuid
       responses:
         '200':
-          description: A single class
+          description: A single course
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Class'
+                $ref: '#/components/schemas/CourseBasic'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
         '404':
-          description: Class not found
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
 
 
 
 components:
   schemas:
-    User:
+    UserBasic:
       type: object
+      required:
+        - name
+        - email
+        - idNumber
       properties:
-        userId:
-          type: string
-          format: uuid
-          description: Unique identifier for the user
         name:
           type: string
         email:
           type: string
           format: email
-        password:
-          type: string
-          format: password
         profilePictureUrl:
           type: string
           format: uri
           description: URL to the user's profile picture
-        institutionId:
+        idNumber:
           type: string
           description: Institution-specific ID number
-        role:
-          type: object
-          schema:
-            $ref: '#/components/schemas/Role'
-        classes:
-          type: array
-          items:
-            type: object
-            schema:
-              $ref: '#/components/schemas/Class'
-    Role:
+    UserWithId:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserBasic'
+        - type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+              description: Unique identifier for the user
+    UserGet:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserWithId'
+        - type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+              description: Unique identifier for the user
+            role:
+              type: object
+              nullable: true
+              $ref: '#/components/schemas/RoleBasic'
+            classes:
+              type: array
+              items:
+                $ref: '#/components/schemas/CourseWithEnrolledDate'
+    UserPost:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserBasic'
+        - type: object
+          required:
+            - password
+          properties:
+            password:
+              type: string
+              format: password
+              description: User's password (hashed in the database)
+      
+    RoleBasic:
       type: object
       properties:
-        roleId:
-          type: string
-          format: uuid
-          description: Unique Role Identifier
         name:
           type: string
           description: Name of the role (e.g., Student, Instructor, Admin)
-    Class:
+    RoleWithId:
+      type: object
+      allof:
+        - $ref: '#/components/schemas/RoleBasic'
+        - type: object
+          properties:
+            roleId:
+              type: string
+              format: uuid
+              description: Unique Role identifier
+
+    CourseBasic:
+      required:
+        - name
+        - courseCode
+        - isOpen
+        - startDate
       type: object
       properties:
         classId:
           type: string
           format: uuid
-          description: Unique Class Identifier
+          description: Unique Course Identifier
         name:
           type: string
-          description: Name of the class (e.g., Math 101)
+          description: Name of the course (e.g., Math 101)
         courseCode:
           type: string
           description: Course Code (e.g., MATH101)
         isOpen:
           type: boolean
-          description: False value if the class is archived / not active
+          description: False value if the course is archived / not active
         description:
           type: string
-          description: Description of the class
+          description: Description of the course
         startDate:
           type: string
           format: date
-          description: Start date of the class
+          description: Start date of the course
         endDate:
           type: string
           format: date
-          description: End date of the class
-        users:
-          type: array
-          items:
-            type: object
-            schema:
-              $ref: '#/components/schemas/UserToClasses'
-    UserToClasses:
+          description: End date of the course
+    CoursePost:
+      type: object
+      required:
+        - name
+        - courseCode
+        - userId
+      allOf:
+        - $ref: '#/components/schemas/CourseBasic'
+        - type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+              description: ID of the instructor creating the course
+
+    CourseWithEnrolledDate:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CourseBasic'
+        - type: object
+          properties:
+            enrolledOn:
+              type: string
+              format: date
+              description: Date when the User started the course
+
+    CourseWithUsers:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CourseBasic'
+        - type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserBasic'
+
+    UserToCourses:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: Unique identifier for the user-class relationship
+          description: Unique identifier for the user-course relationship
         enrolledOn:
           type: string
           format: date
-          description: Date when the user enrolled in the class
+          description: Date when the user enrolled in the course
         user:
           type: object
-          schema:
-            $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/User'
         classEntity:
           type: object
-          schema:
-            $ref: '#/components/schemas/Class'
+          $ref: '#/components/schemas/Course'
+  
+    BasicError:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message detailing what went wrong

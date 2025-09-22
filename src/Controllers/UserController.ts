@@ -1,15 +1,31 @@
 import type { Repository } from "typeorm";
 import { User } from "../Database/entities/User.js";
 import type { Request, Response } from "express";
-import { Class } from "../Database/entities/Course.js";
+import { Course } from "../Database/entities/Course.js";
 import type { DataSource } from "typeorm";
+import type { CourseReturn } from "./CourseController.js";
+import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import type { Role } from "../Database/entities/Role.js";
+
+interface UserReturn {
+    userId: string | undefined;
+    name: string;
+    email: string;
+    profilePictureUrl: string | null;
+    idNumber: string;
+    role: {
+        roleId: string | undefined;
+        name: string;
+    } | undefined;
+    courses: (CourseReturn & { enrolledOn: Date | string })[] | [] | undefined;
+};
 
 /**
  * Used to handle user related requests
  */
 export class UserController {
     private userRepo: Repository<User>;
-    private courseRepo: Repository<Class>;
+    private courseRepo: Repository<Course>;
 
     /**
 	 * Creates an instance of UserController.
@@ -19,7 +35,7 @@ export class UserController {
 	 */
     constructor(appDataSource: DataSource) {
         this.userRepo = appDataSource.getRepository(User);
-        this.courseRepo = appDataSource.getRepository(Class);
+        this.courseRepo = appDataSource.getRepository(Course);
     }
 
 
@@ -30,7 +46,10 @@ export class UserController {
 	 */
     async getAllUsers(req: Request, res: Response): Promise<void> {
         const users = await this.userRepo.find();
-        res.json(users);
+
+        // Generate the reurn value
+        const usersReturn = users.map((user) => this.userReturn(user)); 
+        res.status(200).json(usersReturn);
     }
 
     /**
@@ -65,8 +84,11 @@ export class UserController {
         const user = this.userRepo.create(userStructure);
         const result = await this.userRepo.save(user);
 
+        // Convert to return type
+        const userReturn = this.userReturn(result);
+
         // Respond with the created user
-        res.status(201).json(result);
+        res.status(201).json(userReturn);
     }
 
 
@@ -77,19 +99,29 @@ export class UserController {
      * @param res - The Response object
      */
     async getProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUserId(req.params.id);
+        const userID = this.checkUUID(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
 
         // Get the profile from the database
-        const user = await this.userRepo.findOneBy({ userId: userID });
+        const user = await this.userRepo
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.role", "role")
+            .leftJoinAndSelect("user.courses", "class")
+            .leftJoinAndSelect("class.course", "course")
+            .where("user.userId = :id", { id: userID })
+            .getOne();
         if (!user) {
             res.status(404).json({ message: "User not found" });
             return;
         }
-        res.status(200).json(user);
+
+        // Make the return object
+        const userReturn = this.userReturn(user);
+
+        res.status(200).json(userReturn);
     }
 
     /**
@@ -98,7 +130,7 @@ export class UserController {
      * @param res - The Response object
      */
     async updateProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUserId(req.params.id);
+        const userID = this.checkUUID(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -129,7 +161,10 @@ export class UserController {
         user.profilePictureUrl = userStructure.profilePictureUrl ?? user.profilePictureUrl;
 
         const result = await this.userRepo.save(user);
-        res.status(200).json(result);
+
+        // Parse the user return to the appropriate value
+        const userResult = this.userReturn(result);
+        res.status(200).json(userResult);
     }
     
     /**
@@ -138,7 +173,7 @@ export class UserController {
      * @param res - The Response object
      */
     async deleteProfile(req: Request, res: Response): Promise<void> {
-        const userID = await this.checkUserId(req.params.id);
+        const userID = this.checkUUID(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -157,26 +192,30 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourses(req: Request, res: Response): Promise<void> {
-        const userID = await this.checkUserId(req.params.id);
+        const userID = this.checkUUID(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
 
         // Get the profile from the database
-        const classes = await this.userRepo
+        const userData = await this.userRepo
             .createQueryBuilder("user")
-            .leftJoinAndSelect("user.classes", "class")
-            .leftJoinAndSelect("class.classEntity", "course")
+            .leftJoinAndSelect("user.courses", "class")
+            .leftJoinAndSelect("class.course", "course")
             .where("user.userId = :id", { id: userID })
             .getOne();
             
-        if (!classes) {
-            res.status(404).json({ message: "Classes not found" });
+        if (!userData) {
+            res.status(404).json({ message: "Courses not found" });
             return;
         }
 
-        res.json(classes.classes);
+        // Parse the return and only get the courses
+        const userReturn = this.userReturn(userData);
+        const courses = userReturn.courses ?? [];
+
+        res.status(200).json(courses);
     }
 
     /**
@@ -185,21 +224,25 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
-        const userID = await this.checkUserId(req.params.id);
+        const userID = this.checkUUID(req.params.id);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
 
-        const courseID = await this.checkCourseId(req.params.courseId);
+        const courseID = this.checkUUID(req.params.courseId);
         if (courseID == undefined) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
 
         // Get the course from the DB
-        const course = await this.courseRepo.findOneBy({ classId: courseID });
-        res.json(course);
+        const course = await this.courseRepo.findOneBy({ courseId: courseID });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+        res.status(200).json(course);
     }
 
     
@@ -262,11 +305,11 @@ export class UserController {
     }
 
     /**
-     * Checks if the userID is valid as is in use
-     * @param id - The users UUID
+     * Checks if the UUID is valid
+     * @param id - The  UUID
      * @returns The UUID if valid, undefined otherwise
      */
-    private checkUserId(id: string): string | void {
+    private checkUUID(id: string): string | void {
         const userID = id.trim();
 
         // Check if the ID has content
@@ -279,18 +322,37 @@ export class UserController {
         return userID;
     }
 
+    
     /**
-     * Checks if the courseID is valid or in use
-     * @param id - The UUID of the course
-     * @returns The UUID if valid, undefined otherwise
+     * Parses the user data and make it an aceptable return value
+     * @param userData - The user data from the database
+     * @returns The user data acceptable for a return
      */
-    private async checkCourseId(id: string): Promise<string | void> {
-        const courseID = id.trim();
-        if (courseID.length < 10) return;
-
-        // Check if a course has that ID
-        const course = await this.courseRepo.findOneBy({ classId: courseID });
-        if (!course) return;
-        return courseID;
+    private userReturn(userData: User & { courses?: UsersToCourses[]; role?: Role }): UserReturn {
+        return {
+            userId: userData.userId,
+            name: userData.name,
+            email: userData.email,
+            profilePictureUrl: userData.profilePictureUrl ?? null,
+            idNumber: userData.idNumber,
+            role: userData.role
+                ? {
+                    roleId: userData.role.roleId,
+                    name: userData.role.name,
+                }
+                : undefined,
+            courses: userData.courses
+                ? userData.courses.map((cls: UsersToCourses) => ({
+                    enrolledOn: cls.enrolledOn,
+                    courseId: cls.course.courseId,
+                    name: cls.course.name,
+                    courseCode: cls.course.courseCode,
+                    isOpen: cls.course.isOpen,
+                    description: cls.course.description ?? null,
+                    startDate: cls.course.startDate ?? null,
+                    endDate: cls.course.endDate ?? null,
+                }))
+                : [],
+        };
     }
 }
