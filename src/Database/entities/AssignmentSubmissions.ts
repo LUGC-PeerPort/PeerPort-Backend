@@ -5,7 +5,7 @@ import { User } from "./User.js";
 
 
 /**
- *
+ * The submission to an assignment made by a user
  */
 @Entity("AssignmentSubmissions")
 export class AssignmentSubmissions {

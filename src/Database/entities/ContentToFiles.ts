@@ -4,7 +4,7 @@ import { Content } from "./Content.js";
 
 
 /**
- *
+ * The link between the content and the files
  */
 @Entity("ContentToFiles")
 export class ContentToFiles {

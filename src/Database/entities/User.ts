@@ -3,7 +3,7 @@ import { Role } from "./Role.js";
 import { UsersToCourses } from "./UsersToCourses.js";
 
 /**
- *
+ * The users details
  */
 @Entity("Users")
 export class User {

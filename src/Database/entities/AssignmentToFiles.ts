@@ -4,7 +4,7 @@ import { Assignments } from "./Assignments.js";
 
 
 /**
- *
+ * The link between the assingment and the files
  */
 @Entity("AssignmentToFiles")
 export class AssignmentToFiles {

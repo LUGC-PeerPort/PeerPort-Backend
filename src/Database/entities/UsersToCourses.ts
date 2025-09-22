@@ -4,7 +4,7 @@ import { User } from "./User.js";
 
 
 /**
- *
+ * The link between the users and the courses
  */
 @Entity("UsersToCourses")
 export class UsersToCourses {
