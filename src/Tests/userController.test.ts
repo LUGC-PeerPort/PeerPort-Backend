@@ -684,9 +684,17 @@ describe("UserController test:", () => {
         });
 
         it("Should not get a course for a user with an invalid course ID", async () => {
+            // Make a user
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
             const req: any = {
                 params: {
-                    id: "123e4567-e89b-12d3-a456-426614174000",
+                    id: user.userId,
                     courseId: "invalid-uuid"
                 }
             };
@@ -732,7 +740,7 @@ describe("UserController test:", () => {
             await controller.getCourse(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: "User is not enrolled in this course" });
+            expect(res.json).toHaveBeenCalledWith({ message: "Course not found for user" });
         });
 
         it("Should get a course for a user that is enrolled in the course", async () => {
