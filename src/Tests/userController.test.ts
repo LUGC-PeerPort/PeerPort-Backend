@@ -179,6 +179,34 @@ describe("UserController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
         });
 
+        it("Should not create a user when the samil email already exists", async () => {
+            // First, create a user
+            await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+            });
+
+            const req: any = {
+                body: {
+                    name: "Another User",
+                    email: "testuser@example.com",
+                    password: "anotherpassword",
+                    profilePictureUrl: "",
+                    idNumber: "987654321smth",
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.create(req, res);
+            expect(res.status).toHaveBeenCalledWith(409);
+            expect(res.json).toHaveBeenCalledWith({ message: "Email already in use" });
+        });
+
         it("Should create a user with valid data", async () => {
             const req: any = {
                 body: {
