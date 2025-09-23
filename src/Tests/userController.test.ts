@@ -14,7 +14,9 @@ describe("UserController test:", () => {
 
     beforeEach(async () => {
         // Clear users before each test
+        await TestDataSource.getRepository("UsersToCourses").clear();
         await TestDataSource.getRepository("User").clear();
+        await TestDataSource.getRepository("Course").clear();
     });
 
     afterAll(async () => {
@@ -177,6 +179,34 @@ describe("UserController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
         });
 
+        it("Should not create a user when the same email already exists", async () => {
+            // First, create a user
+            await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+            });
+
+            const req: any = {
+                body: {
+                    name: "Another User",
+                    email: "testuser@example.com",
+                    password: "anotherpassword",
+                    profilePictureUrl: "",
+                    idNumber: "987654321smth",
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.create(req, res);
+            expect(res.status).toHaveBeenCalledWith(409);
+            expect(res.json).toHaveBeenCalledWith({ message: "Email already in use" });
+        });
+
         it("Should create a user with valid data", async () => {
             const req: any = {
                 body: {
@@ -198,10 +228,12 @@ describe("UserController test:", () => {
                 userId: expect.any(String),
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             }));
+            
+            // Ensure password is not returned in the response
+            expect(res.json.mock.calls[0][0].password).toBeUndefined();
 
             // Verify that the user was actually created in the database
             const user = await TestDataSource.getRepository("User").findOneBy({ email: "testuser@example.com" });
@@ -213,8 +245,6 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
             });
         });
     });
@@ -278,11 +308,72 @@ describe("UserController test:", () => {
                 userId: user.userId,
                 name: "Test User",
                 email: "testuser@example.com",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+                role: {
+                    name: "student"
+                },
+                courses: [],
+            }));
+        });
+
+        it("Should get a user and their courses", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
+            });
+
+            // Then, create a course for the user
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "Test Course",
+                courseCode: "TC101",
+                isOpen: true,
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+            });
+
+            // Enroll the user in the course
+            const enrolledData = await TestDataSource.getRepository("UsersToCourses").save({
+                user: user,
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    id: user.userId
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getProfile(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                userId: user.userId,
+                name: "Test User",
+                email: "testuser@example.com",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+                role: {
+                    name: "student"
+                },
+                courses: [expect.objectContaining({
+                    courseId: course.courseId,
+                    name: "Test Course",
+                    courseCode: "TC101",
+                    isOpen: true,
+                    description: "This is a test course",
+                    startDate: "2023-01-01",
+                    endDate: "2023-06-01",
+                    enrolledOn: enrolledData.enrolledOn,
+                })],
             }));
         });
     });
@@ -410,12 +501,11 @@ describe("UserController test:", () => {
                 userId: user.userId,
                 name: "Updated User",
                 email: "updateduser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
             }));
+            // Ensure password is not returned in the response
+            expect(res.json.mock.calls[0][0].password).toBeUndefined();
 
             // Verify that the user was actually updated in the database
             const updatedUser = await TestDataSource.getRepository("User").findOneBy({ userId: user.id });
@@ -427,8 +517,6 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
-                role: undefined,
-                classes: undefined,
             });
         });
     });
@@ -477,6 +565,208 @@ describe("UserController test:", () => {
             // Verify that the user was actually deleted from the database
             const deletedUser = await TestDataSource.getRepository("User").findOneBy({ userId: user.id });
             expect(deletedUser).toBeNull();
+        });
+    });
+
+    describe("Get a user's courses from the database", () => {
+        it("Should not get courses for a user with an invalid ID", async () => {
+            const req: any = {
+                params: {
+                    id: "invalid-uuid"
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
+        });
+
+        it("Should not get courses for a user that does not exist", async () => {
+            const req: any = {
+                params: {
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+        });
+
+        it("Should get courses for a user that does exist", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
+
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "Test Course",
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+                isOpen: true,
+                courseCode: "TC101",
+            });
+
+            const linkData = await TestDataSource.getRepository("UsersToCourses").save({
+                user: user,
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    id: user.userId
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([{ ...course, enrolledOn: linkData.enrolledOn }]);
+        });
+    });
+
+    describe("Get a user's course from the database", () => {
+        it("Should not get a course for a user with an invalid user ID", async () => {
+            const req: any = {
+                params: {
+                    id: "invalid-uuid",
+                    courseId: "123e4567-e89b-12d3-a456-426614174000"
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
+        });
+
+        it("Should not get a course for a user that does not exist", async () => {
+            const req: any = {
+                params: {
+                    id: "123e4567-e89b-12d3-a456-426614174000",
+                    courseId: "123e4567-e89b-12d3-a456-426614174000"
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+        });
+
+        it("Should not get a course for a user with an invalid course ID", async () => {
+            const req: any = {
+                params: {
+                    id: "123e4567-e89b-12d3-a456-426614174000",
+                    courseId: "invalid-uuid"
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
+        });
+
+        it("Should not get a course for a user that is not enrolled in the course", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
+
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "Test Course",
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+                isOpen: true,
+                courseCode: "TC101",
+            });
+
+            const req: any = {
+                params: {
+                    id: user.userId,
+                    courseId: course.courseId
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "User is not enrolled in this course" });
+        });
+
+        it("Should get a course for a user that is enrolled in the course", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
+
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "Test Course",
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+                isOpen: true,
+                courseCode: "TC101",
+            });
+
+            // Enroll the user in the course
+            const linkData = await TestDataSource.getRepository("UsersToCourses").save({
+                user: user,
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    id: user.userId,
+                    courseId: course.courseId
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ ...course, enrolledOn: linkData.enrolledOn });
         });
     });
 });
