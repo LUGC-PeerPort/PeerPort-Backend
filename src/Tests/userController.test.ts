@@ -564,4 +564,77 @@ describe("UserController test:", () => {
             expect(deletedUser).toBeNull();
         });
     });
+
+    describe("Get a users courses from the database", () => {
+        it("Should not get courses for a user with an invalid ID", async () => {
+            const req: any = {
+                params: {
+                    id: "invalid-uuid"
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
+        });
+
+        it("Should not get courses for a user that does not exist", async () => {
+            const req: any = {
+                params: {
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+        });
+
+        it("Should get courses for a user that does exist", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
+
+            const course = await TestDataSource.getRepository("Course").save({
+                title: "Test Course",
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+                isOpen: true,
+                courseCode: "TC101",
+            });
+
+            await TestDataSource.getRepository("UsersToCourses").save({
+                user: user,
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    id: user.userId
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ courses: [course] });
+        });
+    });
 });
