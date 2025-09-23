@@ -179,7 +179,7 @@ describe("UserController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
         });
 
-        it("Should not create a user when the samil email already exists", async () => {
+        it("Should not create a user when the same email already exists", async () => {
             // First, create a user
             await TestDataSource.getRepository("User").save({
                 name: "Test User",
@@ -231,6 +231,9 @@ describe("UserController test:", () => {
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             }));
+            
+            // Ensure password is not returned in the response
+            expect(res.json.mock.calls[0][0].password).toBeUndefined();
 
             // Verify that the user was actually created in the database
             const user = await TestDataSource.getRepository("User").findOneBy({ email: "testuser@example.com" });
@@ -501,6 +504,8 @@ describe("UserController test:", () => {
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             }));
+            // Ensure password is not returned in the response
+            expect(res.json.mock.calls[0][0].password).toBeUndefined();
 
             // Verify that the user was actually updated in the database
             const updatedUser = await TestDataSource.getRepository("User").findOneBy({ userId: user.id });
@@ -563,7 +568,7 @@ describe("UserController test:", () => {
         });
     });
 
-    describe("Get a users courses from the database", () => {
+    describe("Get a user's courses from the database", () => {
         it("Should not get courses for a user with an invalid ID", async () => {
             const req: any = {
                 params: {
@@ -636,7 +641,7 @@ describe("UserController test:", () => {
         });
     });
 
-    describe("Get a users course from the database", () => {
+    describe("Get a user's course from the database", () => {
         it("Should not get a course for a user with an invalid user ID", async () => {
             const req: any = {
                 params: {
