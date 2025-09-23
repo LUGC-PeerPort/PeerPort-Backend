@@ -14,7 +14,6 @@ interface UserReturn {
     profilePictureUrl: string | null;
     idNumber: string;
     role: {
-        roleId: string | undefined;
         name: string;
     } | undefined;
     courses: (CourseReturn & { enrolledOn: Date | string })[] | [] | undefined;
@@ -63,7 +62,6 @@ export class UserController {
         // Check user structure
         const userStructureUnknown = req.body as unknown;
         if (!this.checkUserStructure(userStructureUnknown)) {
-            console.log("invalid user structure", userStructureUnknown);
             res.status(400).json({ message: "Invalid user structure" });
             return;
         }
@@ -153,7 +151,6 @@ export class UserController {
         // Check user structure
         const userStructureUnknown = req.body as unknown;
         if (!this.checkUserStructure(userStructureUnknown, true)) {
-            console.log("invalid user structure");
             res.status(400).json({ message: "Invalid user structure" });
             return;
         }
@@ -212,6 +209,12 @@ export class UserController {
             return;
         }
 
+        const user = await this.userRepo.findOneBy({ userId: userID });
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
         // Get the profile from the database
         const userData = await this.userRepo
             .createQueryBuilder("user")
@@ -226,8 +229,9 @@ export class UserController {
         }
 
         // Parse the return and only get the courses
-        const userReturn = this.userReturn(userData);
-        const courses = userReturn.courses ?? [];
+        const courses = userData.courses?.map((cls: UsersToCourses) => {
+            return this.courseReturn({ ...cls.course, enrolledOn: cls.enrolledOn } as Course & {enrolledOn: string});
+        }) ?? [];
 
         res.status(200).json(courses);
     }
@@ -244,19 +248,38 @@ export class UserController {
             return;
         }
 
+        const user = await this.userRepo.findOneBy({ userId: userID });
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
         const courseID = this.checkUUID(req.params.courseId);
         if (courseID == undefined) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
 
-        // Get the course from the DB
-        const course = await this.courseRepo.findOneBy({ courseId: courseID });
-        if (!course) {
-            res.status(404).json({ message: "Course not found" });
+        // Get the course from the user
+        const userData = await this.userRepo
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.courses", "class")
+            .leftJoinAndSelect("class.course", "course")
+            .where("user.userId = :userId", { userId: userID })
+            .andWhere("class.courseId = :courseId", { courseId: courseID })
+            .getOne();
+        if (!userData || !userData.courses || userData.courses.length === 0) {
+            res.status(404).json({ message: "Course not found for user" });
             return;
         }
-        res.status(200).json(course);
+
+        if (userData.courses.length > 1) {
+            console.log("Warning: User is enrolled in the same course multiple times");
+        }
+
+        // Parse the course to the return type
+        const courseData = this.courseReturn({ ...userData.courses[0].course, enrolledOn: userData.courses[0].enrolledOn } as Course & {enrolledOn: string});
+        res.status(200).json(courseData);
     }
 
     
@@ -354,7 +377,6 @@ export class UserController {
             idNumber: userData.idNumber,
             role: userData.role
                 ? {
-                    roleId: userData.role.roleId,
                     name: userData.role.name,
                 }
                 : undefined,
@@ -370,6 +392,24 @@ export class UserController {
                     endDate: cls.course.endDate ?? null,
                 }))
                 : [],
+        };
+    }
+
+    /**
+     * Parses the course data and make it an aceptable return value
+     * @param courseData - The course data from the database
+     * @returns The course data acceptable for a return
+     */
+    private courseReturn(courseData: Course & {enrolledOn: string }): CourseReturn & {enrolledOn: string} {
+        return {
+            courseId: courseData.courseId,
+            name: courseData.name,
+            courseCode: courseData.courseCode,
+            isOpen: courseData.isOpen,
+            description: courseData.description ?? null,
+            startDate: courseData.startDate,
+            endDate: courseData.endDate ?? null,
+            enrolledOn: courseData.enrolledOn,
         };
     }
 }
