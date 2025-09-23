@@ -283,6 +283,9 @@ describe("UserController test:", () => {
         });
 
         it("Should get a user that does exist", async () => {
+            // Get the role to assign to the user
+            const role = await TestDataSource.getRepository("Role").findOneBy({ name: "student" });
+            
             // First, create a user to get
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
@@ -290,6 +293,7 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
+                role: role,
             });
 
             const req: any = {
@@ -318,6 +322,8 @@ describe("UserController test:", () => {
         });
 
         it("Should get a user and their courses", async () => {
+            // Get the role to assign to the user
+            const role = await TestDataSource.getRepository("Role").findOneBy({ name: "student" });
             // First, create a user to get
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
@@ -325,6 +331,7 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
+                role: role,
             });
 
             // Then, create a course for the user
