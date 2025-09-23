@@ -5,7 +5,7 @@ import { Course } from "../Database/entities/Course.js";
 import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
-import type { Role } from "../Database/entities/Role.js";
+import { Role } from "../Database/entities/Role.js";
 
 interface UserReturn {
     userId: string | undefined;
@@ -26,6 +26,7 @@ interface UserReturn {
 export class UserController {
     private userRepo: Repository<User>;
     private courseRepo: Repository<Course>;
+    private roleRepo: Repository<Role>;
 
     /**
 	 * Creates an instance of UserController.
@@ -36,6 +37,7 @@ export class UserController {
     constructor(appDataSource: DataSource) {
         this.userRepo = appDataSource.getRepository(User);
         this.courseRepo = appDataSource.getRepository(Course);
+        this.roleRepo = appDataSource.getRepository(Role);
     }
 
 
@@ -83,6 +85,18 @@ export class UserController {
         // Create and save the user
         const user = this.userRepo.create(userStructure);
         const result = await this.userRepo.save(user);
+
+        // add the student role to the newly created user
+        const studentRole = await this.roleRepo.findOneBy({ name: "student" });
+        if (studentRole) {
+            result.role = studentRole;
+            await this.userRepo.save(result);
+        } else {
+            // Could possibly change this to auto create it if it doesn't exist yet
+            console.log("Student role not found");
+            res.status(500).json({ message: "Internal server error" });
+            return;
+        }
 
         // Convert to return type
         const userReturn = this.userReturn(result);
@@ -310,6 +324,9 @@ export class UserController {
      * @returns The UUID if valid, undefined otherwise
      */
     private checkUUID(id: string): string | void {
+        if (id == undefined) return;
+
+        // Trim the string
         const userID = id.trim();
 
         // Check if the ID has content
