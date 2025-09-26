@@ -24,18 +24,14 @@ interface UserReturn {
  */
 export class UserController {
     private userRepo: Repository<User>;
-    private courseRepo: Repository<Course>;
     private roleRepo: Repository<Role>;
 
     /**
 	 * Creates an instance of UserController.
-	 * @param UserRepo - The user repository from TypeORM
-	 * @param ClassRepo
-	 * @param appDataSource
+	 * @param appDataSource - The TypeORM DataSource
 	 */
     constructor(appDataSource: DataSource) {
         this.userRepo = appDataSource.getRepository(User);
-        this.courseRepo = appDataSource.getRepository(Course);
         this.roleRepo = appDataSource.getRepository(Role);
     }
 
@@ -48,8 +44,8 @@ export class UserController {
     async getAllUsers(req: Request, res: Response): Promise<void> {
         const users = await this.userRepo.find();
 
-        // Generate the reurn value
-        const usersReturn = users.map((user) => this.userReturn(user)); 
+        // Generate the return value
+        const usersReturn = users.map((user) => this.userReturn(user));
         res.status(200).json(usersReturn);
     }
 
@@ -364,7 +360,7 @@ export class UserController {
 
     
     /**
-     * Parses the user data and make it an aceptable return value
+     * Parses the user data and make it an acceptable return value
      * @param userData - The user data from the database
      * @returns The user data acceptable for a return
      */
@@ -396,7 +392,7 @@ export class UserController {
     }
 
     /**
-     * Parses the course data and make it an aceptable return value
+     * Parses the course data and make it an acceptable return value
      * @param courseData - The course data from the database
      * @returns The course data acceptable for a return
      */
