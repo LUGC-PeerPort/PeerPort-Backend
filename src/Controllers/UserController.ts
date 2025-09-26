@@ -1,7 +1,7 @@
 import type { Repository } from "typeorm";
 import { User } from "../Database/entities/User.js";
 import type { Request, Response } from "express";
-import { Course } from "../Database/entities/Course.js";
+import type { Course } from "../Database/entities/Course.js";
 import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
@@ -45,7 +45,12 @@ export class UserController {
         const users = await this.userRepo.find();
 
         // Generate the return value
-        const usersReturn = users.map((user) => this.userReturn(user));
+        const usersReturn = users.map((user) => {
+            const userData = this.userReturn(user);
+            delete userData.courses;
+            delete userData.role;
+            return userData;
+        });
         res.status(200).json(usersReturn);
     }
 
