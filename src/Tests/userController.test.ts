@@ -23,6 +23,44 @@ describe("UserController test:", () => {
         await TestDataSource.destroy();
     });
 
+    describe("Getting all users from the database", () => {
+        it("Should get an empty array when there are no users", async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAllUsers(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([]);
+        });
+
+        it("Should get an array of users when there are users", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAllUsers(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([expect.objectContaining({
+                userId: user.userId,
+                name: "Test User",
+                email: "testuser@example.com",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+            })]);
+        });
+    });
+
     describe("Create a user in the database", () => {
         it("Should not create a user with an invalid structure", async () => {
             const req: any = {
