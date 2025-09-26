@@ -114,6 +114,11 @@ export class CourseController {
         res.status(200).json(courseReturn);
     }
 
+    /**
+     * Updates a course by ID
+     * @param req - The Request object
+     * @param res - The Response object
+     */
     async updateCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
         const courseId = req.params.id;
@@ -150,6 +155,11 @@ export class CourseController {
         res.status(200).json(this.courseReturn(course));
     }
 
+    /**
+     * Deletes a course by ID
+     * @param req - The Request object
+     * @param res - The Response object
+     */
     async deleteCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
         const courseId = req.params.id;
