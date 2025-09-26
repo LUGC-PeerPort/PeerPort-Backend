@@ -58,8 +58,8 @@ export class CourseController {
         }
 
         // Convert to Course type
+        const userId = (courseUnknown as Course & { userId: string }).userId;
         const courseStructure = courseUnknown as Course;
-        const userId = (courseUnknown as any).userId;
         if (typeof userId !== "string" || userId.trim() === "") {
             res.status(400).json({ message: "Invalid user ID" });
             return;
