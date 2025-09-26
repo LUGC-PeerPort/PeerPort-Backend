@@ -397,7 +397,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserToCourses'
+                type: string
+                properties:
+                  message:
+                    type: string
+                    example: User enrolled in course
         '400':
           description: Bad request - Invalid user ID or course ID format
           content:
