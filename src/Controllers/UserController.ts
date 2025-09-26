@@ -208,13 +208,7 @@ export class UserController {
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
-        }
-
-        const user = await this.userRepo.findOneBy({ userId: userID });
-        if (!user) {
-            res.status(404).json({ message: "User not found" });
-            return;
-        }
+        }        
 
         // Get the profile from the database
         const userData = await this.userRepo
@@ -223,12 +217,12 @@ export class UserController {
             .leftJoinAndSelect("class.course", "course")
             .where("user.userId = :id", { id: userID })
             .getOne();
-            
+        
         if (!userData) {
-            res.status(404).json({ message: "Courses not found" });
+            res.status(404).json({ message: "User not found" });
             return;
         }
-
+        
         // Parse the return and only get the courses
         const courses = userData.courses?.map((cls: UsersToCourses) => {
             return this.courseReturn({ ...cls.course, enrolledOn: cls.enrolledOn } as Course & {enrolledOn: string});
