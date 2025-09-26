@@ -133,6 +133,14 @@ paths:
       responses:
         '204':
           description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted
         '404':
           description: User not found
           content:
@@ -289,6 +297,77 @@ paths:
                 $ref: '#/components/schemas/BasicError'
         '404':
           description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    put:
+      tags:
+        - Courses
+      summary: Update a specific course by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: The ID of the course to update
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseBasic'
+      responses:
+        '200':
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseBasic'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Courses
+      summary: Delete a specific course by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Course deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Course deleted
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid course ID format
           content:
             application/json:
               schema:
@@ -456,11 +535,9 @@ components:
           format: date
           description: Date when the user enrolled in the course
         user:
-          type: object
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/UserBasic'
         classEntity:
-          type: object
-          $ref: '#/components/schemas/Course'
+          $ref: '#/components/schemas/CourseBasic'
   
     BasicError:
       type: object
