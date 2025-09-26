@@ -140,7 +140,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: User deleted
+                    example: User deleted successfully
         '404':
           description: User not found
           content:
