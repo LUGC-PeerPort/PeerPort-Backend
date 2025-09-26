@@ -205,7 +205,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CourseBasicWithEnrolledDate'
+                $ref: '#/components/schemas/CourseWithEnrolledDate'
         '400':
           description: Bad request - Invalid user ID or course ID format
           content:
@@ -366,7 +366,7 @@ components:
           description: Name of the role (e.g., Student, Instructor, Admin)
     RoleWithId:
       type: object
-      allof:
+      allOf:
         - $ref: '#/components/schemas/RoleBasic'
         - type: object
           properties:
