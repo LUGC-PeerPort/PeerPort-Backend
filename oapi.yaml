@@ -464,8 +464,6 @@ components:
               format: uuid
               description: Unique identifier for the user
             role:
-              type: object
-              nullable: true
               $ref: '#/components/schemas/RoleBasic'
             classes:
               type: array
