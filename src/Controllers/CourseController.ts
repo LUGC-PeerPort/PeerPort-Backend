@@ -83,12 +83,21 @@ export class CourseController {
         });
         await this.usersToCoursesRepo.save(usersToCourses);
 
+        // Save the connection in the course entity
+        courseResult.users.push(usersToCourses);
+        await this.courseRepo.save(courseResult);
+
+        // Save the connection in the user entity
+        if (!user.courses) user.courses = [];
+        user.courses.push(usersToCourses);
+        await this.userRepo.save(user);
+
         // Connect the user to the course
         const courseReturn = this.courseReturn(courseResult);
         res.status(201).json(courseReturn);
     }
 
-    // /api/v1/courses/:id
+    // /api/v1/courses/:courseId
     /**
      * Gets a course by ID
      * @param req - The Request object
@@ -96,7 +105,7 @@ export class CourseController {
      */
     async getCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
-        const courseId = req.params.id;
+        const courseId = req.params.courseId;
         if (!this.checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -121,7 +130,7 @@ export class CourseController {
      */
     async updateCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
-        const courseId = req.params.id;
+        const courseId = req.params.courseId;
         if (!this.checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -162,7 +171,7 @@ export class CourseController {
      */
     async deleteCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
-        const courseId = req.params.id;
+        const courseId = req.params.courseId;
         if (!this.checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -178,6 +187,66 @@ export class CourseController {
         // Delete the course
         await this.courseRepo.remove(course);
         res.status(204).json({ message: "Course deleted" });
+    }
+
+    // /api/v1/courses/:courseId/enroll/:userId
+    /**
+     * Enrolls a user in a course
+     * @param req - The Request object
+     * @param res - The Response object
+     */
+    async enrollUserInCourse(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseId = req.params.courseId;
+        if (!this.checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+        
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check user ID
+        const userId = req.params.userId;
+        if (!this.checkUUID(userId)) {
+            res.status(400).json({ message: "Invalid user ID" });
+            return;
+        }
+
+        // Check if user exists
+        const user = await this.userRepo.findOneBy({ userId: userId });
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        // Enroll user in course
+        // Check if the user is already enrolled
+        const existingEnrollment = await this.usersToCoursesRepo.findOneBy({ user: { userId: userId }, course: { courseId: courseId } });
+        if (existingEnrollment) {
+            res.status(409).json({ message: "User is already enrolled in this course" });
+            return;
+        }
+
+        // Enroll user in course
+        const userToCourse = this.usersToCoursesRepo.create({ user: user, course: course });
+        await this.usersToCoursesRepo.save(userToCourse);
+
+        // Save the connection in the course entity
+        course.users.push(userToCourse);
+        await this.courseRepo.save(course);
+
+        // Save the connection in the user entity
+        if (!user.courses) user.courses = [];
+        user.courses.push(userToCourse);
+        await this.userRepo.save(user);
+
+        // Send response
+        res.status(201).json({ message: "User enrolled in course" });
     }
 
 

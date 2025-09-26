@@ -372,7 +372,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
+  /courses/{courseId}/enroll/{userId}:
+    post:
+      tags:
+        - Courses
+        - Users
+      summary: Enroll a user in a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: User enrolled in course successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserToCourses'
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '409':
+          description: Conflict - User already enrolled in the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
 
 
 components:
