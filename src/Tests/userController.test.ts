@@ -41,7 +41,7 @@ describe("UserController test:", () => {
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
-                profilePictureUrl: null,
+                profilePictureUrl: "",
                 idNumber: "123456789smth",
             });
             const req: any = {};
