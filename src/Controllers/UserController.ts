@@ -193,7 +193,7 @@ export class UserController {
         
         // Delete the user
         await this.userRepo.delete(userID);
-        res.status(204).json({ message: "User deleted" });
+        res.status(204).json({ message: "User deleted successfully" });
     }
 
 
