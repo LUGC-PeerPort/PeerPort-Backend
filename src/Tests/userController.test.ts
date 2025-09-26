@@ -23,6 +23,44 @@ describe("UserController test:", () => {
         await TestDataSource.destroy();
     });
 
+    describe("Getting all users from the database", () => {
+        it("Should get an empty array when there are no users", async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAllUsers(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([]);
+        });
+
+        it("Should get an array of users when there are users", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAllUsers(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([expect.objectContaining({
+                userId: user.userId,
+                name: "Test User",
+                email: "testuser@example.com",
+                profilePictureUrl: null,
+                idNumber: "123456789smth",
+            })]);
+        });
+    });
+
     describe("Create a user in the database", () => {
         it("Should not create a user with an invalid structure", async () => {
             const req: any = {
@@ -283,6 +321,9 @@ describe("UserController test:", () => {
         });
 
         it("Should get a user that does exist", async () => {
+            // Get the role to assign to the user
+            const role = await TestDataSource.getRepository("Role").findOneBy({ name: "student" });
+            
             // First, create a user to get
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
@@ -290,6 +331,7 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
+                role: role,
             });
 
             const req: any = {
@@ -318,6 +360,8 @@ describe("UserController test:", () => {
         });
 
         it("Should get a user and their courses", async () => {
+            // Get the role to assign to the user
+            const role = await TestDataSource.getRepository("Role").findOneBy({ name: "student" });
             // First, create a user to get
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
@@ -325,6 +369,7 @@ describe("UserController test:", () => {
                 password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
+                role: role,
             });
 
             // Then, create a course for the user
@@ -677,9 +722,17 @@ describe("UserController test:", () => {
         });
 
         it("Should not get a course for a user with an invalid course ID", async () => {
+            // Make a user
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
             const req: any = {
                 params: {
-                    id: "123e4567-e89b-12d3-a456-426614174000",
+                    id: user.userId,
                     courseId: "invalid-uuid"
                 }
             };
@@ -725,7 +778,7 @@ describe("UserController test:", () => {
             await controller.getCourse(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: "User is not enrolled in this course" });
+            expect(res.json).toHaveBeenCalledWith({ message: "Course not found for user" });
         });
 
         it("Should get a course for a user that is enrolled in the course", async () => {
