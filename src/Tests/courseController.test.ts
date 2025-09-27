@@ -1,6 +1,5 @@
 import { TestDataSource } from "./test-data-source.js";
 import { CourseController } from "../Controllers/CourseController.js";
-import { start } from "repl";
 
 describe("CourseController test:", () => {
     let controller: CourseController;
