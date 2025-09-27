@@ -25,7 +25,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserBasic'
+                  $ref: '#/components/schemas/UserWithId'
 
     post:
       tags:
@@ -133,6 +133,14 @@ paths:
       responses:
         '204':
           description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully
         '404':
           description: User not found
           content:
@@ -205,7 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CourseBasicWithEnrolledDate'
+                $ref: '#/components/schemas/CourseWithEnrolledDate'
         '400':
           description: Bad request - Invalid user ID or course ID format
           content:
@@ -293,7 +301,125 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
+    put:
+      tags:
+        - Courses
+      summary: Update a specific course by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: The ID of the course to update
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseBasic'
+      responses:
+        '200':
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseBasic'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Courses
+      summary: Delete a specific course by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Course deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Course deleted
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /courses/{courseId}/enroll/{userId}:
+    post:
+      tags:
+        - Courses
+        - Users
+      summary: Enroll a user in a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: User enrolled in course successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User enrolled in course
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '409':
+          description: Conflict - User already enrolled in the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
 
 
 components:
@@ -338,8 +464,6 @@ components:
               format: uuid
               description: Unique identifier for the user
             role:
-              type: object
-              nullable: true
               $ref: '#/components/schemas/RoleBasic'
             classes:
               type: array
@@ -366,7 +490,7 @@ components:
           description: Name of the role (e.g., Student, Instructor, Admin)
     RoleWithId:
       type: object
-      allof:
+      allOf:
         - $ref: '#/components/schemas/RoleBasic'
         - type: object
           properties:
@@ -456,11 +580,9 @@ components:
           format: date
           description: Date when the user enrolled in the course
         user:
-          type: object
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/UserBasic'
         classEntity:
-          type: object
-          $ref: '#/components/schemas/Course'
+          $ref: '#/components/schemas/CourseBasic'
   
     BasicError:
       type: object
