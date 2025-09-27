@@ -16,7 +16,7 @@ export interface CourseReturn {
 
 
 /**
- *
+ * The controller for handling course-related operations
  */
 export class CourseController {
     private courseRepo: Repository<Course>;
@@ -40,7 +40,8 @@ export class CourseController {
      */
     async getAllCourses(req: Request, res: Response): Promise<void> {
         const courses = await this.courseRepo.find();
-        res.json(courses);
+        const courseReturns = courses.map(course => this.courseReturn(course));
+        res.status(200).json(courseReturns);
     }
 
     /**
@@ -50,49 +51,53 @@ export class CourseController {
      */
     async createCourse(req: Request, res: Response): Promise<void> {
         // Check course structure
-        const rawCourse = req.body as unknown;
-        if (typeof rawCourse !== "object" || rawCourse === null) {
-            res.status(400).json({ message: "Invalid request structure" });
-            return;
-        }
-        if (!("course" in rawCourse) || !this.checkCourseStructure(rawCourse.course)) {
+        const courseUnknown = req.body as unknown;
+        if (!this.checkCourseStructure(courseUnknown)) {
             res.status(400).json({ message: "Invalid course structure" });
             return;
         }
 
-        // Check if the user was given
-        if (!("userId" in rawCourse) || typeof rawCourse.userId !== "string" || rawCourse.userId.trim() === "") {
-            res.status(400).json({ message: "User ID is required to create a course" });
+        // Convert to Course type
+        const userId = (courseUnknown as Course & { userId: string }).userId;
+        const courseStructure = courseUnknown as Course;
+        if (typeof userId !== "string" || userId.trim() === "") {
+            res.status(400).json({ message: "Invalid user ID" });
             return;
         }
         
         // Check if the user exists
-        const userId = rawCourse.userId;
         const user = await this.userRepo.findOneBy({ userId: userId });
         if (!user) {
             res.status(404).json({ message: "User not found" });
             return;
         }
 
-        // Convert to Course type
-        const course = rawCourse.course as Course;
-
         // Create and save the course
-        const newCourse = this.courseRepo.create(course);
-        const result = await this.courseRepo.save(newCourse);
+        const newCourse = this.courseRepo.create(courseStructure);
+        const courseResult = await this.courseRepo.save(newCourse);
 
         // Add connection to user
         const usersToCourses = this.usersToCoursesRepo.create({
             user: user,
-            course: result
+            course: courseResult
         });
         await this.usersToCoursesRepo.save(usersToCourses);
 
+        // Save the connection in the course entity
+        courseResult.users.push(usersToCourses);
+        await this.courseRepo.save(courseResult);
+
+        // Save the connection in the user entity
+        if (!user.courses) user.courses = [];
+        user.courses.push(usersToCourses);
+        await this.userRepo.save(user);
+
         // Connect the user to the course
-        res.status(201).json(result);
+        const courseReturn = this.courseReturn(courseResult);
+        res.status(201).json(courseReturn);
     }
 
-    // /api/v1/courses/:id
+    // /api/v1/courses/:courseId
     /**
      * Gets a course by ID
      * @param req - The Request object
@@ -100,20 +105,148 @@ export class CourseController {
      */
     async getCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
-        const rawCourseId = req.params.id;
-        if (!this.checkCourseId(rawCourseId)) {
+        const courseId = req.params.courseId;
+        if (!this.checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
 
         // Get the course from the database
-        const courseID = req.params.id;
-        const course = await this.courseRepo.findOneBy({ courseId: courseID });
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
             return;
         }
-        res.status(200).json(course);
+
+        // Parse the course
+        const courseReturn = this.courseReturn(course);
+        res.status(200).json(courseReturn);
+    }
+
+    /**
+     * Updates a course by ID
+     * @param req - The Request object
+     * @param res - The Response object
+     */
+    async updateCourse(req: Request, res: Response): Promise<void> {
+        // Check the course ID
+        const courseId = req.params.courseId;
+        if (!this.checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check course structure
+        const courseUnknown = req.body as unknown;
+        if (!this.checkCourseStructure(courseUnknown)) {
+            res.status(400).json({ message: "Invalid course structure" });
+            return;
+        }
+
+        // Save the course
+        const courseStructure = courseUnknown as Course;
+        
+        course.name = courseStructure.name ?? course.name;
+        course.courseCode = courseStructure.courseCode ?? course.courseCode;
+        course.isOpen = courseStructure.isOpen ?? course.isOpen;
+        course.description = courseStructure.description ?? course.description;
+        course.startDate = courseStructure.startDate ?? course.startDate;
+        course.endDate = courseStructure.endDate ?? course.endDate;
+
+        await this.courseRepo.save(course);
+        res.status(200).json(this.courseReturn(course));
+    }
+
+    /**
+     * Deletes a course by ID
+     * @param req - The Request object
+     * @param res - The Response object
+     */
+    async deleteCourse(req: Request, res: Response): Promise<void> {
+        // Check the course ID
+        const courseId = req.params.courseId;
+        if (!this.checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Check if the course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Delete the course
+        await this.courseRepo.remove(course);
+        res.status(204).json({ message: "Course deleted" });
+    }
+
+    // /api/v1/courses/:courseId/enroll/:userId
+    /**
+     * Enrolls a user in a course
+     * @param req - The Request object
+     * @param res - The Response object
+     */
+    async enrollUserInCourse(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseId = req.params.courseId;
+        if (!this.checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+        
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check user ID
+        const userId = req.params.userId;
+        if (!this.checkUUID(userId)) {
+            res.status(400).json({ message: "Invalid user ID" });
+            return;
+        }
+
+        // Check if user exists
+        const user = await this.userRepo.findOneBy({ userId: userId });
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        // Enroll user in course
+        // Check if the user is already enrolled
+        const existingEnrollment = await this.usersToCoursesRepo.findOneBy({ user: { userId: userId }, course: { courseId: courseId } });
+        if (existingEnrollment) {
+            res.status(409).json({ message: "User is already enrolled in this course" });
+            return;
+        }
+
+        // Enroll user in course
+        const userToCourse = this.usersToCoursesRepo.create({ user: user, course: course });
+        await this.usersToCoursesRepo.save(userToCourse);
+
+        // Save the connection in the course entity
+        course.users.push(userToCourse);
+        await this.courseRepo.save(course);
+
+        // Save the connection in the user entity
+        if (!user.courses) user.courses = [];
+        user.courses.push(userToCourse);
+        await this.userRepo.save(user);
+
+        // Send response
+        res.status(201).json({ message: "User enrolled in course" });
     }
 
 
@@ -122,16 +255,18 @@ export class CourseController {
     /**
      * Checks if the course structure is valid or not
      * @param course - The course structure to check
+     * @param _creation - Whether the check is for creation or not
      * @returns Whether the structure is valid or not
      */
-    private checkCourseStructure(course: unknown): boolean {
+    private checkCourseStructure(course: unknown, _creation: boolean=false): boolean {
         if (typeof course !== "object" || course === null) return false;
 
         // Check if the course has any extra keys
         const courseKeys = ["name", "courseCode", "isOpen", "description", "startDate", "endDate"];
         for (const key of Object.keys(course)) {
-            if ((key !in courseKeys)) return false;
+            if (key !in courseKeys && !(key === "userId" && _creation)) return false;
         }
+
         // Make a Course object that is partial (all fields optional)
         const courseTyped = course as Partial<Course>;
 
@@ -142,26 +277,51 @@ export class CourseController {
         
         if (typeof courseTyped.isOpen !== "boolean") return false;
         
-        if (typeof courseTyped.startDate !== "string" || isNaN(Date.parse(courseTyped.startDate))) return false;
+        if (typeof courseTyped.startDate !in ["string", "date"]) return false;
         
         // -- Nullable --
-        if (courseTyped.description !== undefined && (typeof courseTyped.description !== "string" || courseTyped.description.trim() === "")) return false;
+        if (courseTyped.description && (typeof courseTyped.description !== "string" || courseTyped.description.trim() === "")) return false;
 
-        if (courseTyped.endDate !== undefined && (typeof courseTyped.endDate !== "string" || isNaN(Date.parse(courseTyped.endDate)))) return false;
+        if (courseTyped.endDate && (typeof courseTyped.endDate !in ["string", "date"])) return false;
 
         return true;
     }
 
     /**
-     * Checks the validity of the course ID
-     * @param id - The course ID to check
-     * @returns Whether the course ID is valid or not
+     * Checks if the UUID is valid
+     * @param id - The  UUID
+     * @returns The UUID if valid, undefined otherwise
      */
-    private async checkCourseId(id: string): Promise<boolean> {
-        if (typeof id !== "string" || id.trim() === "") return false;
+    private checkUUID(id: string): string | void {
+        if (id == undefined) return;
 
-        const course = await this.courseRepo.findOneBy({ courseId: id });
-        if (!course) return false;
-        return true;
+        // Trim the string
+        const userID = id.trim();
+
+        // Check if the ID has content
+        if (userID == "") return;
+        
+        // Check if the ID is a valid UUID
+        if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(userID)) return;
+        
+        // Return the ID
+        return userID;
+    }
+
+    /**
+     * Parses the course data and make it an acceptable return value
+     * @param courseData - The course data from the database
+     * @returns The course data acceptable for a return
+     */
+    private courseReturn(courseData: Course): CourseReturn {
+        return {
+            courseId: courseData.courseId,
+            name: courseData.name,
+            courseCode: courseData.courseCode,
+            isOpen: courseData.isOpen,
+            description: courseData.description ?? null,
+            startDate: courseData.startDate,
+            endDate: courseData.endDate ?? null,
+        };
     }
 }

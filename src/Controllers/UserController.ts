@@ -1,11 +1,11 @@
 import type { Repository } from "typeorm";
 import { User } from "../Database/entities/User.js";
 import type { Request, Response } from "express";
-import { Course } from "../Database/entities/Course.js";
+import type { Course } from "../Database/entities/Course.js";
 import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
-import type { Role } from "../Database/entities/Role.js";
+import { Role } from "../Database/entities/Role.js";
 
 interface UserReturn {
     userId: string | undefined;
@@ -14,7 +14,6 @@ interface UserReturn {
     profilePictureUrl: string | null;
     idNumber: string;
     role: {
-        roleId: string | undefined;
         name: string;
     } | undefined;
     courses: (CourseReturn & { enrolledOn: Date | string })[] | [] | undefined;
@@ -25,17 +24,15 @@ interface UserReturn {
  */
 export class UserController {
     private userRepo: Repository<User>;
-    private courseRepo: Repository<Course>;
+    private roleRepo: Repository<Role>;
 
     /**
 	 * Creates an instance of UserController.
-	 * @param UserRepo - The user repository from TypeORM
-	 * @param ClassRepo
-	 * @param appDataSource
+	 * @param appDataSource - The TypeORM DataSource
 	 */
     constructor(appDataSource: DataSource) {
         this.userRepo = appDataSource.getRepository(User);
-        this.courseRepo = appDataSource.getRepository(Course);
+        this.roleRepo = appDataSource.getRepository(Role);
     }
 
 
@@ -47,8 +44,13 @@ export class UserController {
     async getAllUsers(req: Request, res: Response): Promise<void> {
         const users = await this.userRepo.find();
 
-        // Generate the reurn value
-        const usersReturn = users.map((user) => this.userReturn(user)); 
+        // Generate the return value
+        const usersReturn = users.map((user) => {
+            const userData = this.userReturn(user);
+            delete userData.courses;
+            delete userData.role;
+            return userData;
+        });
         res.status(200).json(usersReturn);
     }
 
@@ -61,7 +63,6 @@ export class UserController {
         // Check user structure
         const userStructureUnknown = req.body as unknown;
         if (!this.checkUserStructure(userStructureUnknown)) {
-            console.log("invalid user structure", userStructureUnknown);
             res.status(400).json({ message: "Invalid user structure" });
             return;
         }
@@ -83,6 +84,18 @@ export class UserController {
         // Create and save the user
         const user = this.userRepo.create(userStructure);
         const result = await this.userRepo.save(user);
+
+        // add the student role to the newly created user
+        const studentRole = await this.roleRepo.findOneBy({ name: "student" });
+        if (studentRole) {
+            result.role = studentRole;
+            await this.userRepo.save(result);
+        } else {
+            // Could possibly change this to auto create it if it doesn't exist yet
+            console.log("Student role not found");
+            res.status(500).json({ message: "Internal server error" });
+            return;
+        }
 
         // Convert to return type
         const userReturn = this.userReturn(result);
@@ -139,7 +152,6 @@ export class UserController {
         // Check user structure
         const userStructureUnknown = req.body as unknown;
         if (!this.checkUserStructure(userStructureUnknown, true)) {
-            console.log("invalid user structure");
             res.status(400).json({ message: "Invalid user structure" });
             return;
         }
@@ -196,7 +208,7 @@ export class UserController {
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
-        }
+        }        
 
         // Get the profile from the database
         const userData = await this.userRepo
@@ -205,15 +217,16 @@ export class UserController {
             .leftJoinAndSelect("class.course", "course")
             .where("user.userId = :id", { id: userID })
             .getOne();
-            
+        
         if (!userData) {
-            res.status(404).json({ message: "Courses not found" });
+            res.status(404).json({ message: "User not found" });
             return;
         }
-
+        
         // Parse the return and only get the courses
-        const userReturn = this.userReturn(userData);
-        const courses = userReturn.courses ?? [];
+        const courses = userData.courses?.map((cls: UsersToCourses) => {
+            return this.courseReturn({ ...cls.course, enrolledOn: cls.enrolledOn } as Course & {enrolledOn: string});
+        }) ?? [];
 
         res.status(200).json(courses);
     }
@@ -230,19 +243,38 @@ export class UserController {
             return;
         }
 
+        const user = await this.userRepo.findOneBy({ userId: userID });
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
         const courseID = this.checkUUID(req.params.courseId);
         if (courseID == undefined) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
 
-        // Get the course from the DB
-        const course = await this.courseRepo.findOneBy({ courseId: courseID });
-        if (!course) {
-            res.status(404).json({ message: "Course not found" });
+        // Get the course from the user
+        const userData = await this.userRepo
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.courses", "class")
+            .leftJoinAndSelect("class.course", "course")
+            .where("user.userId = :userId", { userId: userID })
+            .andWhere("class.courseId = :courseId", { courseId: courseID })
+            .getOne();
+        if (!userData || !userData.courses || userData.courses.length === 0) {
+            res.status(404).json({ message: "Course not found for user" });
             return;
         }
-        res.status(200).json(course);
+
+        if (userData.courses.length > 1) {
+            console.log("Warning: User is enrolled in the same course multiple times");
+        }
+
+        // Parse the course to the return type
+        const courseData = this.courseReturn({ ...userData.courses[0].course, enrolledOn: userData.courses[0].enrolledOn } as Course & {enrolledOn: string});
+        res.status(200).json(courseData);
     }
 
     
@@ -310,6 +342,9 @@ export class UserController {
      * @returns The UUID if valid, undefined otherwise
      */
     private checkUUID(id: string): string | void {
+        if (id == undefined) return;
+
+        // Trim the string
         const userID = id.trim();
 
         // Check if the ID has content
@@ -324,7 +359,7 @@ export class UserController {
 
     
     /**
-     * Parses the user data and make it an aceptable return value
+     * Parses the user data and make it an acceptable return value
      * @param userData - The user data from the database
      * @returns The user data acceptable for a return
      */
@@ -337,7 +372,6 @@ export class UserController {
             idNumber: userData.idNumber,
             role: userData.role
                 ? {
-                    roleId: userData.role.roleId,
                     name: userData.role.name,
                 }
                 : undefined,
@@ -353,6 +387,24 @@ export class UserController {
                     endDate: cls.course.endDate ?? null,
                 }))
                 : [],
+        };
+    }
+
+    /**
+     * Parses the course data and make it an acceptable return value
+     * @param courseData - The course data from the database
+     * @returns The course data acceptable for a return
+     */
+    private courseReturn(courseData: Course & {enrolledOn: string }): CourseReturn & {enrolledOn: string} {
+        return {
+            courseId: courseData.courseId,
+            name: courseData.name,
+            courseCode: courseData.courseCode,
+            isOpen: courseData.isOpen,
+            description: courseData.description ?? null,
+            startDate: courseData.startDate,
+            endDate: courseData.endDate ?? null,
+            enrolledOn: courseData.enrolledOn,
         };
     }
 }
