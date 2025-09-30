@@ -135,7 +135,7 @@ describe("SubmissionController test:", () => {
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
-            await controller.getSubmissionById(req, res);
+            await controller.getSubmission(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
@@ -150,7 +150,7 @@ describe("SubmissionController test:", () => {
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
-            await controller.getSubmissionById(req, res);
+            await controller.getSubmission(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
@@ -171,7 +171,7 @@ describe("SubmissionController test:", () => {
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
-            await controller.getSubmissionById(req, res);
+            await controller.getSubmission(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({
