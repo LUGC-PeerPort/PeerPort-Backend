@@ -13,7 +13,7 @@ describe("CourseController test:", () => {
     });
 
     beforeEach(async () => {
-        // Clear users before each test
+        // Clear UsersToCourses, User, and Course repositories before each test
         await TestDataSource.getRepository("UsersToCourses").clear();
         await TestDataSource.getRepository("User").clear();
         await TestDataSource.getRepository("Course").clear();
