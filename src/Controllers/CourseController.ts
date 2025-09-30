@@ -60,6 +60,16 @@ export class CourseController {
         // Convert to Course type
         const userId = (courseUnknown as Course & { userId: string }).userId;
         const courseStructure = courseUnknown as Course;
+
+        // Check dates
+        const startDate = courseStructure.startDate;
+        const endDate = courseStructure.endDate ?? null;
+        if (!this.checkDates(startDate, endDate)) {
+            res.status(400).json({ message: "Invalid course structure" });
+            return;
+        }
+
+        // Check if the user ID is valid
         if (typeof userId !== "string" || userId.trim() === "") {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -331,7 +341,7 @@ export class CourseController {
         if (endDate === null) return true;
 
         const end = new Date(endDate);
-        if (end < start) {
+        if (end <= start) {
             return false;
         }
         return true;
