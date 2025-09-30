@@ -371,7 +371,7 @@ describe("CourseController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith({ 
-                classId: expect.any(String),
+                courseId: expect.any(String),
                 name: "testCourse",
                 courseCode: "tes-st01",
                 isOpen: true,
@@ -406,7 +406,7 @@ describe("CourseController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith({ 
-                classId: expect.any(String),
+                courseId: expect.any(String),
                 name: "testCourse",
                 courseCode: "tes-st01",
                 isOpen: true,
@@ -440,7 +440,7 @@ describe("CourseController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith({ 
-                classId: expect.any(String),
+                courseId: expect.any(String),
                 name: "testCourse",
                 courseCode: "tes-st01",
                 isOpen: true,
