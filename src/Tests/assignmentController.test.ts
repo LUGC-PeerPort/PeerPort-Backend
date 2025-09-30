@@ -346,21 +346,232 @@ describe("AssignmentController test:", () => {
     });
 
     describe("Updating an assignment", () => {
-        it("Should not update an assignment with an invalid ID", async () => {});
+        it("Should not update an assignment with an invalid ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: 123,
+                },
+                body: {
+                    name: "Updated Assignment",
+                    description: "This is an updated test assignment",
+                    dueDate: "2025-07-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
 
-        it("Should not update an assignment with a non-existent ID", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should not update an assignment with a invalid structure", async () => {});
+        it("Should not update an assignment with a non-existent ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: "123e4567-e89b-12d3-a456-426614174000",
+                },
+                body: {
+                    name: "Updated Assignment",
+                    description: "This is an updated test assignment",
+                    dueDate: "2025-07-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
 
-        it("Should not update an assignment with a invalid name", async () => {});
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should not update an assignment with a invalid description", async () => {});
+        it("Should not update an assignment with a invalid structure", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: { smth: "invalid" }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
 
-        it("Should not update an assignment with a invalid due date", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should not update an assignment with a past due date", async () => {});
+        it("Should not update an assignment with a invalid name", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    name: 123,
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
 
-        it("Should update an assignment with valid data", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should not update an assignment with a invalid description", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    name: "Test Assignment",
+                    description: 123,
+                    dueDate: "2025-06-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should not update an assignment with a invalid due date", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: 123,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should not update an assignment with a past due date", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "2020-06-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should not update an assignment with no fields to update", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {}
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                name: assignment.name,
+                description: assignment.description,
+                dueDate: assignment.dueDate,
+                courseId: course.courseId,
+                assignmentId: assignment.assignmentId,
+            });
+        });
+
+        it("Should update an assignment with valid data", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    name: "Updated Assignment",
+                    description: "This is an updated test assignment",
+                    dueDate: "2025-06-02",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                assignmentId: assignment.assignmentId,
+                name: "Updated Assignment",
+                description: "This is an updated test assignment",
+                dueDate: "2025-06-02",
+                courseId: course.courseId,
+            });
+        });
     });
 
     describe("Deleting an assignment", () => {
