@@ -1,18 +1,19 @@
 import { TestDataSource } from "./test-data-source.js";
 import { AssignmentController } from "../Controllers/AssignmentController.js";
 import { Course } from "../Database/entities/Course.js";
+import { User } from "../Database/entities/User.js";
 
 describe("AssignmentController test:", () => {
     let controller: AssignmentController;
     const course = new Course();
+    const user = new User();
 
     beforeAll(async () => {
         await TestDataSource.initialize();
         controller = new AssignmentController(TestDataSource);
 
-        // Create a role for the user to use
-        await TestDataSource.getRepository("Role").save({ name: "student" });
         
+        // Create a course for the assignments to user
         course.name = "Test Course";
         course.courseCode = "TEST101";
         course.isOpen = true;
@@ -20,6 +21,17 @@ describe("AssignmentController test:", () => {
         course.startDate = "2025-01-01";
         course.endDate = "2025-12-31";
         await TestDataSource.getRepository(Course).save(course);
+
+        // Create a role for the user to use
+        await TestDataSource.getRepository("Role").save({ name: "student" });
+
+        // Create a user for the submissions to use
+        user.name = "Test User";
+        user.email = "testuser@example.com";
+        user.password = "password";
+        user.idNumber = "123456";
+        user.role = await TestDataSource.getRepository("Role").findOneBy({ name: "student" }) as any;
+        await TestDataSource.getRepository(User).save(user);
     });
 
     beforeEach(async () => {
@@ -629,13 +641,90 @@ describe("AssignmentController test:", () => {
     });
 
     describe("Getting submissions for an assignment", () => {
-        it("Should not get submissions with an invalid assignment ID", async () => {});
+        it("Should not get submissions with an invalid assignment ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: 123,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getSubmissionsForAssignment(req, res);
 
-        it("Should not get submissions with a non-existent assignment ID", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should get submissions when no submissions exist", async () => {});
+        it("Should not get submissions with a non-existent assignment ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: "123e4567-e89b-12d3-a456-426614174000",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getSubmissionsForAssignment(req, res);
 
-        it("Should get submissions when multiple submissions exist", async () => {});
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should get submissions when no submissions exist", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getSubmissionsForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([]);
+        });
+
+        it("Should get submissions when multiple submissions exist", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const submission = await TestDataSource.getRepository("AssignmentSubmissions").save({
+                timeSubmitted: "2025-09-01",
+                comment: "This is a test submission",
+                assignment: assignment,
+                user: user,
+            });
+
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getSubmissionsForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([{
+                submissionId: submission.assignmentSubmissionId,
+                comment: submission.comment,
+                timeSubmitted: submission.timeSubmitted,
+                assignmentId: assignment.assignmentId,
+                userId: user.userId,
+            }]);
+        });
     });
 
     describe("Creating a submission for an assignment", () => {
