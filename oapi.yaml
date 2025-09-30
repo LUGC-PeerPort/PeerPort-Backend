@@ -421,6 +421,304 @@ paths:
               schema:
                 $ref: '#/components/schemas/BasicError'
 
+  /assignments:
+    get:
+      tags:
+        - Assignments
+      summary: Retrieve a list of assignments
+      responses:
+        '200':
+          description: A list of assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentBasicWithId'
+    post:
+      tags:
+        - Assignments
+      summary: Create a new assignment for a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentBasicWithCourseId'
+      responses:
+        '201':
+          description: Assignment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentBasicWithId'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /assignments/{assignmentId}:
+    get:
+      tags:
+        - Assignments
+      summary: Retrieve a specific assignment by ID
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentBasicWithId'
+        '400':
+          description: Bad request - Invalid assignment ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Assignment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    put:
+      tags:
+        - Assignments
+      summary: Update a specific assignment by ID
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          description: The ID of the assignment to update
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentBasic'
+      responses:
+        '200':
+          description: Assignment updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentBasicWithId'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Assignment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Assignments
+      summary: Delete a specific assignment by ID
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Assignment deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Assignment deleted
+        '404':
+          description: Assignment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid assignment ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /assignments/{assignmentId}/submissions:
+    get:
+      tags:
+        - Assignments
+        - Submissions
+      summary: Retrieve submissions for a specific assignment
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of submissions for the assignment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubmissionWithIds'
+        '400':
+          description: Bad request - Invalid assignment ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Assignment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    post:
+      tags:
+        - Assignments
+        - Submissions
+      summary: Create a new submission for a specific assignment by a user
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionPost'
+      responses:
+        '201':
+          description: Submission created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionWithIds'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Assignment or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  
+  /submmisions:
+    get:
+      tags:
+        - Submissions
+      summary: Retrieve a list of submissions
+      responses:
+        '200':
+          description: A list of submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubmissionWithIds'
+  /submissions/{submissionId}:
+    get:
+      tags:
+        - Submissions
+      summary: Retrieve a specific submission by ID
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single submission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionWithIds'
+        '400':
+          description: Bad request - Invalid submission ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Submissions
+      summary: Delete a specific submission by ID
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Submission deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Submission deleted
+        '404':
+          description: Submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid submission ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+
 
 components:
   schemas:
@@ -545,7 +843,6 @@ components:
               type: string
               format: uuid
               description: ID of the instructor creating the course
-
     CourseWithEnrolledDate:
       type: object
       allOf:
@@ -556,7 +853,6 @@ components:
               type: string
               format: date
               description: Date when the User started the course
-
     CourseWithUsers:
       type: object
       allOf:
@@ -583,7 +879,94 @@ components:
           $ref: '#/components/schemas/UserBasic'
         classEntity:
           $ref: '#/components/schemas/CourseBasic'
-  
+
+    AssignmentBasic:
+      type: object
+      required:
+        - title
+        - description
+        - dueDate
+        - courseId
+      properties:
+        title:
+          type: string
+          description: Title of the assignment
+        description:
+          type: string
+          description: Description of the assignment
+        dueDate:
+          type: string
+          format: date-time
+          description: Due date of the assignment
+    AssignmentBasicWithCourseId:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AssignmentBasic'
+        - type: object
+          properties:
+            courseId:
+              type: string
+              format: uuid
+              description: Unique identifier for the course
+    AssignmentBasicWithId:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AssignmentBasicWithCourseId'
+        - type: object
+          properties:
+            assignmentId:
+              type: string
+              format: uuid
+              description: Unique identifier for the assignment
+
+    SubmissionBasic:
+      type: object
+      required:
+        - comment
+        - timeSubmitted
+      properties:
+        comment:
+          type: string
+          description: Comment or feedback for the submission
+        timeSubmitted:
+          type: string
+          format: date-time
+          description: Timestamp of when the submission was made
+    SubmissionWithIds:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/SubmissionBasic'
+        - type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+              description: Unique identifier for the user who made the submission
+            assignmentId:
+              type: string
+              format: uuid
+              description: Unique identifier for the assignment
+            submissionId:
+              type: string
+              format: uuid
+              description: Unique identifier for the submission
+    SubmissionPost:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/SubmissionBasic'
+        - type: object
+          required:
+            - userId
+          properties:
+            assignmentId:
+              type: string
+              format: uuid
+              description: Unique identifier for the assignment
+            userId:
+              type: string
+              format: uuid
+              description: Unique identifier for the user making the submission
+
     BasicError:
       type: object
       properties:
