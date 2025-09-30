@@ -597,7 +597,7 @@ describe("CourseController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid course structure" });
         });
 
-        it("Should not update a course with an invalud course code", async () => {
+        it("Should not update a course with an invalid course code", async () => {
             const course = await TestDataSource.getRepository("Course").save({
                 name: "testCourse",
                 courseCode: "tes-st01",
