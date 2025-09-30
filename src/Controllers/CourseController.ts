@@ -70,7 +70,7 @@ export class CourseController {
         }
 
         // Check if the user ID is valid
-        if (typeof userId !== "string" || userId.trim() === "") {
+        if (!this.checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
