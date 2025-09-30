@@ -36,9 +36,9 @@ export class AssignmentSubmissions {
     @JoinColumn({ name: "userId" })
     	user!: User;
 
-    @OneToOne(() => Assignments, (assignments) => assignments.assignmentId)
+    @OneToOne(() => Assignments, (assignment) => assignment.assignmentId)
     @JoinColumn({ name: "assignmentId" })
-    	assignments!: Assignments;
+    	assignment!: Assignments;
 
     @OneToOne(() => AssignmentSubmissionToFiles, (assignmentSubmissionToFiles) => assignmentSubmissionToFiles.assignmentSubmissionToFilesId)
     @JoinColumn({ name: "assignmentSubmissionToFilesId" })
