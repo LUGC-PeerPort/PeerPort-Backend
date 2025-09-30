@@ -1,5 +1,6 @@
 import type { DataSource, Repository } from "typeorm";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions";
+import type { Request, Response } from "express";
 
 /**
  * Used to manage assignment submissions.
@@ -14,4 +15,11 @@ export class SubmissionController {
     constructor(dataSource: DataSource) {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
     }
+
+    async getAllSubmissions(req: Request, res: Response): Promise<void> {}
+
+    async getSubmission(req: Request, res: Response): Promise<void> {}
+
+    async deleteSubmission(req: Request, res: Response): Promise<void> {}
+
 }
