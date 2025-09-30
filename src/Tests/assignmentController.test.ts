@@ -35,7 +35,7 @@ describe("AssignmentController test:", () => {
     });
 
     beforeEach(async () => {
-        // Clear users before each test
+        // Clear assignments before each test
         await TestDataSource.getRepository("Assignments").clear();
     });
 
