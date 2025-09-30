@@ -286,7 +286,7 @@ describe("CourseController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
         });
 
-        it("Should not create a course with a invalid descriprtion", async () => {
+        it("Should not create a course with a invalid description", async () => {
             const req: any = {
                 body: {
                     name: "testCourse",
