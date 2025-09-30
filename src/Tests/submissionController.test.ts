@@ -185,10 +185,55 @@ describe("SubmissionController test:", () => {
     });
 
     describe("Delete a submission", () => {
-        it("Should not delete a submission with an invalid ID", async () => {});
+        it("Should not delete a submission with an invalid ID", async () => {
+            const req: any = {
+                params: {
+                    submissionId: "invalid-uuid",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteSubmission(req, res);
 
-        it("Should not delete a submission with a non-existent ID", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should delete a submission with a valid ID", async () => {});
+        it("Should not delete a submission with a non-existent ID", async () => {
+            const req: any = {
+                params: {
+                    submissionId: "123e4567-e89b-12d3-a456-426614174999",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteSubmission(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should delete a submission with a valid ID", async () => {
+            const submission = TestDataSource.getRepository("AssignmentSubmissions").create({
+                comment: "This is a test submission",
+                timeSubmitted: new Date().toISOString(),
+                user: user,
+                assignment: assignment,
+            });
+            const req: any = {
+                params: {
+                    submissionId: submission.assignmentSubmissionId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteSubmission(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
     });
 });
