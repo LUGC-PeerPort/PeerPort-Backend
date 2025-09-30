@@ -303,12 +303,12 @@ export class CourseController {
         if (typeof courseTyped.description === "string") {
             if (courseTyped.description.trim() === "") failedFlag = true;
             else updated = true;
-        } else if (typeof courseTyped.description !== "undefined" && _updating) failedFlag = true;
+        } else if (typeof courseTyped.description !== "undefined" && (_updating || _creation)) failedFlag = true;
     
         if (typeof courseTyped.endDate === "string") {
             if (courseTyped.endDate.trim() === "" || isNaN(Date.parse(courseTyped.endDate))) failedFlag = true;
             else updated = true;
-        } else if (typeof courseTyped.endDate !== "undefined" && _updating) failedFlag = true;
+        } else if (typeof courseTyped.endDate !== "undefined" && (_updating || _creation)) failedFlag = true;
         
         if (failedFlag) return false;
         if (_updating && !updated) return false;
