@@ -883,14 +883,14 @@ components:
     AssignmentBasic:
       type: object
       required:
-        - title
+        - name
         - description
         - dueDate
         - courseId
       properties:
-        title:
+        name:
           type: string
-          description: Title of the assignment
+          description: Name of the assignment
         description:
           type: string
           description: Description of the assignment
