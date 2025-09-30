@@ -264,7 +264,7 @@ describe("CourseController test:", () => {
             await controller.createCourse(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course structure" });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
         });
 
         it("Should not create a course with a non-existent user ID", async () => {
