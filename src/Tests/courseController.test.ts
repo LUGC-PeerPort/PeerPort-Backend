@@ -873,7 +873,7 @@ describe("CourseController test:", () => {
             res.json = jest.fn().mockReturnValue(res);
             await controller.deleteCourse(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.status).toHaveBeenCalledWith(204);
             expect(res.json).toHaveBeenCalledWith({ message: "Course deleted" });
         });
 
