@@ -236,14 +236,14 @@ export class CourseController {
         const userToCourse = this.usersToCoursesRepo.create({ user: user, course: course });
         await this.usersToCoursesRepo.save(userToCourse);
 
-        // Save the connection in the course entity
-        course.users.push(userToCourse);
-        await this.courseRepo.save(course);
+        // // Save the connection in the course entity
+        // course.users.push(userToCourse);
+        // await this.courseRepo.save(course);
 
-        // Save the connection in the user entity
-        if (!user.courses) user.courses = [];
-        user.courses.push(userToCourse);
-        await this.userRepo.save(user);
+        // // Save the connection in the user entity
+        // if (!user.courses) user.courses = [];
+        // user.courses.push(userToCourse);
+        // await this.userRepo.save(user);
 
         // Send response
         res.status(201).json({ message: "User enrolled in course" });
@@ -256,9 +256,11 @@ export class CourseController {
      * Checks if the course structure is valid or not
      * @param course - The course structure to check
      * @param _creation - Whether the check is for creation or not
+     * @param _updating - Whether the check is for updating or not
      * @returns Whether the structure is valid or not
      */
-    private checkCourseStructure(course: unknown, _creation: boolean=false): boolean {
+    // eslint-disable-next-line complexity
+    private checkCourseStructure(course: unknown, _creation: boolean=false, _updating: boolean=false): boolean {
         if (typeof course !== "object" || course === null) return false;
 
         // Check if the course has any extra keys
@@ -270,20 +272,46 @@ export class CourseController {
         // Make a Course object that is partial (all fields optional)
         const courseTyped = course as Partial<Course>;
 
+        let failedFlag = false;
+        let updated = false;
+
         // -- Required --
-        if (typeof courseTyped.name !== "string" || courseTyped.name.trim() === "") return false;
+        if (typeof courseTyped.name === "string") {
+            if (courseTyped.name.trim() === "") failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.name !== "undefined" && !_updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
         
-        if (typeof courseTyped.courseCode !== "string" || courseTyped.courseCode.trim() === "") return false;
-        
-        if (typeof courseTyped.isOpen !== "boolean") return false;
-        
-        if (typeof courseTyped.startDate !in ["string", "date"]) return false;
-        
-        // -- Nullable --
-        if (courseTyped.description && (typeof courseTyped.description !== "string" || courseTyped.description.trim() === "")) return false;
+        if (typeof courseTyped.courseCode === "string") {
+            if (courseTyped.courseCode.trim() === "") failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.courseCode !== "undefined" && !_updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
 
-        if (courseTyped.endDate && (typeof courseTyped.endDate !in ["string", "date"])) return false;
-
+        if (typeof courseTyped.isOpen === "boolean") {
+            updated = true;
+        } else if (typeof courseTyped.isOpen !== "undefined" && !_updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
+        
+        if (typeof courseTyped.startDate === "string") {
+            if (courseTyped.startDate.trim() === "") failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.startDate !== "undefined" && !_updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
+        
+        // -- Optional --
+        if (typeof courseTyped.description === "string") {
+            if (courseTyped.description.trim() === "") failedFlag = true;
+            else updated = true;
+        }
+    
+        if (typeof courseTyped.endDate === "string") {
+            if (courseTyped.endDate.trim() === "") failedFlag = true;
+            else updated = true;
+        }
+        
+        if (failedFlag) return false;
+        if (_updating && !updated) return false;
         return true;
     }
 
