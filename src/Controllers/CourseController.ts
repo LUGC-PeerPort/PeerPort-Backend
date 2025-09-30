@@ -83,15 +83,6 @@ export class CourseController {
         });
         await this.usersToCoursesRepo.save(usersToCourses);
 
-        // Save the connection in the course entity
-        courseResult.users.push(usersToCourses);
-        await this.courseRepo.save(courseResult);
-
-        // Save the connection in the user entity
-        if (!user.courses) user.courses = [];
-        user.courses.push(usersToCourses);
-        await this.userRepo.save(user);
-
         // Connect the user to the course
         const courseReturn = this.courseReturn(courseResult);
         res.status(201).json(courseReturn);
@@ -243,15 +234,6 @@ export class CourseController {
         // Enroll user in course
         const userToCourse = this.usersToCoursesRepo.create({ user: user, course: course });
         await this.usersToCoursesRepo.save(userToCourse);
-
-        // // Save the connection in the course entity
-        // course.users.push(userToCourse);
-        // await this.courseRepo.save(course);
-
-        // // Save the connection in the user entity
-        // if (!user.courses) user.courses = [];
-        // user.courses.push(userToCourse);
-        // await this.userRepo.save(user);
 
         // Send response
         res.status(201).json({ message: "User enrolled in course" });
