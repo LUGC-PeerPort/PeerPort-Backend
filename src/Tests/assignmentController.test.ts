@@ -728,15 +728,118 @@ describe("AssignmentController test:", () => {
     });
 
     describe("Creating a submission for an assignment", () => {
-        it("Should not create a submission with an invalid assignment ID", async () => {});
+        it("Should not create a submission with an invalid assignment ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: 123,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
 
-        it("Should not create a submission with a non-existent assignment ID", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should not create a submission with an invalid timeSubmitted", async () => {});
+        it("Should not create a submission with a non-existent assignment ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: "123e4567-e89b-12d3-a456-426614174000",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
 
-        it("Should not create a submission with no timeSubmitted", async () => {});
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should create a submission with valid data", async () => {});
+        it("Should not create a submission with an invalid timeSubmitted", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: 123,
+                    userId: user.userId,
+                    comment: "This is a test submission",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should not create a submission with no timeSubmitted", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    userId: user.userId,
+                    comment: "This is a test submission",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should create a submission with valid data", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    userId: user.userId,
+                    comment: "This is a test submission",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                submissionId: expect.any(String),
+                comment: "This is a test submission",
+                timeSubmitted: "2025-05-01",
+                assignmentId: assignment.assignmentId,
+                userId: user.userId,
+            });
+        });
 
         // Not needed in MVP
         // it("Should create multiple submissions for the same assignment from different users", async () => {});
