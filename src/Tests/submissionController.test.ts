@@ -14,7 +14,7 @@ describe("SubmissionController test:", () => {
         await TestDataSource.initialize();
         controller = new SubmissionController(TestDataSource);
 
-        // Create a course for the assignments to user
+        // Create a course for the assignments to use
         course.name = "Test Course";
         course.courseCode = "TEST101";
         course.isOpen = true;
