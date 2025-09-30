@@ -33,7 +33,7 @@ export class Assignments {
 
     @ManyToOne(() => Course, (course) => course.assignments)
     @JoinColumn({ name: "classId" })
-    	classEntity!: Course;
+    	course!: Course;
 
     @ManyToOne(() => AssignmentSubmissions, (assignmentSubmissions) => assignmentSubmissions.user)
     @JoinColumn({ name: "assignmentSubmissionsId" })
