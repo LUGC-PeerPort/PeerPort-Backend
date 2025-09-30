@@ -52,7 +52,7 @@ export class CourseController {
     async createCourse(req: Request, res: Response): Promise<void> {
         // Check course structure
         const courseUnknown = req.body as unknown;
-        if (!this.checkCourseStructure(courseUnknown)) {
+        if (!this.checkCourseStructure(courseUnknown, true)) {
             res.status(400).json({ message: "Invalid course structure" });
             return;
         }
@@ -145,14 +145,22 @@ export class CourseController {
 
         // Check course structure
         const courseUnknown = req.body as unknown;
-        if (!this.checkCourseStructure(courseUnknown)) {
+        if (!this.checkCourseStructure(courseUnknown, false, true)) {
             res.status(400).json({ message: "Invalid course structure" });
             return;
         }
 
         // Save the course
         const courseStructure = courseUnknown as Course;
-        
+
+        // Check dates
+        const startDate = courseStructure.startDate ?? course.startDate;
+        const endDate = courseStructure.endDate ?? course.endDate ?? null;
+        if (!this.checkDates(startDate, endDate)) {
+            res.status(400).json({ message: "Invalid course structure" });
+            return;
+        }
+
         course.name = courseStructure.name ?? course.name;
         course.courseCode = courseStructure.courseCode ?? course.courseCode;
         course.isOpen = courseStructure.isOpen ?? course.isOpen;
@@ -294,7 +302,7 @@ export class CourseController {
         else if (!_updating) failedFlag = true;
         
         if (typeof courseTyped.startDate === "string") {
-            if (courseTyped.startDate.trim() === "") failedFlag = true;
+            if (courseTyped.startDate.trim() === "" || isNaN(Date.parse(courseTyped.startDate))) failedFlag = true;
             else updated = true;
         } else if (typeof courseTyped.startDate !== "undefined" && !_updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
@@ -303,12 +311,12 @@ export class CourseController {
         if (typeof courseTyped.description === "string") {
             if (courseTyped.description.trim() === "") failedFlag = true;
             else updated = true;
-        }
+        } else if (typeof courseTyped.description !== "undefined" && _updating) failedFlag = true;
     
         if (typeof courseTyped.endDate === "string") {
-            if (courseTyped.endDate.trim() === "") failedFlag = true;
+            if (courseTyped.endDate.trim() === "" || isNaN(Date.parse(courseTyped.endDate))) failedFlag = true;
             else updated = true;
-        }
+        } else if (typeof courseTyped.endDate !== "undefined" && _updating) failedFlag = true;
         
         if (failedFlag) return false;
         if (_updating && !updated) return false;
@@ -334,6 +342,17 @@ export class CourseController {
         
         // Return the ID
         return userID;
+    }
+
+    private checkDates(startDate: string, endDate: string | null): boolean {
+        const start = new Date(startDate);
+        if (endDate === null) return true;
+
+        const end = new Date(endDate);
+        if (end < start) {
+            return false;
+        }
+        return true;
     }
 
     /**
