@@ -1,12 +1,12 @@
 import { TestDataSource } from "./test-data-source.js";
 import { AssignmentController } from "../Controllers/AssignmentController.js";
-import { Course } from "../Database/entities/Course.js";
-import { User } from "../Database/entities/User.js";
+import type { Course } from "../Database/entities/Course.js";
+import type { User } from "../Database/entities/User.js";
 
 describe("AssignmentController test:", () => {
     let controller: AssignmentController;
-    const course = new Course();
-    const user = new User();
+    let course: Course;
+    let user: User;
 
     beforeAll(async () => {
         await TestDataSource.initialize();
@@ -14,24 +14,28 @@ describe("AssignmentController test:", () => {
 
         
         // Create a course for the assignments to use
-        course.name = "Test Course";
-        course.courseCode = "TEST101";
-        course.isOpen = true;
-        course.description = "This is a test course";
-        course.startDate = "2025-01-01";
-        course.endDate = "2025-12-31";
-        await TestDataSource.getRepository(Course).save(course);
+        const courseData = {
+            name: "Test Course",
+            courseCode: "TEST101",
+            isOpen: true,
+            description: "This is a test course",
+            startDate: "2025-01-01",
+            endDate: "2025-12-31",
+        };
+        course = await TestDataSource.getRepository("Course").save(courseData) as any;
 
         // Create a role for the user to use
         await TestDataSource.getRepository("Role").save({ name: "student" });
 
         // Create a user for the submissions to use
-        user.name = "Test User";
-        user.email = "testuser@example.com";
-        user.password = "password";
-        user.idNumber = "123456";
-        user.role = await TestDataSource.getRepository("Role").findOneBy({ name: "student" }) as any;
-        await TestDataSource.getRepository(User).save(user);
+        const userData = {
+            name: "Test User",
+            email: "testuser@example.com",
+            password: "password",
+            idNumber: "123456",
+            role: await TestDataSource.getRepository("Role").findOneBy({ name: "student" }),
+        };
+        user = await TestDataSource.getRepository("User").save(userData) as any;
     });
 
     beforeEach(async () => {
