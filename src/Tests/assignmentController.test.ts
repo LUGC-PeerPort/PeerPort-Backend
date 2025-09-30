@@ -575,11 +575,57 @@ describe("AssignmentController test:", () => {
     });
 
     describe("Deleting an assignment", () => {
-        it("Should not delete an assignment with an invalid ID", async () => {});
+        it("Should not delete an assignment with an invalid ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: 123,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteAssignment(req, res);
 
-        it("Should not delete an assignment with a non-existent ID", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should delete an assignment with a valid ID", async () => {});
+        it("Should not delete an assignment with a non-existent ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: "123e4567-e89b-12d3-a456-426614174000",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should delete an assignment with a valid ID", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
     });
 
     describe("Getting submissions for an assignment", () => {
