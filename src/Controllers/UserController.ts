@@ -329,7 +329,7 @@ export class UserController {
         if (typeof userTyped.profilePictureUrl === "string") {
             if (userTyped.profilePictureUrl.trim() !== "" && userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
             else updated = true;
-        }
+        } else if (typeof userTyped.profilePictureUrl !== "undefined" && !updating) failedFlag = true;
 
         if (failedFlag) return false;
         else if (updating && !updated) return false;
