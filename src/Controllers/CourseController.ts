@@ -287,24 +287,24 @@ export class CourseController {
         if (typeof courseTyped.name === "string") {
             if (courseTyped.name.trim() === "") failedFlag = true;
             else updated = true;
-        } else if (typeof courseTyped.name !== "undefined" && !_updating) failedFlag = true;
+        } else if (typeof courseTyped.name !== "undefined" && _updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
         
         if (typeof courseTyped.courseCode === "string") {
             if (courseTyped.courseCode.trim() === "") failedFlag = true;
             else updated = true;
-        } else if (typeof courseTyped.courseCode !== "undefined" && !_updating) failedFlag = true;
+        } else if (typeof courseTyped.courseCode !== "undefined" && _updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
 
         if (typeof courseTyped.isOpen === "boolean") {
             updated = true;
-        } else if (typeof courseTyped.isOpen !== "undefined" && !_updating) failedFlag = true;
+        } else if (typeof courseTyped.isOpen !== "undefined" && _updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
         
         if (typeof courseTyped.startDate === "string") {
             if (courseTyped.startDate.trim() === "" || isNaN(Date.parse(courseTyped.startDate))) failedFlag = true;
             else updated = true;
-        } else if (typeof courseTyped.startDate !== "undefined" && !_updating) failedFlag = true;
+        } else if (typeof courseTyped.startDate !== "undefined" && _updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
         
         // -- Optional --
