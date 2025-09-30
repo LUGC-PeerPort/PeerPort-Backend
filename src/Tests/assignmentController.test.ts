@@ -286,11 +286,63 @@ describe("AssignmentController test:", () => {
     });
 
     describe("Getting an assignment", () => {
-        it("Should not get an assignment with an invalid ID", async () => {});
+        it("Should not get an assignment with an invalid ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: 123,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAssignment(req, res);
 
-        it("Should not get an assignment with a non-existent ID", async () => {});
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
 
-        it("Should get an assignment with a valid ID", async () => {});
+        it("Should not get an assignment with a non-existent ID", async () => {
+            const req: any = {
+                params: {
+                    assignmentId: "123e4567-e89b-12d3-a456-426614174000",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+        });
+
+        it("Should get an assignment with a valid ID", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                assignmentId: assignment.assignmentId,
+                name: assignment.name,
+                description: assignment.description,
+                dueDate: assignment.dueDate,
+                courseId: course.courseId,
+            });
+        });
     });
 
     describe("Updating an assignment", () => {
