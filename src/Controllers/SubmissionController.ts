@@ -22,7 +22,7 @@ export class SubmissionController {
      * @param res - The response object.
      */
     async getAllSubmissions(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -31,7 +31,7 @@ export class SubmissionController {
      * @param res - The response object.
      */
     async getSubmission(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -40,7 +40,7 @@ export class SubmissionController {
      * @param res - The response object
      */
     async deleteSubmission(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
 }
