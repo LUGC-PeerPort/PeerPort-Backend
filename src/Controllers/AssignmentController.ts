@@ -16,17 +16,66 @@ export class AssignmentController {
         this.assignmentRepo = dataSource.getRepository(Assignments);
     }
 
-    async getAllAssignments(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to get all assignments.
+     * @param req - The request object.
+     * @param res - The response object.
+     */
+    async getAllAssignments(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async createAssignment(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to get an assignment by ID.
+     * @param req - The request object.
+     * @param res - The response object.
+     */
+    async createAssignment(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async getAssignment(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to get a single assignment by ID.
+     * @param req - The request object
+     * @param res - The response object
+     */
+    async getAssignment(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async updateAssignment(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to update an assignment by ID.
+     * @param req - The request object
+     * @param res - The response object
+     */
+    async updateAssignment(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async deleteAssignment(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to delete an assignment by ID.
+     * @param req - The request object
+     * @param res - The response object
+     */
+    async deleteAssignment(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async getSubmissionsForAssignment(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to get all submissions for a specific assignment.
+     * @param req - The request object
+     * @param res - The response object
+     */
+    async getSubmissionsForAssignment(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to create a submission for a specific assignment.
+     * @param req - The request object
+     * @param res - The response object
+     */
+    async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 }
