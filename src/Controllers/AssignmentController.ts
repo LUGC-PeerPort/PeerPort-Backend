@@ -22,7 +22,7 @@ export class AssignmentController {
      * @param res - The response object.
      */
     async getAllAssignments(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -31,7 +31,7 @@ export class AssignmentController {
      * @param res - The response object.
      */
     async createAssignment(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -40,7 +40,7 @@ export class AssignmentController {
      * @param res - The response object
      */
     async getAssignment(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -49,7 +49,7 @@ export class AssignmentController {
      * @param res - The response object
      */
     async updateAssignment(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -58,7 +58,7 @@ export class AssignmentController {
      * @param res - The response object
      */
     async deleteAssignment(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -67,7 +67,7 @@ export class AssignmentController {
      * @param res - The response object
      */
     async getSubmissionsForAssignment(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 
     /**
@@ -76,6 +76,6 @@ export class AssignmentController {
      * @param res - The response object
      */
     async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
-        res.status(501).send("Not implemented");
+        res.status(501).json({ message: "Not implemented" });
     }
 }
