@@ -16,10 +16,31 @@ export class SubmissionController {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
     }
 
-    async getAllSubmissions(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to get all submissions.
+     * @param req - The request object.
+     * @param res - The response object.
+     */
+    async getAllSubmissions(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async getSubmission(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to get a submission by ID.
+     * @param req - The request object.
+     * @param res - The response object.
+     */
+    async getSubmission(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
-    async deleteSubmission(req: Request, res: Response): Promise<void> {}
+    /**
+     * Used to delete a submission by ID.
+     * @param req - The requst object
+     * @param res - The response object
+     */
+    async deleteSubmission(req: Request, res: Response): Promise<void> {
+        res.status(501).send("Not implemented");
+    }
 
 }
