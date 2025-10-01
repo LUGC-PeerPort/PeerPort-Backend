@@ -336,6 +336,12 @@ export class CourseController {
         return userID;
     }
 
+    /**
+     * Used to check 2 dates aginst each other to see if one is before the other
+     * @param startDate - The start date
+     * @param endDate - The end date
+     * @returns Whether the dates are valid or not
+     */
     private checkDates(startDate: string, endDate: string | null): boolean {
         const start = new Date(startDate);
         if (endDate === null) return true;
