@@ -58,10 +58,8 @@ describe("AssignmentController test:", () => {
             await controller.getAllAssignments(req, res);
             if (res.status.mock.calls[0][0] === 501) {
                 getAllImplemented = false;
-                console.log("getAllAssignments is not implemented");
             } else {
                 getAllImplemented = true;
-                console.log("getAllAssignments is implemented");
             }
         });
 
@@ -71,6 +69,7 @@ describe("AssignmentController test:", () => {
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
             await controller.getAllAssignments(req, res);
+            
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
