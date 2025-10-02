@@ -638,7 +638,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BasicError'
   
-  /submmisions:
+  /submissions:
     get:
       tags:
         - Submissions
