@@ -56,7 +56,6 @@ describe("AssignmentController test:", () => {
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
             await controller.getAllAssignments(req, res);
-            console.log(res.status.mock.calls[0][0]);
             if (res.status.mock.calls[0][0] === 501) {
                 getAllImplemented = false;
                 console.log("getAllAssignments is not implemented");
