@@ -337,7 +337,7 @@ export class CourseController {
     }
 
     /**
-     * Used to check 2 dates aginst each other to see if one is before the other
+     * Used to check 2 dates against each other to see if one is before the other
      * @param startDate - The start date
      * @param endDate - The end date
      * @returns Whether the dates are valid or not
