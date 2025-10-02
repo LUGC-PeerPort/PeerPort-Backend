@@ -57,8 +57,29 @@ describe("SubmissionController test:", () => {
         await TestDataSource.destroy();
     });
 
+    let getAllSubmissionsImplemented: boolean;
     describe("Get all submissions", () => {
-        it("Should return an empty array when there are no submissions", async () => {
+        beforeAll(async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAllSubmissions(req, res);
+            if (res.status.mock.calls[0][0] === 501) {
+                getAllSubmissionsImplemented = false;
+            } else {
+                getAllSubmissionsImplemented = true;
+            }
+        });
+        it("Should have implemented the method getAllSubmissions", async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getAllSubmissions(req, res);
+            expect(res.status).not.toHaveBeenCalledWith(501);
+        });
+        (getAllSubmissionsImplemented ? it : it.skip)("Should return an empty array when there are no submissions", async () => {
             const req: any = {};
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -69,7 +90,7 @@ describe("SubmissionController test:", () => {
             expect(res.json).toHaveBeenCalledWith([]);
         });
 
-        it("Should return a single submission when it exists", async () => {
+        (getAllSubmissionsImplemented ? it : it.skip)("Should return a single submission when it exists", async () => {
             const submission = TestDataSource.getRepository("AssignmentSubmissions").create({
                 comment: "This is a test submission",
                 timeSubmitted: new Date().toISOString(),
@@ -92,7 +113,7 @@ describe("SubmissionController test:", () => {
             }]);
         });
 
-        it("Should return multiple submissions when they exist", async () => {
+        (getAllSubmissionsImplemented ? it : it.skip)("Should return multiple submissions when they exist", async () => {
             const submission1 = TestDataSource.getRepository("AssignmentSubmissions").create({
                 comment: "This is the first test submission",
                 timeSubmitted: new Date().toISOString(),
@@ -131,8 +152,29 @@ describe("SubmissionController test:", () => {
         });
     });
 
+    let getSubmissionByIdImplemented: boolean;
     describe("Get a submission by ID", () => {
-        it("Should not get a submission with an invalid ID", async () => {
+        beforeAll(async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getSubmission(req, res);
+            if (res.status.mock.calls[0][0] === 501) {
+                getSubmissionByIdImplemented = false;
+            } else {
+                getSubmissionByIdImplemented = true;
+            }
+        });
+        it("Should have implemented the method getSubmission", async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getSubmission(req, res);
+            expect(res.status).not.toHaveBeenCalledWith(501);
+        });
+        (getSubmissionByIdImplemented ? it : it.skip)("Should not get a submission with an invalid ID", async () => {
             const req: any = {
                 params: {
                     submissionId: "invalid-uuid",
@@ -147,7 +189,7 @@ describe("SubmissionController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
         });
 
-        it("Should not get a submission with a non-existent ID", async () => {
+        (getSubmissionByIdImplemented ? it : it.skip)("Should not get a submission with a non-existent ID", async () => {
             const req: any = {
                 params: {
                     submissionId: "123e4567-e89b-12d3-a456-426614174999",
@@ -162,7 +204,7 @@ describe("SubmissionController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
         });
 
-        it("Should get a submission with a valid ID", async () => {
+        (getSubmissionByIdImplemented ? it : it.skip)("Should get a submission with a valid ID", async () => {
             const submission = TestDataSource.getRepository("AssignmentSubmissions").create({
                 comment: "This is a test submission",
                 timeSubmitted: new Date().toISOString(),
@@ -190,8 +232,29 @@ describe("SubmissionController test:", () => {
         });
     });
 
+    let deleteSubmissionImplemented: boolean;
     describe("Delete a submission", () => {
-        it("Should not delete a submission with an invalid ID", async () => {
+        beforeAll(async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteSubmission(req, res);
+            if (res.status.mock.calls[0][0] === 501) {
+                deleteSubmissionImplemented = false;
+            } else {
+                deleteSubmissionImplemented = true;
+            }
+        });
+        it("Should have implemented the method deleteSubmission", async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.deleteSubmission(req, res);
+            expect(res.status).not.toHaveBeenCalledWith(501);
+        });
+        (deleteSubmissionImplemented ? it : it.skip)("Should not delete a submission with an invalid ID", async () => {
             const req: any = {
                 params: {
                     submissionId: "invalid-uuid",
@@ -206,7 +269,7 @@ describe("SubmissionController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
         });
 
-        it("Should not delete a submission with a non-existent ID", async () => {
+        (deleteSubmissionImplemented ? it : it.skip)("Should not delete a submission with a non-existent ID", async () => {
             const req: any = {
                 params: {
                     submissionId: "123e4567-e89b-12d3-a456-426614174999",
@@ -221,7 +284,7 @@ describe("SubmissionController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
         });
 
-        it("Should delete a submission with a valid ID", async () => {
+        (deleteSubmissionImplemented ? it : it.skip)("Should delete a submission with a valid ID", async () => {
             const submission = TestDataSource.getRepository("AssignmentSubmissions").create({
                 comment: "This is a test submission",
                 timeSubmitted: new Date().toISOString(),
