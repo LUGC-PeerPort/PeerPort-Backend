@@ -775,12 +775,12 @@ describe("AssignmentController test:", () => {
                 gettingSubmissionsImplemented = true;
             }
         });
-        it("Should have implemented the method getSubmissionsForAssignment", () => {
+        it("Should have implemented the method getSubmissionsForAssignment", async () => {
             const req: any = {};
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
-            controller.getSubmissionsForAssignment(req, res);
+            await controller.getSubmissionsForAssignment(req, res);
 
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
