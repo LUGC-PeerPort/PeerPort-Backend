@@ -47,7 +47,6 @@ describe("AssignmentController test:", () => {
         await TestDataSource.destroy();
     });
 
-    
     let getAllImplemented : boolean;
     describe("Get all assignments", () => {
         beforeAll(async () => {
