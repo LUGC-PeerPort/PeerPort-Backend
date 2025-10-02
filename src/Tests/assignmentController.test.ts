@@ -50,7 +50,6 @@ describe("AssignmentController test:", () => {
     
     let getAllImplemented : boolean;
     describe("Get all assignments", () => {
-
         beforeAll(async () => {
             const req: any = {};
             const res: any = {};
