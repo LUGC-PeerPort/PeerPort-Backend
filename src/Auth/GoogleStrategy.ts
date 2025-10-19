@@ -91,6 +91,12 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:(req: any, res: any) => Promise<void>) => {
+
+        if(process.env.IS_PRODUCTION === "false") {
+            // In non-production environments, skip auth for easier testing
+            return cb(req as express.Request, res as express.Response);
+        }
+
         // @ts-expect-error Needed as request session types are ... weird
         const userId = (req.session as unknown).passport.user;
 
