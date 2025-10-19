@@ -58,7 +58,7 @@ AppDataSource.initialize().then(() => {
     const userRepository = AppDataSource.getRepository(User);
 
 
-    if(process.env.NODE_ENV !== "production") {
+    if(process.env.IS_PRODUCTION === "false") {
         app.get("/auth/setRole/:roleName", async (req, res) => {
             const roleName = req.params.roleName;
 
@@ -88,31 +88,31 @@ AppDataSource.initialize().then(() => {
     }
 
 
-    app.get("/auth/testAuth/user", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, (req, res) => {
+    app.get("/auth/testAuth/user", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => {
         return res.json({message: "User has minimum 'user' role access."});
     }));
-    app.get("/auth/testAuth/teacher", (req, res) => ifAuthed(["teacher", "admin"], req, res, (req, res) => {
+    app.get("/auth/testAuth/teacher", (req, res) => ifAuthed(["teacher", "admin"], req, res, () => {
         return res.json({message: "User has minimum 'teacher' role access."});
     }));
-    app.get("/auth/testAuth/admin", (req, res) => ifAuthed(["admin"], req, res, (req, res) => {
+    app.get("/auth/testAuth/admin", (req, res) => ifAuthed(["admin"], req, res, () => {
         return res.json({message: "User has 'admin' role access."});
     }));
 
     // Define routes
     app.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-    app.get("/users", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  userController.getAllUsers));
-    app.post("/users", (req, res) =>ifAuthed(["user", "teacher", "admin"], req, res,  userController.create));
-    app.get("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, userController.getProfile));
-    app.put("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, userController.updateProfile));
-    app.delete("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, userController.deleteProfile));
-    app.get("/users/:id/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, userController.getCourses));
-    app.get("/users/:id/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, userController.getCourse));
+    app.get("/users", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.getAllUsers(req, res)));
+    app.post("/users", (req, res) =>ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.create(req, res)));
+    app.get("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getProfile(req, res)));
+    app.put("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.updateProfile(req, res)));
+    app.delete("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.deleteProfile(req, res)));
+    app.get("/users/:id/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourses(req, res)));
+    app.get("/users/:id/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourse(req, res)));
 
 
-    app.get("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  courseController.getAllCourses));
-    app.post("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, courseController.createCourse));
-    app.get("/courses/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  courseController.getCourse));
+    app.get("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getAllCourses(req, res)));
+    app.post("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => courseController.createCourse(req, res)));
+    app.get("/courses/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
 });
 
 // Setting up swagger

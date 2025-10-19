@@ -90,11 +90,11 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:(req: any, res: any) => Promise<void>) => {
+    return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:() => void) => {
 
         if(process.env.IS_PRODUCTION === "false") {
             // In non-production environments, skip auth for easier testing
-            return cb(req as express.Request, res as express.Response);
+            return cb();
         }
 
         // @ts-expect-error Needed as request session types are ... weird
@@ -126,7 +126,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             }
         }
         if(authorizedRoles.includes(userRole?.name)){
-            return cb(req as express.Request, res as express.Response);
+            return cb();
         } else {
             res.status(403).json({message: "Forbidden: You don't have permission to access this resource."});
             return;
