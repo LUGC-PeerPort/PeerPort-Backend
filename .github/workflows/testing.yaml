@@ -5,7 +5,7 @@ name: Testing in Jest Node.js
 
 on:
   push:
-    branches: [ "main", "auth" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
