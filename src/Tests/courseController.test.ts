@@ -16,6 +16,7 @@ describe("CourseController test:", () => {
         // Clear UsersToCourses, User, and Course repositories before each test
         await TestDataSource.getRepository("UsersToCourses").clear();
         await TestDataSource.getRepository("User").clear();
+        await TestDataSource.getRepository("Assignments").clear();
         await TestDataSource.getRepository("Course").clear();
     });
 
