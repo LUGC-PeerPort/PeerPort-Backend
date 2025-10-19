@@ -5,6 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import { AppDataSource } from "./Database/DB.js";
 import { UserController } from "./Controllers/UserController.js";
 import { CourseController } from "./Controllers/CourseController.js";
+import { AssignmentController } from "./Controllers/AssignmentController.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
@@ -20,6 +21,7 @@ if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || 
 AppDataSource.initialize().then(() => {
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
+    const assignmentController = new AssignmentController(AppDataSource);
 
     // Define routes
     app.get("/users", (req, res) => userController.getAllUsers(req, res));
@@ -34,6 +36,13 @@ AppDataSource.initialize().then(() => {
     app.get("/courses", (req, res) => courseController.getAllCourses(req, res));
     app.post("/courses", (req, res) => courseController.createCourse(req, res));
     app.get("/courses/:id", (req, res) => courseController.getCourse(req, res));
+
+    //Assignment controller
+    app.get("/assignments/:id", (req, res) => assignmentController.getAssignment(req, res));
+    app.get("/assignments", (req, res) => assignmentController.getAllAssignments(req, res));
+    app.post("/assignments", (req, res) => assignmentController.createAssignment(req, res));
+    app.put("/assignments/:id", (req, res) => assignmentController.updateAssignment(req, res));
+    app.delete("/assignments/:id", (req, res) => assignmentController.deleteAssignment(req, res));
 });
 
 // Setting up swagger
