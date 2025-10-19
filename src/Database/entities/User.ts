@@ -33,7 +33,7 @@ export class User {
     	nullable: true,
     })
     	profilePictureUrl?: string;
-    
+
     @Column({
     	type: "text",
     	nullable: false,
@@ -42,7 +42,7 @@ export class User {
 
     // Connections
     @OneToOne(() => Role, (role) => role.user)
-    @JoinColumn()
+    @JoinColumn({ name: "roleId" })
     	role!: Role;
 
     @OneToMany(() => UsersToCourses, (usersToCourses) => usersToCourses.user)
