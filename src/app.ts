@@ -9,7 +9,6 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import passport from "passport";
 import {User} from "./Database/entities/User.js";
-import session from "express-session";
 import {Role} from "./Database/entities/Role.js";
 import {GoogleStrategySetup} from "./Auth/GoogleStrategy.js";
 import cors from "cors";
@@ -23,7 +22,7 @@ app.use(cors({
     methods: "GET,POST,PUT,DELETE,HEAD,OPTIONS",
     credentials: true,
     allowedHeaders: "Content-Type,Authorization"
-}))
+}));
 
 
 // Check if the enviroment variables are set
@@ -36,7 +35,7 @@ AppDataSource.initialize().then(() => {
 
     const roleRepository = AppDataSource.getRepository(Role);
     // Ensure default roles exist
-    const ensureDefaultRoles = async () => {
+    const ensureDefaultRoles = async () : Promise<void> => {
         const roles = ["user", "teacher", "admin"];
         for (const roleName of roles) {
             let role = await roleRepository.findOneBy({ name: roleName });
@@ -47,7 +46,7 @@ AppDataSource.initialize().then(() => {
                 console.log(`Created default role: ${roleName}`);
             }
         }
-    }
+    };
     ensureDefaultRoles().then(()=>{}).catch(console.error);
 
 
@@ -63,7 +62,8 @@ AppDataSource.initialize().then(() => {
         app.get("/auth/setRole/:roleName", async (req, res) => {
             const roleName = req.params.roleName;
 
-            const userId  = (req.session as any).passport.user;
+            // @ts-expect-error Needed as request session types are ... weird
+            const userId  = (req.session as unknown).passport.user;
             if(!userId) {
                 return res.status(401).json({ message: "Not authenticated." });
             }
@@ -84,11 +84,10 @@ AppDataSource.initialize().then(() => {
             user.role = role;
             await userRepository.save(user);
             return res.json({ message: `User role updated to ${roleName}.` });
-        })
+        });
     }
 
 
-    // @ts-ignore
     app.get("/auth/testAuth/user", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, (req, res) => {
         return res.json({message: "User has minimum 'user' role access."});
     }));
