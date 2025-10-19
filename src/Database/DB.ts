@@ -1,17 +1,12 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User } from "../Database/entities/User.js";
-import { Role } from "../Database/entities/Role.js";
-import { Files } from "../Database/entities/Files.js";
-import { Course } from "../Database/entities/Course.js";
-import { Content } from "../Database/entities/Content.js";
-import { Assignments } from "../Database/entities/Assignments.js";
-import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
-import { ContentToFiles } from "../Database/entities/ContentToFiles.js";
-import { AssignmentToFiles } from "../Database/entities/AssignmentToFiles.js";
-import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { AssignmentSubmissionToFiles } from "../Database/entities/AssignmentSubmissionToFiles.js";
 
+// Models
+import { User } from "./entities/User.js";
+import { Role } from "./entities/Role.js";
+import { Course } from "./entities/Course.js";
+import { UsersToCourses } from "./entities/UsersToCourses.js";
+import { FederatedCredentials } from "./entities/FederatedCredentials.js";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -22,17 +17,12 @@ export const AppDataSource = new DataSource({
 
     // Using the models
     entities: [
-        User, 
-        Role, 
-        Files,
+        User,
+        Role,
         Course,
-        Content,
-        Assignments,
         UsersToCourses,
-        ContentToFiles,
-        AssignmentToFiles,
-        AssignmentSubmissions,
-        AssignmentSubmissionToFiles,
+        FederatedCredentials
     ],
     synchronize: true,
+
 });
