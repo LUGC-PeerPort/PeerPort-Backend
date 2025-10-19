@@ -304,32 +304,32 @@ export class UserController {
         if (typeof userTyped.name === "string") {
             if (userTyped.name.trim().length < 2) failedFlag = true;
             else updated = true;
-        } else if (typeof userTyped.name !== "undefined" && !updating) failedFlag = true;
+        } else if (typeof userTyped.name !== "undefined" && updating) failedFlag = true;
         else if (!updating) failedFlag = true;
 
         if (typeof userTyped.email === "string") {
             if (!RegExp(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).test(userTyped.email.trim())) failedFlag = true;
             else updated = true;
-        } else if (typeof userTyped.email !== "undefined" && !updating) failedFlag = true;
+        } else if (typeof userTyped.email !== "undefined" && updating) failedFlag = true;
         else if (!updating) failedFlag = true;
 
         if (typeof userTyped.password === "string") {
             if (userTyped.password.trim() === "" || userTyped.password.trim().length < 8) failedFlag = true;
             else updated = true;
-        } else if (typeof userTyped.password !== "undefined" && !updating) failedFlag = true;
+        } else if (typeof userTyped.password !== "undefined" && updating) failedFlag = true;
         else if (!updating) failedFlag = true;
 
         if (typeof userTyped.idNumber === "string") {
             if (userTyped.idNumber.trim() === "") failedFlag = true;
             else updated = true;
-        } else if (typeof userTyped.idNumber !== "undefined" && !updating) failedFlag = true;
+        } else if (typeof userTyped.idNumber !== "undefined" && updating) failedFlag = true;
         else if (!updating) failedFlag = true;
         
         // -- Optional --
         if (typeof userTyped.profilePictureUrl === "string") {
             if (userTyped.profilePictureUrl.trim() !== "" && userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
             else updated = true;
-        }
+        } else if (typeof userTyped.profilePictureUrl !== "undefined" && updating) failedFlag = true;
 
         if (failedFlag) return false;
         else if (updating && !updated) return false;
