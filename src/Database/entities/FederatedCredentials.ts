@@ -1,5 +1,8 @@
 import {Entity, Column} from "typeorm";
 
+/**
+ *
+ */
 @Entity("FederatedCredentials")
 export class FederatedCredentials {
     @Column({

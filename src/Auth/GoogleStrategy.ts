@@ -1,10 +1,10 @@
 import passport from "passport";
-// @ts-ignore
-import GoogleStrategy from "passport-google-oidc"
-import express from "express";
+// @ts-expect-error Needed as there are no types available for this package
+import GoogleStrategy from "passport-google-oidc";
+import type express from "express";
 import {Role} from "../Database/entities/Role.js";
 import {User} from "../Database/entities/User.js";
-import {DataSource} from "typeorm";
+import type {DataSource} from "typeorm";
 import session from "express-session";
 
 export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSource) => {
@@ -25,48 +25,58 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
     app.use(passport.session());
 
     passport.use(new GoogleStrategy({
-            clientID: process.env.AUTH_GOOGLE_ID!,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-            callbackURL: process.env.AUTH_GOOGLE_CALLBACK!
-        },
-        (issuer: any, profile: any, cb: any) => {
-            const credentialsRepository = AppDataSource.getRepository("FederatedCredentials");
-            const userRepository = AppDataSource.getRepository("User");
+        clientID: process.env.AUTH_GOOGLE_ID!,
+        clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+        callbackURL: process.env.AUTH_GOOGLE_CALLBACK!
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (issuer: any, profile: any, cb: any) => {
+        const credentialsRepository = AppDataSource.getRepository("FederatedCredentials");
+        const userRepository = AppDataSource.getRepository("User");
 
-            credentialsRepository.findOneBy({provider: issuer, providerId: profile.id})
-                .then(async (federatedCredentials: any) => {
-                    if (federatedCredentials) {
-                        return userRepository.findOneBy({userId: federatedCredentials.userId});
-                    }
-                    const user = new User();
-                    user.email = profile.emails[0].value;
-                    user.name = profile.displayName;
-                    user.password = Math.random().toString(36).slice(-8); // Random password
-                    user.role = await AppDataSource.getRepository(Role).findOneBy({name: "user"}).then((r) => {return r!;})
-                    user.idNumber = "ID_NUMBER_NOT_ASSIGNED";
+        credentialsRepository.findOneBy({provider: issuer, providerId: profile.id})
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .then(async (federatedCredentials: any) => {
+                if (federatedCredentials) {
+                    return userRepository.findOneBy({userId: federatedCredentials.userId});
+                }
+                const user = new User();
+                user.email = profile.emails[0].value;
+                user.name = profile.displayName;
+                user.password = Math.random().toString(36).slice(-8); // Random password
+                user.role = await AppDataSource.getRepository(Role).findOneBy({name: "user"}).then((r) => {return r!;});
+                user.idNumber = "ID_NUMBER_NOT_ASSIGNED";
 
-                    const newUser = await userRepository.save(user);
-                    const newFederatedCredentials = credentialsRepository.create({
-                        provider: issuer,
-                        providerId: profile.id,
-                        userId: newUser.userId
-                    });
-                    await credentialsRepository.save(newFederatedCredentials);
-                    return newUser;
-                })
-                .then((user: any) => cb(null, user))
-                .catch((err: any) => cb(err));
-        }
+                const newUser = await userRepository.save(user);
+                const newFederatedCredentials = credentialsRepository.create({
+                    provider: issuer,
+                    providerId: profile.id,
+                    userId: newUser.userId
+                });
+                await credentialsRepository.save(newFederatedCredentials);
+                return newUser;
+            })
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .then((user: any) => cb(null, user))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .catch((err: any) => cb(err));
+    }
     ));
 
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passport.serializeUser((user: any, done) => {
         done(null, user.userId);
     });
 
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passport.deserializeUser((id: any, done) => {
         const UserRepository = AppDataSource.getRepository("User");
         UserRepository.findOneBy({userId: id})
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .then((user: any) => done(null, user))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .catch((err: any) => done(err));
     });
 
@@ -79,18 +89,20 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             res.redirect("/");
         });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:(req: any, res: any) => Promise<void>) => {
-        const userId = (req.session as unknown as {cookies:{}, passport?:{user?: string}}).passport?.user!;
+        // @ts-expect-error Needed as request session types are ... weird
+        const userId = (req.session as unknown).passport.user;
 
         if(!userId) {
             res.redirect("/login");
-            console.log("WTF")
+            console.log("WTF");
             return;
         }
 
         const user = await AppDataSource.getRepository(User).findOneBy({userId: userId});
         if(user == null){
-            res.redirect(`/login`);
+            res.redirect("/login");
             console.log("TWF");
             return;
         }
@@ -108,11 +120,10 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             }
         }
         if(authorizedRoles.includes(userRole?.name)){
-            // @ts-ignore
             return cb(req as express.Request, res as express.Response);
         } else {
             res.status(403).json({message: "Forbidden: You don't have permission to access this resource."});
             return;
         }
-    }
-}
+    };
+};
