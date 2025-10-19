@@ -23,6 +23,6 @@ export class AssignmentSubmissionToFiles {
     	user!: User;
 
     @ManyToOne(() => Course, (course) => course.users)
-    @JoinColumn({ name: "classId" })
+    @JoinColumn({ name: "courseId" })
     	classEntity!: Course;
 }
