@@ -2,10 +2,9 @@ import type { DataSource, Repository } from "typeorm";
 import { Assignments } from "../Database/entities/Assignments.js";
 import type { Request, Response } from "express";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { SubmissionController } from "./SubmissionController.js";
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
-import { stringify } from "querystring";
+
 /**
  * Used to manage assignments.
  */
@@ -14,7 +13,6 @@ export class AssignmentController {
     private assignmentSubmissionsRepo: Repository<AssignmentSubmissions>;
     private userRepo: Repository<User>;
     private courseRepo: Repository<Course>;
-                                       
 
     /**
      * Constructor for AssignmentController.
@@ -67,7 +65,10 @@ export class AssignmentController {
 
     /**
      * Helper for assignment request body validation
+     * @param body - The request body
+     * @returns boolean
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isValidAssBody(body: any): boolean {
         if (!body) return false;
         const required = ["name", "description", "dueDate", "courseId"];
@@ -247,7 +248,7 @@ export class AssignmentController {
      * @param res - The response object
      */
     async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
-       try {
+        try {
             // const{assignmentId, studentId, content}=req.body;
             // if(!assignmentId||!studentId||!content){
             //     res.status(400).json({message: "Missing a required feild: assignmentId, studentId, or coontent"});
@@ -287,8 +288,8 @@ export class AssignmentController {
             // res.status(201).json(saveSubmission);
     
         }catch (error) {
-           console.log("Error creating submission:", error);
-           res.status(500).json({ message: "Failed to create submission" });
-       }
+            console.log("Error creating submission:", error);
+            res.status(500).json({ message: "Failed to create submission" });
+        }
     }
 }
