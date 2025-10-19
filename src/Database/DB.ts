@@ -6,6 +6,7 @@ import { User } from "./entities/User.js";
 import { Role } from "./entities/Role.js";
 import { Course } from "./entities/Course.js";
 import { UsersToCourses } from "./entities/UsersToCourses.js";
+import { FederatedCredentials } from "./entities/FederatedCredentials.js";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -16,10 +17,11 @@ export const AppDataSource = new DataSource({
 
     // Using the models
     entities: [
-        User, 
-        Role, 
+        User,
+        Role,
         Course,
-        UsersToCourses
+        UsersToCourses,
+        FederatedCredentials
     ],
     synchronize: true,
 
