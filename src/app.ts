@@ -20,13 +20,13 @@ app.use(express.json());
 
 app.use(cors({
     origin: process.env.CLIENT_URL,
-    methods: 'GET,POST,PUT,DELETE,HEAD,OPTIONS',
+    methods: "GET,POST,PUT,DELETE,HEAD,OPTIONS",
     credentials: true,
-    allowedHeaders: 'Content-Type,Authorization'
+    allowedHeaders: "Content-Type,Authorization"
 }));
 
 
-// Check if the enviroment variables are set
+// Check if the environment variables are set
 if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
     console.error("Database environment variables are not set.");
     process.exit(1);
@@ -115,18 +115,19 @@ AppDataSource.initialize().then(() => {
     app.get("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getAllCourses(req, res)));
     app.post("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => courseController.createCourse(req, res)));
     app.get("/courses/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
-    app.get("/courses", (req, res) => courseController.getAllCourses(req, res));
-    app.post("/courses", (req, res) => courseController.createCourse(req, res));
-    app.get("/courses/:id", (req, res) => courseController.getCourse(req, res));
+    app.get("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getAllCourses(req, res)));
+    app.post("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.createCourse(req, res)));
+    app.get("/courses/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
+    app.get("/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
+    app.get("/courses/:courseId/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
+
 
     //Assignment controller
-    app.get("/assignments/:id", (req, res) => assignmentController.getAssignment(req, res));
-    app.get("/assignments", (req, res) => assignmentController.getAllAssignments(req, res));
-    app.post("/assignments", (req, res) => assignmentController.createAssignment(req, res));
-    app.put("/assignments/:id", (req, res) => assignmentController.updateAssignment(req, res));
-    app.delete("/assignments/:id", (req, res) => assignmentController.deleteAssignment(req, res));
-    app.get("/courses/:courseId", (req, res) => courseController.getCourse(req, res));
-    app.get("/courses/:courseId/assignments", (req, res) => courseController.getCourseAssignments(req, res));
+    app.get("/assignments/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
+    app.get("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
+    app.post("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
+    app.put("/assignments/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
+    app.delete("/assignments/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
 });
 
 // Setting up swagger
