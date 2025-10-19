@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import { Assignments } from "../Database/entities/Assignments.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -14,6 +15,13 @@ export interface CourseReturn {
     endDate: Date | string | null;
 };
 
+export interface AssignmentReturn {
+    assignmentId: string;
+    name: string;
+    description: string;
+    dueDate: Date | string;
+}
+
 
 /**
  * The controller for handling course-related operations
@@ -22,6 +30,7 @@ export class CourseController {
     private courseRepo: Repository<Course>;
     private userRepo: Repository<User>;
     private usersToCoursesRepo: Repository<UsersToCourses>;
+    private assignmentsRepo: Repository<Assignments>;
 
     /**
      * Create an instance of the CourseController
@@ -31,6 +40,7 @@ export class CourseController {
         this.courseRepo = appDataSource.getRepository(Course);
         this.userRepo = appDataSource.getRepository(User);
         this.usersToCoursesRepo = appDataSource.getRepository(UsersToCourses);
+        this.assignmentsRepo = appDataSource.getRepository(Assignments);
     }
 
     /**
@@ -52,7 +62,7 @@ export class CourseController {
     async createCourse(req: Request, res: Response): Promise<void> {
         // Check course structure
         const courseUnknown = req.body as unknown;
-        if (!this.checkCourseStructure(courseUnknown)) {
+        if (!this.checkCourseStructure(courseUnknown, true)) {
             res.status(400).json({ message: "Invalid course structure" });
             return;
         }
@@ -60,7 +70,17 @@ export class CourseController {
         // Convert to Course type
         const userId = (courseUnknown as Course & { userId: string }).userId;
         const courseStructure = courseUnknown as Course;
-        if (typeof userId !== "string" || userId.trim() === "") {
+
+        // Check dates
+        const startDate = courseStructure.startDate;
+        const endDate = courseStructure.endDate ?? null;
+        if (!this.checkDates(startDate, endDate)) {
+            res.status(400).json({ message: "Invalid course structure" });
+            return;
+        }
+
+        // Check if the user ID is valid
+        if (!this.checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
@@ -82,15 +102,6 @@ export class CourseController {
             course: courseResult
         });
         await this.usersToCoursesRepo.save(usersToCourses);
-
-        // Save the connection in the course entity
-        courseResult.users.push(usersToCourses);
-        await this.courseRepo.save(courseResult);
-
-        // Save the connection in the user entity
-        if (!user.courses) user.courses = [];
-        user.courses.push(usersToCourses);
-        await this.userRepo.save(user);
 
         // Connect the user to the course
         const courseReturn = this.courseReturn(courseResult);
@@ -145,14 +156,22 @@ export class CourseController {
 
         // Check course structure
         const courseUnknown = req.body as unknown;
-        if (!this.checkCourseStructure(courseUnknown)) {
+        if (!this.checkCourseStructure(courseUnknown, false, true)) {
             res.status(400).json({ message: "Invalid course structure" });
             return;
         }
 
         // Save the course
         const courseStructure = courseUnknown as Course;
-        
+
+        // Check dates
+        const startDate = courseStructure.startDate ?? course.startDate;
+        const endDate = courseStructure.endDate ?? course.endDate ?? null;
+        if (!this.checkDates(startDate, endDate)) {
+            res.status(400).json({ message: "Invalid course structure" });
+            return;
+        }
+
         course.name = courseStructure.name ?? course.name;
         course.courseCode = courseStructure.courseCode ?? course.courseCode;
         course.isOpen = courseStructure.isOpen ?? course.isOpen;
@@ -236,17 +255,40 @@ export class CourseController {
         const userToCourse = this.usersToCoursesRepo.create({ user: user, course: course });
         await this.usersToCoursesRepo.save(userToCourse);
 
-        // Save the connection in the course entity
-        course.users.push(userToCourse);
-        await this.courseRepo.save(course);
-
-        // Save the connection in the user entity
-        if (!user.courses) user.courses = [];
-        user.courses.push(userToCourse);
-        await this.userRepo.save(user);
-
         // Send response
         res.status(201).json({ message: "User enrolled in course" });
+    }
+
+    // /api/v1/courses/:courseId/assignments
+    /**
+     * Retrieves all assignments for a specific course
+     * @param req - The Request object
+     * @param res - The Response object
+     * @returns A list of assignments for the course
+     */
+    async getCourseAssignments(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseId = req.params.courseId;
+        if (!this.checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Get assignments
+        const assignments = await this.assignmentsRepo.find({
+            where: { course: { courseId: courseId } },
+        });
+
+        // Parse assignments
+        const assignmentReturns = assignments.map(assignment => this.assignmentReturn(assignment));
+        res.status(200).json(assignmentReturns);
     }
 
 
@@ -256,9 +298,11 @@ export class CourseController {
      * Checks if the course structure is valid or not
      * @param course - The course structure to check
      * @param _creation - Whether the check is for creation or not
+     * @param _updating - Whether the check is for updating or not
      * @returns Whether the structure is valid or not
      */
-    private checkCourseStructure(course: unknown, _creation: boolean=false): boolean {
+    // eslint-disable-next-line complexity
+    private checkCourseStructure(course: unknown, _creation: boolean=false, _updating: boolean=false): boolean {
         if (typeof course !== "object" || course === null) return false;
 
         // Check if the course has any extra keys
@@ -270,20 +314,46 @@ export class CourseController {
         // Make a Course object that is partial (all fields optional)
         const courseTyped = course as Partial<Course>;
 
+        let failedFlag = false;
+        let updated = false;
+
         // -- Required --
-        if (typeof courseTyped.name !== "string" || courseTyped.name.trim() === "") return false;
+        if (typeof courseTyped.name === "string") {
+            if (courseTyped.name.trim() === "") failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.name !== "undefined" && _updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
         
-        if (typeof courseTyped.courseCode !== "string" || courseTyped.courseCode.trim() === "") return false;
-        
-        if (typeof courseTyped.isOpen !== "boolean") return false;
-        
-        if (typeof courseTyped.startDate !in ["string", "date"]) return false;
-        
-        // -- Nullable --
-        if (courseTyped.description && (typeof courseTyped.description !== "string" || courseTyped.description.trim() === "")) return false;
+        if (typeof courseTyped.courseCode === "string") {
+            if (courseTyped.courseCode.trim() === "") failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.courseCode !== "undefined" && _updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
 
-        if (courseTyped.endDate && (typeof courseTyped.endDate !in ["string", "date"])) return false;
-
+        if (typeof courseTyped.isOpen === "boolean") {
+            updated = true;
+        } else if (typeof courseTyped.isOpen !== "undefined" && _updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
+        
+        if (typeof courseTyped.startDate === "string") {
+            if (courseTyped.startDate.trim() === "" || isNaN(Date.parse(courseTyped.startDate))) failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.startDate !== "undefined" && _updating) failedFlag = true;
+        else if (!_updating) failedFlag = true;
+        
+        // -- Optional --
+        if (typeof courseTyped.description === "string") {
+            if (courseTyped.description.trim() === "") failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.description !== "undefined" && (_updating || _creation)) failedFlag = true;
+    
+        if (typeof courseTyped.endDate === "string") {
+            if (courseTyped.endDate.trim() === "" || isNaN(Date.parse(courseTyped.endDate))) failedFlag = true;
+            else updated = true;
+        } else if (typeof courseTyped.endDate !== "undefined" && (_updating || _creation)) failedFlag = true;
+        
+        if (failedFlag) return false;
+        if (_updating && !updated) return false;
         return true;
     }
 
@@ -309,6 +379,23 @@ export class CourseController {
     }
 
     /**
+     * Used to check 2 dates against each other to see if one is before the other
+     * @param startDate - The start date
+     * @param endDate - The end date
+     * @returns Whether the dates are valid or not
+     */
+    private checkDates(startDate: string, endDate: string | null): boolean {
+        const start = new Date(startDate);
+        if (endDate === null) return true;
+
+        const end = new Date(endDate);
+        if (end <= start) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Parses the course data and make it an acceptable return value
      * @param courseData - The course data from the database
      * @returns The course data acceptable for a return
@@ -322,6 +409,20 @@ export class CourseController {
             description: courseData.description ?? null,
             startDate: courseData.startDate,
             endDate: courseData.endDate ?? null,
+        };
+    }
+
+    /**
+     * Parses the assignment data and make it an acceptable return value
+     * @param assignmentData - The assignment data from the database
+     * @returns The assignment data acceptable for a return
+     */
+    private assignmentReturn(assignmentData: Assignments): AssignmentReturn {
+        return {
+            assignmentId: assignmentData.assignmentId,
+            name: assignmentData.name,
+            description: assignmentData.description,
+            dueDate: assignmentData.dueDate,
         };
     }
 }
