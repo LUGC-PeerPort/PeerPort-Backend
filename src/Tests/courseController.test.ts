@@ -16,6 +16,7 @@ describe("CourseController test:", () => {
         // Clear UsersToCourses, User, and Course repositories before each test
         await TestDataSource.getRepository("UsersToCourses").clear();
         await TestDataSource.getRepository("User").clear();
+        await TestDataSource.getRepository("Assignments").clear();
         await TestDataSource.getRepository("Course").clear();
     });
 
@@ -1025,6 +1026,100 @@ describe("CourseController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(409);
             expect(res.json).toHaveBeenCalledWith({ message: "User is already enrolled in this course" });
+        });
+    });
+
+    describe("Get assignments for a course", () => {
+        it("Should not get assignments with no course ID", async () => {
+            const req: any = {
+                params: {}
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourseAssignments(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
+        });
+
+        it("Should not get assignments with an invalid course ID", async () => {
+            const req: any = {
+                params: {
+                    courseId: "invalid-uuid"
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourseAssignments(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
+        });
+
+        it("Should not get assignments with a non-existent course ID", async () => {
+            const req: any = {
+                params: {
+                    courseId: "123e4567-e89b-12d3-a456-426614174999"
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourseAssignments(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "Course not found" });
+        });
+
+        it("Should get assignments with a valid course ID", async () => {
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "testCourse",
+                courseCode: "tes-st01",
+                isOpen: true,
+                description: "A test course",
+                startDate: "2024-01-01",
+                endDate: "2024-06-01",
+            });
+            const assignment1 = await TestDataSource.getRepository("Assignments").save({
+                name: "Assignment 1",
+                description: "First assignment",
+                dueDate: "2024-02-01",
+                course: course,
+            });
+            const assignment2 = await TestDataSource.getRepository("Assignments").save({
+                name: "Assignment 2",
+                description: "Second assignment",
+                dueDate: "2024-03-01",
+                course: course,
+            });
+
+            const req: any = {
+                params: {
+                    courseId: course.courseId
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourseAssignments(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([
+                {
+                    assignmentId: assignment1.assignmentId,
+                    name: assignment1.name,
+                    description: assignment1.description,
+                    dueDate: assignment1.dueDate,
+                },
+                {
+                    assignmentId: assignment2.assignmentId,
+                    name: assignment2.name,
+                    description: assignment2.description,
+                    dueDate: assignment2.dueDate,
+                }
+            ]);
         });
     });
 });

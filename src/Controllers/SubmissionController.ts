@@ -36,7 +36,7 @@ export class SubmissionController {
 
     /**
      * Used to delete a submission by ID.
-     * @param req - The requst object
+     * @param req - The request object
      * @param res - The response object
      */
     async deleteSubmission(req: Request, res: Response): Promise<void> {

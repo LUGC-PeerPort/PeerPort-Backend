@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import { Assignments } from "../Database/entities/Assignments.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -14,6 +15,13 @@ export interface CourseReturn {
     endDate: Date | string | null;
 };
 
+export interface AssignmentReturn {
+    assignmentId: string;
+    name: string;
+    description: string;
+    dueDate: Date | string;
+}
+
 
 /**
  * The controller for handling course-related operations
@@ -22,6 +30,7 @@ export class CourseController {
     private courseRepo: Repository<Course>;
     private userRepo: Repository<User>;
     private usersToCoursesRepo: Repository<UsersToCourses>;
+    private assignmentsRepo: Repository<Assignments>;
 
     /**
      * Create an instance of the CourseController
@@ -31,6 +40,7 @@ export class CourseController {
         this.courseRepo = appDataSource.getRepository(Course);
         this.userRepo = appDataSource.getRepository(User);
         this.usersToCoursesRepo = appDataSource.getRepository(UsersToCourses);
+        this.assignmentsRepo = appDataSource.getRepository(Assignments);
     }
 
     /**
@@ -249,6 +259,38 @@ export class CourseController {
         res.status(201).json({ message: "User enrolled in course" });
     }
 
+    // /api/v1/courses/:courseId/assignments
+    /**
+     * Retrieves all assignments for a specific course
+     * @param req - The Request object
+     * @param res - The Response object
+     * @returns A list of assignments for the course
+     */
+    async getCourseAssignments(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseId = req.params.courseId;
+        if (!this.checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Get assignments
+        const assignments = await this.assignmentsRepo.find({
+            where: { course: { courseId: courseId } },
+        });
+
+        // Parse assignments
+        const assignmentReturns = assignments.map(assignment => this.assignmentReturn(assignment));
+        res.status(200).json(assignmentReturns);
+    }
+
 
     // ----- TOOLS -----
     
@@ -337,7 +379,7 @@ export class CourseController {
     }
 
     /**
-     * Used to check 2 dates aginst each other to see if one is before the other
+     * Used to check 2 dates against each other to see if one is before the other
      * @param startDate - The start date
      * @param endDate - The end date
      * @returns Whether the dates are valid or not
@@ -367,6 +409,20 @@ export class CourseController {
             description: courseData.description ?? null,
             startDate: courseData.startDate,
             endDate: courseData.endDate ?? null,
+        };
+    }
+
+    /**
+     * Parses the assignment data and make it an acceptable return value
+     * @param assignmentData - The assignment data from the database
+     * @returns The assignment data acceptable for a return
+     */
+    private assignmentReturn(assignmentData: Assignments): AssignmentReturn {
+        return {
+            assignmentId: assignmentData.assignmentId,
+            name: assignmentData.name,
+            description: assignmentData.description,
+            dueDate: assignmentData.dueDate,
         };
     }
 }

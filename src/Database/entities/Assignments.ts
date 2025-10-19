@@ -32,7 +32,7 @@ export class Assignments {
     	assignmentToFile!: AssignmentToFiles;
 
     @ManyToOne(() => Course, (course) => course.assignments)
-    @JoinColumn({ name: "classId" })
+    @JoinColumn({ name: "courseId" })
     	course!: Course;
 
     @ManyToOne(() => AssignmentSubmissions, (assignmentSubmissions) => assignmentSubmissions.user)
