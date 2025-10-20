@@ -4,9 +4,16 @@ import { DataSource } from "typeorm";
 // Models
 import { User } from "./entities/User.js";
 import { Role } from "./entities/Role.js";
+import { Files } from "./entities/Files.js";
 import { Course } from "./entities/Course.js";
+import { Content } from "./entities/Content.js";
+import { Assignments } from "./entities/Assignments.js";
 import { UsersToCourses } from "./entities/UsersToCourses.js";
+import { ContentToFiles } from "./entities/ContentToFiles.js";
+import { AssignmentToFiles } from "./entities/AssignmentToFiles.js";
 import { FederatedCredentials } from "./entities/FederatedCredentials.js";
+import { AssignmentSubmissions } from "./entities/AssignmentSubmissions.js";
+import { AssignmentSubmissionToFiles } from "./entities/AssignmentSubmissionToFiles.js";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -19,9 +26,16 @@ export const AppDataSource = new DataSource({
     entities: [
         User,
         Role,
+        Files,
         Course,
+        Content,
+        Assignments,
         UsersToCourses,
-        FederatedCredentials
+        ContentToFiles,
+        AssignmentToFiles,
+        FederatedCredentials,
+        AssignmentSubmissions,
+        AssignmentSubmissionToFiles,
     ],
     synchronize: true,
 
