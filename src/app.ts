@@ -104,6 +104,7 @@ AppDataSource.initialize().then(() => {
     app.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
     // User controller
+    app.get("/auth/currentUser", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, async () => { userController.getCurrentUser(req, res);}));
     app.get("/users", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.getAllUsers(req, res)));
     app.post("/users", (req, res) =>ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.create(req, res)));
     app.get("/users/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getProfile(req, res)));
