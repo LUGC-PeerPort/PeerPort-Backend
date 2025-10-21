@@ -86,7 +86,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         passport.authenticate("google", { failureRedirect: "/login" }),
         (req, res) => {
             // Successful authentication, redirect home.
-            res.redirect("/");
+            res.redirect(process.env.CLIENT_URL + "/home");
         });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

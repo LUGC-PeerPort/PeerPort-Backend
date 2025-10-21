@@ -17,7 +17,7 @@ interface UserReturn {
         name: string;
     } | undefined;
     courses: (CourseReturn & { enrolledOn: Date | string })[] | [] | undefined;
-};
+}
 
 /**
  * Used to handle user related requests
@@ -37,6 +37,23 @@ export class UserController {
 
 
     /**
+     * Get current User
+     * @param req - The Request object
+     * @param res - The Response object
+     */
+    async getCurrentUser(req: Request, res: Response): Promise<void> {
+        // Get user ID from request (assuming it's set by authentication middleware)
+        const userID = (req.session as any).user;
+        if (!userID) {
+            res.status(401).json({message: "Unauthorized"});
+            return;
+        }
+
+        res.json({userId: userID});
+    }
+
+
+        /**
 	 * Gets all the users
 	 * @param req - The Request object
 	 * @param res - The Response object
@@ -178,7 +195,7 @@ export class UserController {
         const userResult = this.userReturn(result);
         res.status(200).json(userResult);
     }
-    
+
     /**
      * Deletes a user profile
      * @param req - The Request object
@@ -190,7 +207,7 @@ export class UserController {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
-        
+
         // Delete the user
         await this.userRepo.delete(userID);
         res.status(204).json({ message: "User deleted successfully" });
@@ -208,7 +225,7 @@ export class UserController {
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
-        }        
+        }
 
         // Get the profile from the database
         const userData = await this.userRepo
@@ -217,12 +234,12 @@ export class UserController {
             .leftJoinAndSelect("class.course", "course")
             .where("user.userId = :id", { id: userID })
             .getOne();
-        
+
         if (!userData) {
             res.status(404).json({ message: "User not found" });
             return;
         }
-        
+
         // Parse the return and only get the courses
         const courses = userData.courses?.map((cls: UsersToCourses) => {
             return this.courseReturn({ ...cls.course, enrolledOn: cls.enrolledOn } as Course & {enrolledOn: string});
@@ -277,7 +294,7 @@ export class UserController {
         res.status(200).json(courseData);
     }
 
-    
+
 
     //----- TOOLS -----//
     /**
@@ -324,7 +341,7 @@ export class UserController {
             else updated = true;
         } else if (typeof userTyped.idNumber !== "undefined" && updating) failedFlag = true;
         else if (!updating) failedFlag = true;
-        
+
         // -- Optional --
         if (typeof userTyped.profilePictureUrl === "string") {
             if (userTyped.profilePictureUrl.trim() !== "" && userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
@@ -349,15 +366,15 @@ export class UserController {
 
         // Check if the ID has content
         if (userID == "") return;
-        
+
         // Check if the ID is a valid UUID
         if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(userID)) return;
-        
+
         // Return the ID
         return userID;
     }
 
-    
+
     /**
      * Parses the user data and make it an acceptable return value
      * @param userData - The user data from the database
