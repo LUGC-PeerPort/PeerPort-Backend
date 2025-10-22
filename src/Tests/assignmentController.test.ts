@@ -299,7 +299,7 @@ describe("AssignmentController test:", () => {
                 body: {
                     name: "Test Assignment",
                     description: "This is a test assignment",
-                    dueDate: "2030-01-01",
+                    dueDate: "3030-01-01",
                     courseId: course.courseId,
                 }
             };
@@ -313,7 +313,7 @@ describe("AssignmentController test:", () => {
                 assignmentId: expect.any(String),
                 name: "Test Assignment",
                 description: "This is a test assignment",
-                dueDate: "2030-01-01",
+                dueDate: "3030-01-01",
                 courseId: course.courseId,
             });
         });
