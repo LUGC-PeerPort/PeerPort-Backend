@@ -5,6 +5,21 @@ import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmission
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 
+export interface AssignmentReturnWithoutCourseId {
+    assignmentId: string;
+    name: string;
+    description: string;
+    dueDate: Date | string;
+}
+
+export interface AssignmentReturn {
+    assignmentId: string;
+    name: string;
+    description: string;
+    dueDate: Date | string;
+    courseId: string;
+}
+
 /**
  * Used to manage assignments.
  */
@@ -29,8 +44,8 @@ export class AssignmentController {
      * @param id - The  UUID
      * @returns The UUID if valid, undefined otherwise
      */
-    private checkUUID(id: string): string | void {
-        if (id == undefined) return;
+    private checkUUID(id: unknown): string | void {
+        if (typeof id !== "string") return;
 
         // Trim the string
         const assSubID = id.trim();
@@ -57,7 +72,7 @@ export class AssignmentController {
             });
             res.status(200).json(assignments);
         }
-        catch(error){
+        catch(error) {
             console.error("Error fetching assignments:", error);
             res.status(500).json({ message: "Failed to fetch assignments" });
         }
@@ -65,14 +80,78 @@ export class AssignmentController {
 
     /**
      * Helper for assignment request body validation
-     * @param body - The request body
-     * @returns boolean
+     * @param assignment - The request body / assignment to validate
+     * @param _creation - Whether this is for creation (allows courseId)
+     * @returns boolean - Weather the body is valid
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private isValidAssBody(body: any): boolean {
-        if (!body) return false;
-        const required = ["name", "description", "dueDate", "courseId"];
-        return required.every((key) => Object.hasOwn(body, key) && body[key]);
+    private isValidAssBody(assignment: unknown, _creation:boolean=false): boolean {
+        if (typeof assignment !== "object" || assignment === null) return false;
+
+        const requiredFields = ["name", "description", "dueDate"];
+        for (const key of Object.keys(assignment)) {
+            if (key !in requiredFields && !(key === "courseId" && _creation)) {
+                console.log("Unexpected field in assignment:", key);
+                return false;
+            }
+        }
+
+        // Make a assignment object that is partial
+        const assignmentTyped = assignment as Partial<{
+            name: string; 
+            description: string;
+            dueDate: string;
+            courseId: string;
+        }>;
+
+        if (typeof assignmentTyped.name === "string") {
+            if (assignmentTyped.name.trim() === "") return false;
+        } else {
+            return false;
+        }
+
+        if (typeof assignmentTyped.description === "string") {
+            if (assignmentTyped.description.trim() === "") return false;
+        } else {
+            return false;
+        }
+
+        if (typeof assignmentTyped.dueDate === "string") {
+            const date = Date.parse(assignmentTyped.dueDate);
+            if (isNaN(date)) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Used to convert an assignment to an AssignmentReturn object
+     * @param assignment Assingment object
+     * @param courseId Course Id the assignment is linked to default is null
+     * @returns The return to be sent to the user
+     */
+    private convertToAssignmentReturn(assignment: Assignments, courseId: string | null): AssignmentReturn | AssignmentReturnWithoutCourseId {
+        // Course ID is present return AssignmentReturn
+        if (courseId !== null) {
+            return {
+                assignmentId: assignment.assignmentId,
+                name: assignment.name,
+                description: assignment.description,
+                dueDate: assignment.dueDate,
+                courseId: courseId
+            };
+        }
+
+        // Course ID is null return AssignmentReturnWithoutCourseId
+        return {
+            assignmentId: assignment.assignmentId,
+            name: assignment.name,
+            description: assignment.description,
+            dueDate: assignment.dueDate,
+        };
     }
 
     /**
@@ -82,19 +161,42 @@ export class AssignmentController {
      */
     async createAssignment(req: Request, res: Response): Promise<void> {
         try {
-            if(!this.isValidAssBody(req.body)){
-                res.status(400).json({ message: "Invalid request body" });
+            // Check assignemnt structure
+            const assignmentUnknown = req.body as unknown;
+            if(!this.isValidAssBody(assignmentUnknown, true)) {
+                res.status(400).json({ message: "Invalid assignment structure" });
                 return;
             }
-            const {name, description, dueDate, courseId} = req.body;
-            const course = await this.courseRepo.findOne({where: {courseId}});
-            if(!course){
+
+            // Convert to assignment structure
+            const courseId = (assignmentUnknown as Assignments & {courseId: string}).courseId;
+            const assignmentStructure = assignmentUnknown as Assignments;
+            
+            // Check courseId
+            if (!this.checkUUID(courseId)) {
                 res.status(400).json({ message: "Invalid course ID" });
                 return;
             }
-            const newAssignment = this.assignmentRepo.create({name, description, dueDate, course});
+
+            // Check dates
+            const dueDateParsed = Date.parse(assignmentStructure.dueDate);
+            if(dueDateParsed < Date.now()) {
+                res.status(400).json({ message: "Invalid due date" });
+                return;
+            }
+
+            // Get course
+            const course = await this.courseRepo.findOne({where: {courseId}});
+            if(!course) {
+                res.status(404).json({ message: "Course not found" });
+                return;
+            }
+
+            // Create and save the assignment
+            const newAssignment = this.assignmentRepo.create(assignmentStructure);
             const savedAssignment = await this.assignmentRepo.save(newAssignment);
-            res.status(201).json(savedAssignment);
+
+            res.status(201).json(this.convertToAssignmentReturn(savedAssignment, courseId));
         } catch (error) {
             console.error("Error creating assignment:", error);
             res.status(500).json({ message: "Internal server error" });
@@ -108,17 +210,25 @@ export class AssignmentController {
      */
     async getAssignment(req: Request, res: Response): Promise<void> {
         try{
-            if(!req.params || !req.params.id){
-                res.status(400).json({message: "Assignment ID is required"});
-                return;
-            }
-            const {id} = req.params;
-            const assID = this.checkUUID(id);
-            if(!assID){
+            const assignmentId: unknown = req.params?.assignmentId;
+            if(!this.checkUUID(assignmentId)) {
                 res.status(400).json({message: "Invalid assignment ID"});
                 return;
             }
-            res.status(501).json({ message: "Not implemented" });
+
+            const assignment = await this.assignmentRepo.findOne({
+                where: {assignmentId: assignmentId as string},
+                relations: ["course"],
+            });
+            if(!assignment) {
+                res.status(404).json({message: "Assignment not found"});
+                return;
+            }
+            const assignmentReturn = this.convertToAssignmentReturn(
+                assignment, 
+                assignment.course ? assignment.course.courseId : null
+            );
+            res.status(200).json(assignmentReturn);
         } catch (error) {
             console.error("Error fetching assignment:", error);
             res.status(500).json({ message: "Failed to fetch assignment" });    
@@ -128,7 +238,7 @@ export class AssignmentController {
         /* if fix does not work, go back to bellow*/
         // const {id} = req.params;
         // const assID = this.checkUUID(id);
-        // if(!assID){
+        // if(!assID) {
         //     res.status(400).json({message: "Invalid assignment ID"});
         //     return;
         // }
@@ -144,31 +254,31 @@ export class AssignmentController {
         try{
             //validate assignment id
             const id = req.params?.id;
-            if(!id){
+            if(!id) {
                 res.status(400).json({message: "Assignment ID is required"});
                 return;
             }
             const assID = this.checkUUID(id);
-            if(!assID){
+            if(!assID) {
                 res.status(400).json({message: "Invalid assignment ID"});
                 return;
             }
             //validate request body
-            if(!req.body || Object.keys(req.body).length === 0){
+            if(!req.body || Object.keys(req.body).length === 0) {
                 res.status(400).json({message: "Request body is required"});
                 return;
             }
             const {name, description, dueDate, courseId} = req.body;
             //find existing assignment
             const assignment = await this.assignmentRepo.findOne({where: {assignmentId: assID}, relations: ["course"]});
-            if(!assignment){
+            if(!assignment) {
                 res.status(404).json({message: "Assignment not found"});
                 return;
             }
             //update course
-            if(courseId){
+            if(courseId) {
                 const course = await this.courseRepo.findOne({where: {courseId}});
-                if(!course){
+                if(!course) {
                     res.status(400).json({message: "Invalid course ID"});
                     return;
                 }
@@ -250,23 +360,23 @@ export class AssignmentController {
     async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
         try {
             // const{assignmentId, studentId, content}=req.body;
-            // if(!assignmentId||!studentId||!content){
+            // if(!assignmentId||!studentId||!content) {
             //     res.status(400).json({message: "Missing a required feild: assignmentId, studentId, or coontent"});
             //     return;
             // }
             const assignmentId = req.params?.assignmentId;
             
-            if(!assignmentId){
+            if(!assignmentId) {
                 res.status(400).json({message: "assignmentId is required"});
                 return;
             }
             const validAssId = this.checkUUID(assignmentId);
-            if(!validAssId){
+            if(!validAssId) {
                 res.status(400).json({message: "Invalid assignmentId"});
                 return;
             }
             const assignment=await this.assignmentRepo.findOne({where: {assignmentId: validAssId}});
-            if(!assignment){
+            if(!assignment) {
                 res.status(400).json({message: "Assignment not found"});
                 return;
             }
