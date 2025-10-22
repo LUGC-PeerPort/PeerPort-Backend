@@ -4,6 +4,7 @@ import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
+import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -15,12 +16,6 @@ export interface CourseReturn {
     endDate: Date | string | null;
 };
 
-export interface AssignmentReturn {
-    assignmentId: string;
-    name: string;
-    description: string;
-    dueDate: Date | string;
-}
 
 
 /**
@@ -417,7 +412,7 @@ export class CourseController {
      * @param assignmentData - The assignment data from the database
      * @returns The assignment data acceptable for a return
      */
-    private assignmentReturn(assignmentData: Assignments): AssignmentReturn {
+    private assignmentReturn(assignmentData: Assignments): AssignmentReturnWithoutCourseId {
         return {
             assignmentId: assignmentData.assignmentId,
             name: assignmentData.name,
