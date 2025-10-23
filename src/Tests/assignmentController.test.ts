@@ -39,6 +39,7 @@ describe("AssignmentController test:", () => {
 
     beforeEach(async () => {
         // Clear assignments before each test
+        await TestDataSource.getRepository("AssignmentSubmissions").clear();
         await TestDataSource.getRepository("Assignments").clear();
     });
 
@@ -609,7 +610,7 @@ describe("AssignmentController test:", () => {
                 body: {
                     name: "Updated Assignment",
                     description: "This is an updated test assignment",
-                    dueDate: "2025-06-02",
+                    dueDate: "3030-06-02",
                 }
             };
             const res: any = {};
@@ -622,7 +623,7 @@ describe("AssignmentController test:", () => {
                 assignmentId: assignment.assignmentId,
                 name: "Updated Assignment",
                 description: "This is an updated test assignment",
-                dueDate: "2025-06-02",
+                dueDate: "3030-06-02",
                 courseId: course.courseId,
             });
         });
