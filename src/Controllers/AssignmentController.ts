@@ -58,16 +58,10 @@ export class AssignmentController {
      * @param res - The response object.
      */
     async getAllAssignments(req: Request, res: Response): Promise<void> {
-        try{
-            const assignments = await this.assignmentRepo.find({
-                relations: ["course"],
-            });
-            res.status(200).json(assignments);
-        }
-        catch(error) {
-            console.error("Error fetching assignments:", error);
-            res.status(500).json({ message: "Failed to fetch assignments" });
-        }
+        const assignments = await this.assignmentRepo.find({
+            relations: ["course"],
+        });
+        res.status(200).json(assignments);
     }
 
     /**
@@ -76,47 +70,42 @@ export class AssignmentController {
      * @param res - The response object.
      */
     async createAssignment(req: Request, res: Response): Promise<void> {
-        try {
-            // Check assignment structure
-            const assignmentUnknown = req.body as unknown;
-            if(!this.isValidAssBody(assignmentUnknown, true)) {
-                res.status(400).json({ message: "Invalid assignment structure" });
-                return;
-            }
-
-            // Convert to assignment structure
-            const courseId = (assignmentUnknown as Assignments & {courseId: string}).courseId;
-            const assignmentStructure = assignmentUnknown as Assignments;
-            
-            // Check courseId
-            if (!this.checkUUID(courseId)) {
-                res.status(400).json({ message: "Invalid course ID" });
-                return;
-            }
-
-            // Check dates
-            const dueDateParsed = Date.parse(assignmentStructure.dueDate);
-            if(dueDateParsed < Date.now()) {
-                res.status(400).json({ message: "Invalid due date" });
-                return;
-            }
-
-            // Get course
-            const course = await this.courseRepo.findOne({where: {courseId}});
-            if(!course) {
-                res.status(404).json({ message: "Course not found" });
-                return;
-            }
-
-            // Create and save the assignment
-            const newAssignment = this.assignmentRepo.create(assignmentStructure);
-            const savedAssignment = await this.assignmentRepo.save(newAssignment);
-
-            res.status(201).json(this.convertToAssignmentReturn(savedAssignment, courseId));
-        } catch (error) {
-            console.error("Error creating assignment:", error);
-            res.status(500).json({ message: "Internal server error" });
+        // Check assignment structure
+        const assignmentUnknown = req.body as unknown;
+        if(!this.isValidAssBody(assignmentUnknown, true)) {
+            res.status(400).json({ message: "Invalid assignment structure" });
+            return;
         }
+
+        // Convert to assignment structure
+        const courseId = (assignmentUnknown as Assignments & {courseId: string}).courseId;
+        const assignmentStructure = assignmentUnknown as Assignments;
+        
+        // Check courseId
+        if (!this.checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Get course
+        const course = await this.courseRepo.findOne({ where: {courseId} });
+        if(!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check dates
+        const dueDateParsed = Date.parse(assignmentStructure.dueDate);
+        if(dueDateParsed < Date.now()) {
+            res.status(400).json({ message: "Invalid due date" });
+            return;
+        }
+
+        // Create and save the assignment
+        const newAssignment = this.assignmentRepo.create(assignmentStructure);
+        const savedAssignment = await this.assignmentRepo.save(newAssignment);
+
+        res.status(201).json(this.convertToAssignmentReturn(savedAssignment, courseId));
     }
 
     /**
@@ -125,30 +114,25 @@ export class AssignmentController {
      * @param res - The response object
      */
     async getAssignment(req: Request, res: Response): Promise<void> {
-        try{
-            const assignmentId: unknown = req.params?.assignmentId;
-            if(!this.checkUUID(assignmentId)) {
-                res.status(400).json({message: "Invalid assignment ID"});
-                return;
-            }
-
-            const assignment = await this.assignmentRepo.findOne({
-                where: {assignmentId: assignmentId as string},
-                relations: ["course"],
-            });
-            if(!assignment) {
-                res.status(404).json({message: "Assignment not found"});
-                return;
-            }
-            const assignmentReturn = this.convertToAssignmentReturn(
-                assignment, 
-                assignment.course ? assignment.course.courseId : null
-            );
-            res.status(200).json(assignmentReturn);
-        } catch (error) {
-            console.error("Error fetching assignment:", error);
-            res.status(500).json({ message: "Failed to fetch assignment" });    
+        const assignmentId: unknown = req.params?.assignmentId;
+        if(!this.checkUUID(assignmentId)) {
+            res.status(400).json({message: "Invalid assignment ID"});
+            return;
         }
+
+        const assignment = await this.assignmentRepo.findOne({
+            where: {assignmentId: assignmentId as string},
+            relations: ["course"],
+        });
+        if(!assignment) {
+            res.status(404).json({message: "Assignment not found"});
+            return;
+        }
+        const assignmentReturn = this.convertToAssignmentReturn(
+            assignment, 
+            assignment.course.courseId
+        );
+        res.status(200).json(assignmentReturn);
     }
 
     /**
@@ -157,54 +141,50 @@ export class AssignmentController {
      * @param res - The response object
      */
     async updateAssignment(req: Request, res: Response): Promise<void> {
-        try{
-            // Validate assignment ID
-            const assignmentId: unknown = req.params?.assignmentId;
-            if (!this.checkUUID(req.params?.assignmentId)) {
-                res.status(400).json({message: "Invalid assignment ID"});
-                return;
-            }
-
-            // Check if the assignment exists
-            const assignment = await this.assignmentRepo.findOne({
-                where: {assignmentId: assignmentId as string},
-                relations: ["course"],
-            });
-            if (!assignment) {
-                res.status(404).json({message: "Assignment not found"});
-                return;
-            }
-
-            // Get the updated fields
-            const assignmentUnknown: unknown = req.body;
-            if (!this.isValidAssBody(assignmentUnknown, false, true)) {
-                res.status(400).json({ message: "Invalid assignment structure" });
-                return;
-            }
-
-            // Convert to assignment structure
-            const assignmentTyped = assignmentUnknown as Assignments;
-            if (Date.parse(assignmentTyped.dueDate) < Date.now()) {
-                res.status(400).json({ message: "Invalid due date" });
-                return;
-            }
-
-            // Update assignment fields
-            assignment.name = assignmentTyped.name ?? assignment.name;
-            assignment.description = assignmentTyped.description ?? assignment.description;
-            assignment.dueDate = assignmentTyped.dueDate ?? assignment.dueDate;
-
-            // Save updated assignment
-            await this.assignmentRepo.save(assignment);
-            const assignmentReturn = this.convertToAssignmentReturn(
-                assignment, 
-                assignment.course ? assignment.course.courseId : null
-            );
-            res.status(200).json(assignmentReturn);
-        } catch (error) {
-            console.error("Error updating assignment:", error);
-            res.status(500).json({ message: "Failed to update assignment" });
+    
+        // Validate assignment ID
+        const assignmentId: unknown = req.params?.assignmentId;
+        if (!this.checkUUID(req.params?.assignmentId)) {
+            res.status(400).json({message: "Invalid assignment ID"});
+            return;
         }
+
+        // Check if the assignment exists
+        const assignment = await this.assignmentRepo.findOne({
+            where: {assignmentId: assignmentId as string},
+            relations: ["course"],
+        });
+        if (!assignment) {
+            res.status(404).json({message: "Assignment not found"});
+            return;
+        }
+
+        // Get the updated fields
+        const assignmentUnknown: unknown = req.body;
+        if (!this.isValidAssBody(assignmentUnknown, false, true)) {
+            res.status(400).json({ message: "Invalid assignment structure" });
+            return;
+        }
+
+        // Convert to assignment structure
+        const assignmentTyped = assignmentUnknown as Assignments;
+        if (Date.parse(assignmentTyped.dueDate) < Date.now()) {
+            res.status(400).json({ message: "Invalid due date" });
+            return;
+        }
+
+        // Update assignment fields
+        assignment.name = assignmentTyped.name ?? assignment.name;
+        assignment.description = assignmentTyped.description ?? assignment.description;
+        assignment.dueDate = assignmentTyped.dueDate ?? assignment.dueDate;
+
+        // Save updated assignment
+        await this.assignmentRepo.save(assignment);
+        const assignmentReturn = this.convertToAssignmentReturn(
+            assignment, 
+            assignment.course.courseId
+        );
+        res.status(200).json(assignmentReturn);
     }
 
     /**
@@ -213,32 +193,27 @@ export class AssignmentController {
      * @param res - The response object
      */
     async deleteAssignment(req: Request, res: Response): Promise<void> {
-        try {
-            // Get the assignment ID
-            const assignmentId: unknown = req.params?.assignmentId;
-            if (!this.checkUUID(assignmentId)) {
-                res.status(400).json({message: "Invalid assignment ID"});
-                return;
-            }
-
-            // Find the assignment
-            const assignment = await this.assignmentRepo.findOneBy({ assignmentId: assignmentId as string });
-            if (!assignment) {
-                res.status(404).json({ message: "Assignment not found" });
-                return;
-            }
-
-            // TODO: Delete the assignment and its links - Future us problem lol
-            // await this.assignmentToFilesRepo.delete({ assignment: { assignmentId: assignmentId as string } });
-            // await this.assignmentSubmissionsRepo.delete({ assignment: { assignmentId: assignmentId as string } });
-            // await this.assignmentRepo.delete({ assignmentId: assignmentId as string });
-
-            await this.assignmentRepo.remove(assignment);
-            res.status(200).json({ message: "Assignment deleted" });
-        } catch (error) {
-            console.error("Error deleting assignment:", error);
-            res.status(500).json({ message: "Failed to delete assignment" });
+        // Get the assignment ID
+        const assignmentId: unknown = req.params?.assignmentId;
+        if (!this.checkUUID(assignmentId)) {
+            res.status(400).json({message: "Invalid assignment ID"});
+            return;
         }
+
+        // Find the assignment
+        const assignment = await this.assignmentRepo.findOneBy({ assignmentId: assignmentId as string });
+        if (!assignment) {
+            res.status(404).json({ message: "Assignment not found" });
+            return;
+        }
+
+        // TODO: Delete the assignment and its links - Future us problem lol
+        // await this.assignmentToFilesRepo.delete({ assignment: { assignmentId: assignmentId as string } });
+        // await this.assignmentSubmissionsRepo.delete({ assignment: { assignmentId: assignmentId as string } });
+        // await this.assignmentRepo.delete({ assignmentId: assignmentId as string });
+
+        await this.assignmentRepo.remove(assignment);
+        res.status(200).json({ message: "Assignment deleted" });
     }
 
     /**
@@ -247,36 +222,31 @@ export class AssignmentController {
      * @param res - The response object
      */
     async getSubmissionsForAssignment(req: Request, res: Response): Promise<void> {
-        try {
-            // Get the assignment ID
-            const assignmentId: unknown = req.params?.assignmentId;
-            if (!this.checkUUID(assignmentId)) {
-                res.status(400).json({ message: "Invalid assignment ID" });
-                return;
-            }
-
-            // Check if assignment exists
-            const assignment = await this.assignmentRepo.findOne({ 
-                where: { assignmentId: assignmentId as string }
-            });
-            if (!assignment) {
-                res.status(404).json({ message: "Assignment not found" });
-                return;
-            }
-
-            // Get submissions for the assignment
-            const submissions = await this.assignmentSubmissionsRepo.find({ 
-                where: { assignment: { assignmentId: assignmentId as string } },
-                relations: ["assignment", "user"],
-            });
-
-            // Convert submissions to return format
-            const submissionResponses = submissions.map(submission => this.convertToAssignmentSubmissionReturn(submission));
-            res.status(200).json(submissionResponses);
-        } catch (error) {
-            console.error("Error fetching submissions:", error);
-            res.status(500).json({ message: "Failed to fetch submissions" });
+        // Get the assignment ID
+        const assignmentId: unknown = req.params?.assignmentId;
+        if (!this.checkUUID(assignmentId)) {
+            res.status(400).json({ message: "Invalid assignment ID" });
+            return;
         }
+
+        // Check if assignment exists
+        const assignment = await this.assignmentRepo.findOne({ 
+            where: { assignmentId: assignmentId as string }
+        });
+        if (!assignment) {
+            res.status(404).json({ message: "Assignment not found" });
+            return;
+        }
+
+        // Get submissions for the assignment
+        const submissions = await this.assignmentSubmissionsRepo.find({ 
+            where: { assignment: { assignmentId: assignmentId as string } },
+            relations: ["assignment", "user"],
+        });
+
+        // Convert submissions to return format
+        const submissionResponses = submissions.map(submission => this.convertToAssignmentSubmissionReturn(submission));
+        res.status(200).json(submissionResponses);
     }
 
     /**
@@ -285,57 +255,52 @@ export class AssignmentController {
      * @param res - The response object
      */
     async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
-        try {
-            // Get assignmentId
-            const assignmentId: unknown = req.params?.assignmentId;
-            if (!this.checkUUID(assignmentId)) {
-                res.status(400).json({ message: "Invalid assignment ID" });
-                return;
-            }
-
-            const assignment = await this.assignmentRepo.findOne({ where: { assignmentId: assignmentId as string } });
-            if (!assignment) {
-                res.status(404).json({ message: "Assignment not found" });
-                return;
-            }
-
-            // Get userId
-            const userId = (req.body as { userId?: unknown }).userId;
-            if (!this.checkUUID(userId)) {
-                res.status(400).json({ message: "Invalid user ID" });
-                return;
-            }
-
-            const user =  await this.userRepo.findOne({ where: { userId: userId as string }});
-            if (!user) {
-                res.status(404).json({message: "User not found"});
-                return;
-            }
-
-            // Check the validity of the submission body
-            const submissionUnknown = req.body as unknown;
-            if (!this.isValidAssSubmissionBody(submissionUnknown)) {
-                res.status(400).json({ message: "Invalid submission structure" });
-                return;
-            }
-
-            const submissionTyped = submissionUnknown as AssignmentSubmissions;
-
-            // Create submission
-            const submission = await this.assignmentSubmissionsRepo.create({
-                ...submissionTyped,
-                assignment: assignment,
-                user: user,
-            });
-
-            // Save submission
-            await this.assignmentSubmissionsRepo.save(submission);
-            const submissionResponse = this.convertToAssignmentSubmissionReturn(submission);
-            res.status(201).json(submissionResponse);
-        } catch (error) {
-            console.log("Error creating submission:", error);
-            res.status(500).json({ message: "Failed to create submission" });
+        // Get assignmentId
+        const assignmentId: unknown = req.params?.assignmentId;
+        if (!this.checkUUID(assignmentId)) {
+            res.status(400).json({ message: "Invalid assignment ID" });
+            return;
         }
+
+        const assignment = await this.assignmentRepo.findOne({ where: { assignmentId: assignmentId as string } });
+        if (!assignment) {
+            res.status(404).json({ message: "Assignment not found" });
+            return;
+        }
+
+        // Check the validity of the submission body
+        const submissionUnknown = req.body as unknown;
+        if (!this.isValidAssSubmissionBody(submissionUnknown)) {
+            res.status(400).json({ message: "Invalid submission structure" });
+            return;
+        }
+
+        const submissionTyped = submissionUnknown as AssignmentSubmissions;
+
+        // Get userId
+        const userId = (req.body as { userId?: unknown }).userId;
+        if (!this.checkUUID(userId)) {
+            res.status(400).json({ message: "Invalid user ID" });
+            return;
+        }
+
+        const user =  await this.userRepo.findOne({ where: { userId: userId as string }});
+        if (!user) {
+            res.status(404).json({message: "User not found"});
+            return;
+        }
+
+        // Create submission
+        const submission = await this.assignmentSubmissionsRepo.create({
+            ...submissionTyped,
+            assignment: assignment,
+            user: user,
+        });
+
+        // Save submission
+        await this.assignmentSubmissionsRepo.save(submission);
+        const submissionResponse = this.convertToAssignmentSubmissionReturn(submission);
+        res.status(201).json(submissionResponse);
     }
 
 
@@ -403,9 +368,7 @@ export class AssignmentController {
 
         if (typeof assignmentTyped.dueDate === "string") {
             const date = Date.parse(assignmentTyped.dueDate);
-            if (isNaN(date)) {
-                return false;
-            }
+            if (isNaN(date)) return false;
         } else if (typeof assignmentTyped.dueDate !== "undefined" && _updating) return false;
         else if (!_updating) return false;
 
@@ -436,18 +399,12 @@ export class AssignmentController {
 
         if (typeof submissionTyped.comment === "string") {
             if (submissionTyped.comment.trim() === "") return false;
-        } else {
-            return false;
         }
 
         if (typeof submissionTyped.timeSubmitted === "string") {
             const date = Date.parse(submissionTyped.timeSubmitted);
-            if (isNaN(date)) {
-                return false;
-            }
-        } else {
-            return false;
-        }
+            if (isNaN(date)) return false;
+        } else return false;
 
         return true;
     }
@@ -458,24 +415,14 @@ export class AssignmentController {
      * @param courseId Course Id the assignment is linked to default is null
      * @returns The return to be sent to the user
      */
-    private convertToAssignmentReturn(assignment: Assignments, courseId: string | null): AssignmentReturn | AssignmentReturnWithoutCourseId {
+    private convertToAssignmentReturn(assignment: Assignments, courseId: string): AssignmentReturn {
         // Course ID is present return AssignmentReturn
-        if (courseId !== null) {
-            return {
-                assignmentId: assignment.assignmentId,
-                name: assignment.name,
-                description: assignment.description,
-                dueDate: assignment.dueDate,
-                courseId: courseId
-            };
-        }
-
-        // Course ID is null return AssignmentReturnWithoutCourseId
         return {
             assignmentId: assignment.assignmentId,
             name: assignment.name,
             description: assignment.description,
             dueDate: assignment.dueDate,
+            courseId: courseId
         };
     }
 
