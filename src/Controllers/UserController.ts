@@ -7,7 +7,7 @@ import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Role } from "../Database/entities/Role.js";
 
-interface UserReturn {
+export interface UserReturn {
     userId: string | undefined;
     name: string;
     email: string;
@@ -49,11 +49,11 @@ export class UserController {
             return;
         }
 
-        res.json({userId: userID});
+        res.status(200).json({userId: userID});
     }
 
 
-        /**
+    /**
 	 * Gets all the users
 	 * @param req - The Request object
 	 * @param res - The Response object
@@ -107,11 +107,6 @@ export class UserController {
         if (studentRole) {
             result.role = studentRole;
             await this.userRepo.save(result);
-        } else {
-            // Could possibly change this to auto create it if it doesn't exist yet
-            console.log("Student role not found");
-            res.status(500).json({ message: "Internal server error" });
-            return;
         }
 
         // Convert to return type
@@ -285,9 +280,11 @@ export class UserController {
             return;
         }
 
-        if (userData.courses.length > 1) {
-            console.log("Warning: User is enrolled in the same course multiple times");
-        }
+        // This shouldn't happen as it is a case dealt with in the 
+        // courseController enrollUserInCourse function
+        // if (userData.courses.length > 1) {
+        //     console.log("Warning: User is enrolled in the same course multiple times");
+        // }
 
         // Parse the course to the return type
         const courseData = this.courseReturn({ ...userData.courses[0].course, enrolledOn: userData.courses[0].enrolledOn } as Course & {enrolledOn: string});

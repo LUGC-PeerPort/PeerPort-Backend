@@ -98,19 +98,6 @@ AppDataSource.initialize().then(() => {
     app.get("/auth/testAuth/admin", (req, res) => ifAuthed(["admin"], req, res, () => {
         return res.json({message: "User has 'admin' role access."});
     }));
-
-    app.get("/auth/logout", (req, res) => {
-        // clear the session and logout
-        req.logout(() => {
-            req.session.destroy((err) => {
-                if (err) {
-                    console.error("Error destroying session during logout:", err);
-                }
-                res.clearCookie("connect.sid"); // clear the session cookie
-                res.json({ message: "Logged out successfully." });
-            });
-        });
-    })
     const assignmentController = new AssignmentController(AppDataSource);
 
     // Define routes
@@ -120,30 +107,30 @@ AppDataSource.initialize().then(() => {
     app.get("/auth/currentUser", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, async () => { userController.getCurrentUser(req, res);}));
     app.get("/users", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.getAllUsers(req, res)));
     app.post("/users", (req, res) =>ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.create(req, res)));
-    app.get("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getProfile(req, res)));
-    app.put("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.updateProfile(req, res)));
-    app.delete("/users/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.deleteProfile(req, res)));
-    app.get("/users/:id/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourses(req, res)));
-    app.get("/users/:id/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourse(req, res)));
+    app.get("/users/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getProfile(req, res)));
+    app.put("/users/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.updateProfile(req, res)));
+    app.delete("/users/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.deleteProfile(req, res)));
+    app.get("/users/:userId/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourses(req, res)));
+    app.get("/users/:userId/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourse(req, res)));
 
     //Course controller
     app.get("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getAllCourses(req, res)));
     app.post("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.createCourse(req, res)));
-    app.put("/courses/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.updateCourse(req, res)));
-    app.delete("/courses/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.deleteCourse(req, res)));
-    app.get("/courses/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
+    app.put("/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.updateCourse(req, res)));
+    app.delete("/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.deleteCourse(req, res)));
+    app.get("/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
     app.post("/courses/:courseId/enroll/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res)));
     app.get("/courses/:courseId/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
 
 
     //Assignment controller
-    app.get("/assignments/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
+    app.get("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
     app.get("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
     app.post("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
-    app.put("/assignments/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
-    app.delete("/assignments/:id", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
-    app.post("/assignments/:id/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
-    app.get("/assignments/:id/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
+    app.put("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
+    app.delete("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
+    app.post("/assignments/:assignmentId/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
+    app.get("/assignments/:assignmentId/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
 });
 
 // Setting up swagger

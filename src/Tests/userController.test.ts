@@ -822,4 +822,202 @@ describe("UserController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ ...course, enrolledOn: linkData.enrolledOn });
         });
     });
+
+    describe("Getting the current user that is logged in", () => {
+        it("Should not get the current user when there is no session", async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+        });
+
+        it("Should not get the current user when the session is not logged in",  async () => {
+            const req: any = {
+                session: {}
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+        });
+
+        it("Should not get the current user when the user ID is not in the session",  async () => {
+            const req: any = {
+                session: {
+                    user: null,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+        });
+
+        it("Should get the current logged in user", async () => {
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: "",
+                idNumber: "123456789smth",
+            });
+
+            const req: any = {
+                session: {
+                    user: user.userId,
+                },
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                userId: user.userId,
+            });
+        });
+    });
+
+
+    describe("checkUserStructure function tests", () => {
+        it("Should return false for a null object", () => {});
+        
+        it("Should return false for an empty object", () => {});
+        
+        it("Should return false for unnecessary fields", () => {});
+        
+        it("Should return false for valid fields with extra unnecessary fields", () => {});
+
+        describe("Name tests", () => {
+            it("Should return false for missing name", () => {});
+            
+            it("Should return false for empty name", () => {});
+            
+            it("Should return false for a non-string name", () => {});
+            
+            it("Should return false for a name that is too short", () => {});
+            
+            it("Should return false for a non-string name while updating", () => {});
+            
+            it("Should return false for a name that is too short while updating", () => {});
+            
+            it("Should return true for missing name while updating", () => {});
+            
+            it("Should return true for valid name", () => {});
+        });
+
+        describe("Email tests", () => {
+            it("Should return false for missing email", () => {});
+            
+            it("Should return false for empty email", () => {});
+            
+            it("Should return false for a non-string email", () => {});
+            
+            it("Should return false for an invalid email format", () => {});
+            
+            it("Should return false for a non-string email while updating", () => {});
+            
+            it("Should return false for an invalid email format while updating", () => {});
+            
+            it("Should return true for missing email while updating", () => {});
+            
+            it("Should return true for valid email", () => {});
+        });
+
+        describe("idNumber tests", () => {
+            it("Should return false for missing idNumber", () => {});
+            
+            it("Should return false for empty idNumber", () => {});
+            
+            it("Should return false for a non-string idNumber", () => {});
+            
+            it("Should return false for an empty idNumber", () => {});
+            
+            it("Should return false for a non-string idNumber while updating", () => {});
+            
+            it("Should return false for an empty idNumber while updating", () => {});
+            
+            it("Should return true for missing idNumber while updating", () => {});
+            
+            it("Should return true for valid idNumber", () => {});
+        });
+
+        describe("profilePictureUrl tests", () => {
+            it("Should return false for an empty profilePictureUrl", () => {});
+            
+            it("Should return false for a non-string profilePictureUrl", () => {});
+            
+            it("Should return false for a non-string profilePictureUrl while updating", () => {});
+            
+            it("Should return false for an URL that is too short", () => {});
+            
+            it("Should return true for missing profilePictureUrl while updating", () => {});
+            
+            it("Should return true for missing profilePictureUrl", () => {});
+        });
+
+        it("Should return true for valid fields", () => {});
+    });
+
+    describe("checkUUID function tests", () => {
+        it("Should return nothing for an undefined UUID", () => {
+            const result = (controller as any).checkUUID(undefined);
+            expect(result).toBeUndefined();
+        });
+
+        it("Should return nothing if the UUID is an empty string", () => {
+            const result = (controller as any).checkUUID("   ");
+            expect(result).toBeUndefined();
+        });
+
+        it("Should return nothing for an invalid UUID structure", () => {
+            const result = (controller as any).checkUUID("invalid-uuid-string");
+            expect(result).toBeUndefined();
+        });
+
+        it("Should return the UUID if it is valid", () => {
+            const validUUID = "123e4567-e89b-12d3-a456-426614174000";
+            const result = (controller as any).checkUUID(validUUID);
+            expect(result).toBe(validUUID);
+        });
+    });
+
+    describe("userReturn function tests", () => {
+        it("Should correctly parse a User entity to UserReturn type", () => {});
+
+        describe("Optional fields tests", () => {
+            it("Should handle undefined or null profilePictureUrl", () => {});
+            
+            it("Should handle undefined roles", () => {});
+            
+            it("Should handle undefined or null courses", () => {});
+            
+            it("Should handle undefined or null descriptions in courses", () => {});
+            
+            it("Should handle undefined or null startDate in courses", () => {});
+            
+            it("Should handle undefined or null endDate in courses", () => {});
+        });
+    });
+
+    describe("courseReturn function tests", () => {
+        it("Should correctly parse a Course entity to CourseReturn type", () => {});
+
+        describe("Optional fields tests", () => {
+            it("Should handle undefined or null description", () => {});
+            
+            it("Should handle undefined or null endDate", () => {});
+        });
+    });
 });

@@ -4,6 +4,7 @@ import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
+import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -13,14 +14,8 @@ export interface CourseReturn {
     description: string | null;
     startDate: Date | string | null;
     endDate: Date | string | null;
-};
-
-export interface AssignmentReturn {
-    assignmentId: string;
-    name: string;
-    description: string;
-    dueDate: Date | string;
 }
+
 
 
 /**
@@ -84,7 +79,7 @@ export class CourseController {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
-        
+
         // Check if the user exists
         const user = await this.userRepo.findOneBy({ userId: userId });
         if (!user) {
@@ -221,7 +216,7 @@ export class CourseController {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
-        
+
         // Check if course exists
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
@@ -293,7 +288,7 @@ export class CourseController {
 
 
     // ----- TOOLS -----
-    
+
     /**
      * Checks if the course structure is valid or not
      * @param course - The course structure to check
@@ -323,7 +318,7 @@ export class CourseController {
             else updated = true;
         } else if (typeof courseTyped.name !== "undefined" && _updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
-        
+
         if (typeof courseTyped.courseCode === "string") {
             if (courseTyped.courseCode.trim() === "") failedFlag = true;
             else updated = true;
@@ -334,24 +329,24 @@ export class CourseController {
             updated = true;
         } else if (typeof courseTyped.isOpen !== "undefined" && _updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
-        
+
         if (typeof courseTyped.startDate === "string") {
             if (courseTyped.startDate.trim() === "" || isNaN(Date.parse(courseTyped.startDate))) failedFlag = true;
             else updated = true;
         } else if (typeof courseTyped.startDate !== "undefined" && _updating) failedFlag = true;
         else if (!_updating) failedFlag = true;
-        
+
         // -- Optional --
         if (typeof courseTyped.description === "string") {
             if (courseTyped.description.trim() === "") failedFlag = true;
             else updated = true;
         } else if (typeof courseTyped.description !== "undefined" && (_updating || _creation)) failedFlag = true;
-    
+
         if (typeof courseTyped.endDate === "string") {
             if (courseTyped.endDate.trim() === "" || isNaN(Date.parse(courseTyped.endDate))) failedFlag = true;
             else updated = true;
         } else if (typeof courseTyped.endDate !== "undefined" && (_updating || _creation)) failedFlag = true;
-        
+
         if (failedFlag) return false;
         if (_updating && !updated) return false;
         return true;
@@ -370,10 +365,10 @@ export class CourseController {
 
         // Check if the ID has content
         if (userID == "") return;
-        
+
         // Check if the ID is a valid UUID
         if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(userID)) return;
-        
+
         // Return the ID
         return userID;
     }
@@ -417,7 +412,7 @@ export class CourseController {
      * @param assignmentData - The assignment data from the database
      * @returns The assignment data acceptable for a return
      */
-    private assignmentReturn(assignmentData: Assignments): AssignmentReturn {
+    private assignmentReturn(assignmentData: Assignments): AssignmentReturnWithoutCourseId {
         return {
             assignmentId: assignmentData.assignmentId,
             name: assignmentData.name,

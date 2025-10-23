@@ -1,21 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 import { Files } from "./Files.js";
 import { Assignments } from "./Assignments.js";
 
 
 /**
- * The link between the assingment and the files
+ * The link between the assignment and the files
  */
 @Entity("AssignmentToFiles")
 export class AssignmentToFiles {
     @PrimaryGeneratedColumn("uuid")
     	AssignmentToFileId!: string;
 
-    @OneToMany(() => Files, (files) => files.filesId)
+    @ManyToOne(() => Files, (files) => files.contentToFiles)
     @JoinColumn({ name: "fileId" })
-    	files!: Files[];
+    	file!: Files;
 
-    @OneToMany(() => Assignments, (assignments) => assignments.assignmentId)
+    @ManyToOne(() => Assignments, (assignments) => assignments.assignmentToFiles)
     @JoinColumn({ name: "assignmentId" })
-    	assignments!: Assignments[];
+    	assignment!: Assignments;
 }
