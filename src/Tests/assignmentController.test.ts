@@ -904,7 +904,7 @@ describe("AssignmentController test:", () => {
             await controller.createSubmissionForAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
         });
 
         it("Should not create a submission with an invalid user ID", async () => {
