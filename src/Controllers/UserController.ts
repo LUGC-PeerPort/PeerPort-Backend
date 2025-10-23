@@ -87,10 +87,6 @@ export class UserController {
         // Convert to User type
         const userStructure = userStructureUnknown as User;
 
-        if (userStructure.profilePictureUrl === "") {
-            userStructure.profilePictureUrl = undefined;
-        }
-
         // Check if email already exists
         const existingUser = await this.userRepo.findOneBy({ email: userStructure.email });
         if (existingUser) {
@@ -181,7 +177,6 @@ export class UserController {
         // Update the user
         user.name = userStructure.name ?? user.name;
         user.email = userStructure.email ?? user.email;
-        user.password = userStructure.password ?? user.password;
         user.profilePictureUrl = userStructure.profilePictureUrl ?? user.profilePictureUrl;
 
         const result = await this.userRepo.save(user);
@@ -304,7 +299,7 @@ export class UserController {
     private checkUserStructure(user: unknown, updating?: boolean): boolean {
         if (typeof user !== "object" || user === null) return false;
 
-        const userKeys = ["name", "email", "password", "profilePictureUrl", "idNumber"];
+        const userKeys = ["name", "email", "profilePictureUrl", "idNumber"];
         for (const key of Object.keys(user)) {
             if (!userKeys.includes(key)) return false;
         }
@@ -327,12 +322,6 @@ export class UserController {
         } else if (typeof userTyped.email !== "undefined" && updating) failedFlag = true;
         else if (!updating) failedFlag = true;
 
-        if (typeof userTyped.password === "string") {
-            if (userTyped.password.trim() === "" || userTyped.password.trim().length < 8) failedFlag = true;
-            else updated = true;
-        } else if (typeof userTyped.password !== "undefined" && updating) failedFlag = true;
-        else if (!updating) failedFlag = true;
-
         if (typeof userTyped.idNumber === "string") {
             if (userTyped.idNumber.trim() === "") failedFlag = true;
             else updated = true;
@@ -341,7 +330,7 @@ export class UserController {
 
         // -- Optional --
         if (typeof userTyped.profilePictureUrl === "string") {
-            if (userTyped.profilePictureUrl.trim() === "" || userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
+            if (userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
             else updated = true;
         } else if (typeof userTyped.profilePictureUrl !== "undefined" && updating) failedFlag = true;
         else if (!updating && typeof userTyped.profilePictureUrl !== "undefined") failedFlag = true;

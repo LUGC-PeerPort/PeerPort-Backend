@@ -65,7 +65,7 @@ describe("UserController test:", () => {
         it("Should not create a user with an invalid structure", async () => {
             const req: any = {
                 body: {
-                    namee: "Test User",
+                    smth: "Test User",
                     email: "",
                 }
             };
@@ -84,7 +84,6 @@ describe("UserController test:", () => {
                 body: {
                     name: "T",
                     email: "testuser@example.com",
-                    password: "securepassword",
                     profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
@@ -103,7 +102,6 @@ describe("UserController test:", () => {
             const req: any = {
                 body: {
                     email: "testinguser@example.com",
-                    password: "securepassword",
                     profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
@@ -123,7 +121,6 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "notanemail",
-                    password: "securepassword",
                     profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
@@ -143,7 +140,6 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "",
-                    password: "securepassword",
                     profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
@@ -162,27 +158,6 @@ describe("UserController test:", () => {
             const req: any = {
                 body: {
                     name: "Test User",
-                    password: "securepassword",
-                    profilePictureUrl: undefined,
-                    idNumber: "123456789smth",
-                }
-            };
-
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.create(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
-        });
-
-        it("Should not create a user with an empty password", async () => {
-            const req: any = {
-                body: {
-                    name: "Test User",
-                    email: "testuser@example.com",
-                    password: "",
                     profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
@@ -202,7 +177,6 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "testuser@example.com",
-                    password: "securepassword",
                     profilePictureUrl: undefined,
                     idNumber: "",
                 }
@@ -222,7 +196,6 @@ describe("UserController test:", () => {
             await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             });
@@ -231,7 +204,6 @@ describe("UserController test:", () => {
                 body: {
                     name: "Another User",
                     email: "testuser@example.com",
-                    password: "anotherpassword",
                     profilePictureUrl: undefined,
                     idNumber: "987654321smth",
                 }
@@ -250,7 +222,6 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "testuser@example.com",
-                    password: "securepassword",
                     profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
@@ -269,7 +240,7 @@ describe("UserController test:", () => {
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             }));
-            
+
             // Ensure password is not returned in the response
             expect(res.json.mock.calls[0][0].password).toBeUndefined();
 
@@ -280,7 +251,6 @@ describe("UserController test:", () => {
                 userId: expect.any(String),
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             });
@@ -328,7 +298,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
                 role: role,
@@ -366,7 +335,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
                 role: role,
@@ -467,7 +435,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -495,7 +462,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -516,12 +482,40 @@ describe("UserController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
         });
 
+        it("Should update a user with no change to name or email", async () => {
+            // First, create a user to update
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                profilePictureUrl: undefined,
+                idNumber: "123456789smth",
+            });
+            const req: any = {
+                params: {
+                    id: user.userId
+                },
+                body: {
+                    profilePictureUrl: "smth/smth"
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateProfile(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                userId: user.userId,
+                name: "Test User",
+                email: "testuser@example.com"
+            }));
+        });
+
         it("Should update a user with valid data", async () => {
             // First, create a user to update
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -559,7 +553,6 @@ describe("UserController test:", () => {
                 userId: user.userId,
                 name: "Updated User",
                 email: "updateduser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             });
@@ -588,7 +581,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -651,7 +643,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -683,6 +674,28 @@ describe("UserController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith([{ ...course, enrolledOn: linkData.enrolledOn }]);
+        });
+
+        it("Should get an empty array for a user with no courses", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                profilePictureUrl: undefined,
+                idNumber: "123456789smth",
+            });
+            const req: any = {
+                params: {
+                    id: user.userId
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([]);
         });
     });
 
@@ -726,7 +739,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -751,7 +763,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -786,7 +797,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -925,7 +935,6 @@ describe("UserController test:", () => {
             const basicValues = {
                 email: "valid.email@example.com",
                 idNumber: "123456789",
-                password: "securepassword",
                 profilePictureUrl: "http://example.com/profile.jpg",
             };
             it.each([
@@ -948,7 +957,6 @@ describe("UserController test:", () => {
             const basicValues = {
                 name: "Valid Name",
                 idNumber: "123456789",
-                password: "securepassword",
                 profilePictureUrl: "http://example.com/profile.jpg",
             };
 
@@ -971,7 +979,6 @@ describe("UserController test:", () => {
             const basicValues = {
                 name: "Valid Name",
                 email: "valid.email@example.com",
-                password: "securepassword",
                 profilePictureUrl: "http://example.com/profile.jpg",
             };
 
@@ -995,7 +1002,6 @@ describe("UserController test:", () => {
                 name: "Valid Name",
                 email: "valid.email@example.com",
                 idNumber: "123456789",
-                password: "securepassword",
             };
 
             it.each([
@@ -1018,7 +1024,6 @@ describe("UserController test:", () => {
                 name: "Valid Name",
                 email: "valid.email@example.com",
                 idNumber: "123456789",
-                password: "securepassword",
                 profilePictureUrl: "http://example.com/profile.jpg",
             });
             expect(result).toBe(true);

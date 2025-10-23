@@ -24,12 +24,6 @@ export class User {
 
     @Column({
     	type: "text",
-    	nullable: false,
-    })
-    	password!: string;
-
-    @Column({
-    	type: "text",
     	nullable: true,
     })
     	profilePictureUrl?: string;
