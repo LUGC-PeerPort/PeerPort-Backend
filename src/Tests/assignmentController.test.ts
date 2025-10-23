@@ -137,10 +137,41 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
+        it("Should not create an assignment with an empty structure", async () => {
+            const req: any = {
+                body: {}
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
         it("Should not create an assignment with a invalid name", async () => {
             const req: any = {
                 body: {
                     name: 123,
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                    courseId: course.courseId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
+        it("Should not create an assignment with an empty name", async () => {
+            const req: any = {
+                body: {
+                    name: "   ",
                     description: "This is a test assignment",
                     dueDate: "2025-06-01",
                     courseId: course.courseId,
@@ -207,6 +238,24 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
+        it("Should not create an assignment with an empty description", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "   ",
+                    dueDate: "2025-06-01",
+                    courseId: course.courseId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
         it("Should not create an assignment with a invalid due date", async () => {
             const req: any = {
                 body: {
@@ -260,6 +309,24 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid due date" });
         });
 
+        it("Should not create an assignment with a wrong due date", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "not-a-date",
+                    courseId: course.courseId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
         it("Should not create an assignment with a invalid class ID", async () => {
             const req: any = {
                 body: {
@@ -284,6 +351,60 @@ describe("AssignmentController test:", () => {
                     name: "Test Assignment",
                     description: "This is a test assignment",
                     dueDate: "2025-06-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
+        });
+
+        it("Should not create an assignment with a non-existent class ID", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                    courseId: "123e4567-e89b-12d3-a456-426614174000",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "Course not found" });
+        });
+
+        it("Should not create an assignment with an empty class ID", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                    courseId: "   ",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
+        });
+
+        it("Should not create an assignment with an incomplete class ID", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                    courseId: "123e4567-e89b-12d3-42661417",
                 }
             };
             const res: any = {};
@@ -830,6 +951,51 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Assignment not found" });
         });
 
+        it("Should not create a submission with no body", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
+        it("Should not create a submission with an invalid structure", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    smth: "invalid"
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
         it("Should not create a submission with no timeSubmitted", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
@@ -868,6 +1034,32 @@ describe("AssignmentController test:", () => {
                 },
                 body: {
                     timeSubmitted: 123,
+                    userId: user.userId,
+                    comment: "This is a test submission",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
+        it("Should not create a submission with a wrong timeSubmitted", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "not-a-date",
                     userId: user.userId,
                     comment: "This is a test submission",
                 }
@@ -959,6 +1151,63 @@ describe("AssignmentController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+        });
+
+        it("Should not create a submission with an empty comment", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    userId: user.userId,
+                    comment: "   ",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
+        it("Should create a submission without a comment", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    userId: user.userId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                submissionId: expect.any(String),
+                comment: null,
+                timeSubmitted: "2025-05-01",
+                assignmentId: assignment.assignmentId,
+                userId: user.userId,
+            });
         });
 
         it("Should create a submission with valid data", async () => {
