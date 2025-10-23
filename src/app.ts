@@ -98,6 +98,19 @@ AppDataSource.initialize().then(() => {
     app.get("/auth/testAuth/admin", (req, res) => ifAuthed(["admin"], req, res, () => {
         return res.json({message: "User has 'admin' role access."});
     }));
+
+    app.get("/auth/logout", (req, res) => {
+        // clear the session and logout
+        req.logout(() => {
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error("Error destroying session during logout:", err);
+                }
+                res.clearCookie("connect.sid"); // clear the session cookie
+                res.json({ message: "Logged out successfully." });
+            });
+        });
+    })
     const assignmentController = new AssignmentController(AppDataSource);
 
     // Define routes
