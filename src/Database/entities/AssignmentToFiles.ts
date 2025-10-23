@@ -4,7 +4,7 @@ import { Assignments } from "./Assignments.js";
 
 
 /**
- * The link between the assingment and the files
+ * The link between the assignment and the files
  */
 @Entity("AssignmentToFiles")
 export class AssignmentToFiles {
@@ -13,9 +13,9 @@ export class AssignmentToFiles {
 
     @OneToMany(() => Files, (files) => files.filesId)
     @JoinColumn({ name: "fileId" })
-    	files!: Files[];
+    	file!: Files[];
 
     @OneToMany(() => Assignments, (assignments) => assignments.assignmentId)
     @JoinColumn({ name: "assignmentId" })
-    	assignments!: Assignments[];
+    	assignment!: Assignments[];
 }
