@@ -378,7 +378,7 @@ export class AssignmentController {
     /**
      * Helper for assignment submission request body validation
      * @param submission - The request body / submission to validate
-     * @returns boolean - Weather the body is valid
+     * @returns boolean - Whether the body is valid
      */
     private isValidAssSubmissionBody(submission: unknown): boolean {
         if (typeof submission !== "object" || submission === null) return false;
