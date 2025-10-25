@@ -10,27 +10,26 @@ import { AssignmentSubmissionToFiles } from "./AssignmentSubmissionToFiles.js";
 @Entity("Files")
 export class Files {
     @PrimaryGeneratedColumn("uuid")
-    	filesId!: string;
+        filesId!: string;
 
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
-    	FileName!: string;
+        FileName!: string;
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
     	Location!: string; //check if this is correct type
 
 
-    @OneToMany(() => ContentToFiles, (contentToFiles) => contentToFiles.contentToFilesId)
-    @JoinColumn({ name: "contentId" })
-    	contentToFiles!: ContentToFiles;
+    @OneToMany(() => ContentToFiles, (contentToFiles) => contentToFiles.filesId)
+        contentToFiles!: ContentToFiles[];
 
-    @ManyToOne(() => AssignmentToFiles, (assignmentToFiles) => assignmentToFiles.files)
+    @ManyToOne(() => AssignmentToFiles, (assignmentToFiles) => assignmentToFiles.file)
     @JoinColumn({ name: "assignmentId" })
-    	assignmentToFiles!: AssignmentToFiles;
+        assignmentToFiles!: AssignmentToFiles;
     @ManyToOne(() => AssignmentSubmissionToFiles, (assignmentSubmissionToFiles) => assignmentSubmissionToFiles.assignmentSubmissionToFilesId)
     @JoinColumn({ name: "assignmentSubmissionId" })
         assignmentSubmissionToFiles!: AssignmentSubmissionToFiles;

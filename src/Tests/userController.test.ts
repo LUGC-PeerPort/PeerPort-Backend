@@ -65,7 +65,7 @@ describe("UserController test:", () => {
         it("Should not create a user with an invalid structure", async () => {
             const req: any = {
                 body: {
-                    namee: "Test User",
+                    smth: "Test User",
                     email: "",
                 }
             };
@@ -84,8 +84,7 @@ describe("UserController test:", () => {
                 body: {
                     name: "T",
                     email: "testuser@example.com",
-                    password: "securepassword",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
             };
@@ -103,8 +102,7 @@ describe("UserController test:", () => {
             const req: any = {
                 body: {
                     email: "testinguser@example.com",
-                    password: "securepassword",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
             };
@@ -123,8 +121,7 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "notanemail",
-                    password: "securepassword",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
             };
@@ -143,8 +140,7 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "",
-                    password: "securepassword",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
             };
@@ -162,28 +158,7 @@ describe("UserController test:", () => {
             const req: any = {
                 body: {
                     name: "Test User",
-                    password: "securepassword",
-                    profilePictureUrl: "",
-                    idNumber: "123456789smth",
-                }
-            };
-
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.create(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
-        });
-
-        it("Should not create a user with an empty password", async () => {
-            const req: any = {
-                body: {
-                    name: "Test User",
-                    email: "testuser@example.com",
-                    password: "",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
             };
@@ -202,8 +177,7 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "testuser@example.com",
-                    password: "securepassword",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "",
                 }
             };
@@ -222,7 +196,6 @@ describe("UserController test:", () => {
             await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             });
@@ -231,16 +204,15 @@ describe("UserController test:", () => {
                 body: {
                     name: "Another User",
                     email: "testuser@example.com",
-                    password: "anotherpassword",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "987654321smth",
                 }
             };
-
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
             await controller.create(req, res);
+
             expect(res.status).toHaveBeenCalledWith(409);
             expect(res.json).toHaveBeenCalledWith({ message: "Email already in use" });
         });
@@ -250,8 +222,7 @@ describe("UserController test:", () => {
                 body: {
                     name: "Test User",
                     email: "testuser@example.com",
-                    password: "securepassword",
-                    profilePictureUrl: "",
+                    profilePictureUrl: undefined,
                     idNumber: "123456789smth",
                 }
             };
@@ -269,7 +240,7 @@ describe("UserController test:", () => {
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             }));
-            
+
             // Ensure password is not returned in the response
             expect(res.json.mock.calls[0][0].password).toBeUndefined();
 
@@ -280,7 +251,6 @@ describe("UserController test:", () => {
                 userId: expect.any(String),
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             });
@@ -328,7 +298,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
                 role: role,
@@ -366,7 +335,6 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
                 role: role,
@@ -467,8 +435,7 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
-                profilePictureUrl: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
@@ -495,8 +462,7 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
-                profilePictureUrl: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
@@ -516,12 +482,40 @@ describe("UserController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid user structure" });
         });
 
+        it("Should update a user with no change to name or email", async () => {
+            // First, create a user to update
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                profilePictureUrl: undefined,
+                idNumber: "123456789smth",
+            });
+            const req: any = {
+                params: {
+                    id: user.userId
+                },
+                body: {
+                    profilePictureUrl: "smth/smth"
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateProfile(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                userId: user.userId,
+                name: "Test User",
+                email: "testuser@example.com"
+            }));
+        });
+
         it("Should update a user with valid data", async () => {
             // First, create a user to update
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
@@ -559,7 +553,6 @@ describe("UserController test:", () => {
                 userId: user.userId,
                 name: "Updated User",
                 email: "updateduser@example.com",
-                password: "securepassword",
                 profilePictureUrl: null,
                 idNumber: "123456789smth",
             });
@@ -588,8 +581,7 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
-                profilePictureUrl: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
@@ -651,8 +643,7 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
-                profilePictureUrl: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
@@ -683,6 +674,28 @@ describe("UserController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith([{ ...course, enrolledOn: linkData.enrolledOn }]);
+        });
+
+        it("Should get an empty array for a user with no courses", async () => {
+            // First, create a user to get
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                profilePictureUrl: undefined,
+                idNumber: "123456789smth",
+            });
+            const req: any = {
+                params: {
+                    id: user.userId
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCourses(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([]);
         });
     });
 
@@ -726,8 +739,7 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
-                profilePictureUrl: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
             const req: any = {
@@ -751,8 +763,7 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
-                profilePictureUrl: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
@@ -786,8 +797,7 @@ describe("UserController test:", () => {
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
-                password: "securepassword",
-                profilePictureUrl: "",
+                profilePictureUrl: undefined,
                 idNumber: "123456789smth",
             });
 
@@ -820,6 +830,521 @@ describe("UserController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({ ...course, enrolledOn: linkData.enrolledOn });
+        });
+    });
+
+    describe("Getting the current user that is logged in", () => {
+        it("Should not get the current user when there is no session", async () => {
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+        });
+
+        it("Should not get the current user when the session is not logged in",  async () => {
+            const req: any = {
+                session: {}
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+        });
+
+        it("Should not get the current user when the user ID is not in the session",  async () => {
+            const req: any = {
+                session: {
+                    user: null,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+        });
+
+        it("Should get the current logged in user", async () => {
+            const user = await TestDataSource.getRepository("User").save({
+                name: "Test User",
+                email: "testuser@example.com",
+                password: "securepassword",
+                profilePictureUrl: undefined,
+                idNumber: "123456789smth",
+            });
+
+            const req: any = {
+                session: {
+                    user: user.userId,
+                },
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.getCurrentUser(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                userId: user.userId,
+            });
+        });
+    });
+
+
+    describe("checkUserStructure function tests", () => {
+        it("Should return false for a null object", () => {
+            const result = (controller as any).checkUserStructure(null);
+            expect(result).toBe(false);
+        });
+        
+        it("Should return false for an empty object", () => {
+            const result = (controller as any).checkUserStructure({});
+            expect(result).toBe(false);
+        });
+        
+        it("Should return false for unnecessary fields", () => {
+            const result = (controller as any).checkUserStructure({
+                invalidField: "This should not be here",
+            });
+            expect(result).toBe(false);
+        });
+        
+        it("Should return false for valid fields with extra unnecessary fields", () => {
+            const result = (controller as any).checkUserStructure({
+                name: "Valid Name",
+                email: "valid.email@example.com",
+                idNumber: "123456789",
+                profilePictureUrl: "http://example.com/profile.jpg",
+                extraField: "This should not be here",
+            });
+            expect(result).toBe(false);
+        });
+
+
+
+        describe("Name tests", () => {
+            const basicValues = {
+                email: "valid.email@example.com",
+                idNumber: "123456789",
+                profilePictureUrl: "http://example.com/profile.jpg",
+            };
+            it.each([
+                { name: "Missing name should return false", data: basicValues, expected: false, isUpdate: false },
+                { name: "Empty name should return false", data: { name: "  ", ...basicValues }, expected: false, isUpdate: false },
+                { name: "Non-string name should return false", data: { name: 123, ...basicValues }, expected: false, isUpdate: false },
+                { name: "Too short name should return false", data: { name: "A", ...basicValues }, expected: false, isUpdate: false },
+
+                { name: "Missing name while updating should return true", data: { ...basicValues }, expected: true, isUpdate: true },
+                { name: "Empty name while updating should return false", data: { name: "  ", ...basicValues }, expected: false, isUpdate: true },
+                { name: "Non-string name while updating should return false", data: { name: 123, ...basicValues }, expected: false, isUpdate: true },
+                { name: "Too short name while updating should return false", data: { name: "A", ...basicValues }, expected: false, isUpdate: true },
+
+            ])("$name", ({ name, data, expected, isUpdate }) => {
+                expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
+            });
+        });
+
+        describe("Email tests", () => {
+            const basicValues = {
+                name: "Valid Name",
+                idNumber: "123456789",
+                profilePictureUrl: "http://example.com/profile.jpg",
+            };
+
+            it.each([
+                { name: "Should return false for missing email", data: basicValues, expected: false, isUpdate: false },
+                { name: "Should return false for empty email", data: { email: "   ", ...basicValues }, expected: false, isUpdate: false },
+                { name: "Should return false for a non-string email", data: { email: 12345, ...basicValues }, expected: false, isUpdate: false },
+                { name: "Should return false for an invalid email format", data: { email: "invalid-email", ...basicValues }, expected: false, isUpdate: false },
+
+                { name: "Should return true for missing email while updating", data: basicValues, expected: true, isUpdate: true },
+                { name: "Should return false for a non-string email while updating", data: { email: 12345, ...basicValues }, expected: false, isUpdate: true },
+                { name: "Should return false for an invalid email format while updating", data: { email: "invalid-email", ...basicValues }, expected: false, isUpdate: true },
+                { name: "Should return true for valid email", data: { email: "valid.email@example.com", ...basicValues }, expected: true, isUpdate: false },
+            ])("$name", ({ name, data, expected, isUpdate }) => {
+                expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
+            });
+        });
+
+        describe("idNumber tests", () => {
+            const basicValues = {
+                name: "Valid Name",
+                email: "valid.email@example.com",
+                profilePictureUrl: "http://example.com/profile.jpg",
+            };
+
+            it.each([
+                { name: "Should return false for missing idNumber", data: basicValues, expected: false, isUpdate: false },
+                { name: "Should return false for empty idNumber", data: { idNumber: "   ", ...basicValues }, expected: false, isUpdate: false },
+                { name: "Should return false for a non-string idNumber", data: { idNumber: 123456789, ...basicValues }, expected: false, isUpdate: false },
+                { name: "Should return true for valid idNumber", data: { idNumber: "123456789", ...basicValues }, expected: true, isUpdate: false },
+
+                { name: "Should return false for a non-string idNumber while updating", data: { idNumber: 123456789, ...basicValues }, expected: false, isUpdate: true },
+                { name: "Should return false for an empty idNumber while updating", data: { idNumber: "   ", ...basicValues }, expected: false, isUpdate: true },
+                { name: "Should return true for missing idNumber while updating", data: basicValues, expected: true, isUpdate: true },
+                { name: "Should return true for valid idNumber", data: { idNumber: "123456789", ...basicValues }, expected: true, isUpdate: true },
+            ])("$name", ({ name, data, expected, isUpdate }) => {
+                expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
+            });
+        });
+
+        describe("profilePictureUrl tests", () => {
+            const basicValues = {
+                name: "Valid Name",
+                email: "valid.email@example.com",
+                idNumber: "123456789",
+            };
+
+            it.each([
+                { name: "Should return false for empty profilePictureUrl", data: { profilePictureUrl: "   ", ...basicValues }, expected: false, isUpdate: false },
+                { name: "Should return false for a non-string profilePictureUrl", data: { profilePictureUrl: 12345, ...basicValues }, expected: false, isUpdate: false },
+                { name: "Should return false for an URL that is too short", data: { profilePictureUrl: "a", ...basicValues }, expected: false, isUpdate: false },
+                { name: "Should return true for missing profilePictureUrl", data: basicValues, expected: true, isUpdate: false },
+
+                { name: "Should return true for missing profilePictureUrl while updating", data: basicValues, expected: true, isUpdate: true },
+                { name: "Should return false for a non-string profilePictureUrl while updating", data: { profilePictureUrl: 12345, ...basicValues }, expected: false, isUpdate: true },
+                { name: "Should return false for a URL that is too short while updating", data: { profilePictureUrl: "a", ...basicValues }, expected: false, isUpdate: true },
+                { name: "Should return true for valid profilePictureUrl while updating", data: { profilePictureUrl: "http://example.com/profile.jpg", ...basicValues }, expected: true, isUpdate: true },
+            ])("$name", ({ name, data, expected, isUpdate }) => {
+                expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
+            });
+        });
+
+        it("Should return true for valid fields", () => {
+            const result = (controller as any).checkUserStructure({
+                name: "Valid Name",
+                email: "valid.email@example.com",
+                idNumber: "123456789",
+                profilePictureUrl: "http://example.com/profile.jpg",
+            });
+            expect(result).toBe(true);
+        });
+    });
+
+    describe("checkUUID function tests", () => {
+        it("Should return nothing for an undefined UUID", () => {
+            const result = (controller as any).checkUUID(undefined);
+            expect(result).toBeUndefined();
+        });
+
+        it("Should return nothing if the UUID is an empty string", () => {
+            const result = (controller as any).checkUUID("   ");
+            expect(result).toBeUndefined();
+        });
+
+        it("Should return nothing for an invalid UUID structure", () => {
+            const result = (controller as any).checkUUID("invalid-uuid-string");
+            expect(result).toBeUndefined();
+        });
+
+        it("Should return the UUID if it is valid", () => {
+            const validUUID = "123e4567-e89b-12d3-a456-426614174000";
+            const result = (controller as any).checkUUID(validUUID);
+            expect(result).toBe(validUUID);
+        });
+    });
+
+    describe("userReturn function tests", () => {
+        it("Should correctly parse a User entity to UserReturn type", () => {
+            const result = (controller as any).userReturn({
+                userId: "123e4567-e89b-12d3-a456-426614174000",
+                name: "Test User",
+                email: "test.user@example.com",
+                profilePictureUrl: "http://example.com/profile.jpg",
+                idNumber: "123456789",
+                role: { name: "student" },
+                courses: [
+                    {
+                        enrolledOn: new Date("2023-01-01"),
+                        course: {
+                            courseId: "987e6543-e21b-12d3-a456-426614174000",
+                            name: "Test Course",
+                            courseCode: "TC101",
+                            isOpen: true,
+                            description: "This is a test course",
+                            startDate: "2023-01-01",
+                            endDate: "2023-06-01",
+                        }
+                    }
+                ],
+            });
+            expect(result).toEqual({
+                userId: "123e4567-e89b-12d3-a456-426614174000",
+                name: "Test User",
+                email: "test.user@example.com",
+                profilePictureUrl: "http://example.com/profile.jpg",
+                idNumber: "123456789",
+                role: { name: "student" },
+                courses: [
+                    {
+                        courseId: "987e6543-e21b-12d3-a456-426614174000",
+                        name: "Test Course",
+                        courseCode: "TC101",
+                        isOpen: true,
+                        description: "This is a test course",
+                        startDate: "2023-01-01",
+                        endDate: "2023-06-01",
+                        enrolledOn: new Date("2023-01-01"),
+                    }
+                ]
+            });
+        });
+
+        describe("Optional fields tests", () => {
+            const baseData = {
+                userId: "123e4567-e89b-12d3-a456-426614174000",
+                name: "Test User",
+                email: "test.user@example.com",
+                idNumber: "123456789",
+            };
+            const courseBase = {
+                course: {
+                    courseId: "987e6543-e21b-12d3-a456-426614174000",
+                    name: "Test Course",
+                    courseCode: "TC101",
+                    isOpen: true,
+                },
+                enrolledOn: new Date("2023-01-01"),
+            };
+            it.each([
+                {
+                    name: "Should handle undefined profilePictureUrl",
+                    data: { ...baseData, profilePictureUrl: undefined },
+                    expected: { ...baseData, profilePictureUrl: null, role: undefined, courses: [] }
+                },
+                {
+                    name: "Should handle null profilePictureUrl",
+                    data: { ...baseData, profilePictureUrl: null },
+                    expected: { ...baseData, profilePictureUrl: null, role: undefined, courses: [] }
+                },
+                {
+                    name: "Should handle undefined roles",
+                    data: { ...baseData, role: undefined },
+                    expected: { ...baseData, profilePictureUrl: null, role: undefined, courses: [] }
+                },
+                {
+                    name: "Should handle undefined courses",
+                    data: { ...baseData, courses: undefined },
+                    expected: { ...baseData, profilePictureUrl: null, role: undefined, courses: [] }
+                },
+                {
+                    name: "Should handle null courses",
+                    data: { ...baseData, courses: null },
+                    expected: { ...baseData, profilePictureUrl: null, role: undefined, courses: [] }
+                },
+                {
+                    name: "Should handle undefined descriptions in courses",
+                    data: {
+                        ...baseData,
+                        courses: [
+                            { ...courseBase, course: { ...courseBase.course, description: undefined } }
+                        ]
+                    },
+                    expected: {
+                        ...baseData,
+                        profilePictureUrl: null,
+                        role: undefined,
+                        courses: [
+                            {
+                                courseId: courseBase.course.courseId,
+                                name: courseBase.course.name,
+                                courseCode: courseBase.course.courseCode,
+                                isOpen: courseBase.course.isOpen,
+                                description: null,
+                                startDate: (courseBase.course as any).startDate ?? null,
+                                endDate: (courseBase.course as any).endDate ?? null,
+                                enrolledOn: courseBase.enrolledOn,
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: "Should handle null descriptions in courses",
+                    data: {
+                        ...baseData,
+                        courses: [
+                            { ...courseBase, course: { ...courseBase.course, description: null } }
+                        ]
+                    },
+                    expected: {
+                        ...baseData,
+                        profilePictureUrl: null,
+                        role: undefined,
+                        courses: [
+                            {
+                                courseId: courseBase.course.courseId,
+                                name: courseBase.course.name,
+                                courseCode: courseBase.course.courseCode,
+                                isOpen: courseBase.course.isOpen,
+                                description: null,
+                                startDate: (courseBase.course as any).startDate ?? null,
+                                endDate: (courseBase.course as any).endDate ?? null,
+                                enrolledOn: courseBase.enrolledOn,
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: "Should handle undefined startDate in courses",
+                    data: {
+                        ...baseData,
+                        courses: [
+                            { ...courseBase, course: { ...courseBase.course, startDate: undefined } }
+                        ]
+                    },
+                    expected: {
+                        ...baseData,
+                        profilePictureUrl: null,
+                        role: undefined,
+                        courses: [
+                            {
+                                courseId: courseBase.course.courseId,
+                                name: courseBase.course.name,
+                                courseCode: courseBase.course.courseCode,
+                                isOpen: courseBase.course.isOpen,
+                                description: (courseBase.course as any).description ?? null,
+                                startDate: null,
+                                endDate: (courseBase.course as any).endDate ?? null,
+                                enrolledOn: courseBase.enrolledOn,
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: "Should handle null startDate in courses",
+                    data: {
+                        ...baseData,
+                        courses: [
+                            { ...courseBase, course: { ...courseBase.course, startDate: null } }
+                        ]
+                    },
+                    expected: {
+                        ...baseData,
+                        profilePictureUrl: null,
+                        role: undefined,
+                        courses: [
+                            {
+                                courseId: courseBase.course.courseId,
+                                name: courseBase.course.name,
+                                courseCode: courseBase.course.courseCode,
+                                isOpen: courseBase.course.isOpen,
+                                description: (courseBase.course as any).description ?? null,
+                                startDate: null,
+                                endDate: (courseBase.course as any).endDate ?? null,
+                                enrolledOn: courseBase.enrolledOn,
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: "Should handle undefined endDate in courses",
+                    data: {
+                        ...baseData,
+                        courses: [
+                            { ...courseBase, course: { ...courseBase.course, endDate: undefined } }
+                        ]
+                    },
+                    expected: {
+                        ...baseData,
+                        profilePictureUrl: null,
+                        role: undefined,
+                        courses: [
+                            {
+                                courseId: courseBase.course.courseId,
+                                name: courseBase.course.name,
+                                courseCode: courseBase.course.courseCode,
+                                isOpen: courseBase.course.isOpen,
+                                description: (courseBase.course as any).description ?? null,
+                                startDate: (courseBase.course as any).startDate ?? null,
+                                endDate: null,
+                                enrolledOn: courseBase.enrolledOn,
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: "Should handle null endDate in courses",
+                    data: {
+                        ...baseData,
+                        courses: [
+                            { ...courseBase, course: { ...courseBase.course, endDate: null } }
+                        ]
+                    },
+                    expected: {
+                        ...baseData,
+                        profilePictureUrl: null,
+                        role: undefined,
+                        courses: [
+                            {
+                                courseId: courseBase.course.courseId,
+                                name: courseBase.course.name,
+                                courseCode: courseBase.course.courseCode,
+                                isOpen: courseBase.course.isOpen,
+                                description: (courseBase.course as any).description ?? null,
+                                startDate: (courseBase.course as any).startDate ?? null,
+                                endDate: null,
+                                enrolledOn: courseBase.enrolledOn,
+                            }
+                        ]
+                    }
+                },
+            ])("$name", ({ name, data, expected }) => {
+                const result = (controller as any).userReturn(data);
+                expect(result).toEqual(expected);
+            });
+        });
+    });
+
+    describe("courseReturn function tests", () => {
+        it("Should correctly parse a Course entity to CourseReturn type", () => {
+            const result = (controller as any).courseReturn({
+                courseId: "987e6543-e21b-12d3-a456-426614174000",
+                name: "Test Course",
+                courseCode: "TC101",
+                isOpen: true,
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+                enrolledOn: new Date("2023-01-01"),
+            });
+            expect(result).toEqual({
+                courseId: "987e6543-e21b-12d3-a456-426614174000",
+                name: "Test Course",
+                courseCode: "TC101",
+                isOpen: true,
+                description: "This is a test course",
+                startDate: "2023-01-01",
+                endDate: "2023-06-01",
+                enrolledOn: new Date("2023-01-01"),
+            });
+        });
+
+        describe("Optional fields tests", () => {
+            const baseData = {
+                courseId: "987e6543-e21b-12d3-a456-426614174000",
+                name: "Test Course",
+                courseCode: "TC101",
+                isOpen: true,
+                startDate: "2023-01-01",
+                enrolledOn: new Date("2023-01-01"),
+            };
+            it.each([
+                { name: "Should handle undefined description", data: { ...baseData, description: undefined }, expected: { ...baseData, description: null, endDate: null } },
+                { name: "Should handle null description", data: { ...baseData, description: null }, expected: { ...baseData, description: null, endDate: null } },
+                { name: "Should handle undefined endDate", data: { ...baseData, endDate: undefined }, expected: { ...baseData, description: (baseData as any).description ?? null, endDate: null } },
+                { name: "Should handle null endDate", data: { ...baseData, endDate: null }, expected: { ...baseData, description: (baseData as any).description ?? null, endDate: null } },
+            ])("$name", ({ name, data, expected }) => {
+                expect((controller as any).courseReturn(data)).toEqual(expected);
+            });
         });
     });
 });

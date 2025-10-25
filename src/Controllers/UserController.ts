@@ -7,7 +7,7 @@ import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Role } from "../Database/entities/Role.js";
 
-interface UserReturn {
+export interface UserReturn {
     userId: string | undefined;
     name: string;
     email: string;
@@ -49,11 +49,11 @@ export class UserController {
             return;
         }
 
-        res.json({userId: userID});
+        res.status(200).json({userId: userID});
     }
 
 
-        /**
+    /**
 	 * Gets all the users
 	 * @param req - The Request object
 	 * @param res - The Response object
@@ -87,10 +87,6 @@ export class UserController {
         // Convert to User type
         const userStructure = userStructureUnknown as User;
 
-        if (userStructure.profilePictureUrl === "") {
-            userStructure.profilePictureUrl = undefined;
-        }
-
         // Check if email already exists
         const existingUser = await this.userRepo.findOneBy({ email: userStructure.email });
         if (existingUser) {
@@ -107,11 +103,6 @@ export class UserController {
         if (studentRole) {
             result.role = studentRole;
             await this.userRepo.save(result);
-        } else {
-            // Could possibly change this to auto create it if it doesn't exist yet
-            console.log("Student role not found");
-            res.status(500).json({ message: "Internal server error" });
-            return;
         }
 
         // Convert to return type
@@ -186,7 +177,6 @@ export class UserController {
         // Update the user
         user.name = userStructure.name ?? user.name;
         user.email = userStructure.email ?? user.email;
-        user.password = userStructure.password ?? user.password;
         user.profilePictureUrl = userStructure.profilePictureUrl ?? user.profilePictureUrl;
 
         const result = await this.userRepo.save(user);
@@ -285,9 +275,11 @@ export class UserController {
             return;
         }
 
-        if (userData.courses.length > 1) {
-            console.log("Warning: User is enrolled in the same course multiple times");
-        }
+        // This shouldn't happen as it is a case dealt with in the 
+        // courseController enrollUserInCourse function
+        // if (userData.courses.length > 1) {
+        //     console.log("Warning: User is enrolled in the same course multiple times");
+        // }
 
         // Parse the course to the return type
         const courseData = this.courseReturn({ ...userData.courses[0].course, enrolledOn: userData.courses[0].enrolledOn } as Course & {enrolledOn: string});
@@ -307,7 +299,7 @@ export class UserController {
     private checkUserStructure(user: unknown, updating?: boolean): boolean {
         if (typeof user !== "object" || user === null) return false;
 
-        const userKeys = ["name", "email", "password", "profilePictureUrl", "idNumber"];
+        const userKeys = ["name", "email", "profilePictureUrl", "idNumber"];
         for (const key of Object.keys(user)) {
             if (!userKeys.includes(key)) return false;
         }
@@ -330,12 +322,6 @@ export class UserController {
         } else if (typeof userTyped.email !== "undefined" && updating) failedFlag = true;
         else if (!updating) failedFlag = true;
 
-        if (typeof userTyped.password === "string") {
-            if (userTyped.password.trim() === "" || userTyped.password.trim().length < 8) failedFlag = true;
-            else updated = true;
-        } else if (typeof userTyped.password !== "undefined" && updating) failedFlag = true;
-        else if (!updating) failedFlag = true;
-
         if (typeof userTyped.idNumber === "string") {
             if (userTyped.idNumber.trim() === "") failedFlag = true;
             else updated = true;
@@ -344,9 +330,10 @@ export class UserController {
 
         // -- Optional --
         if (typeof userTyped.profilePictureUrl === "string") {
-            if (userTyped.profilePictureUrl.trim() !== "" && userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
+            if (userTyped.profilePictureUrl.trim().length < 2) failedFlag = true;
             else updated = true;
         } else if (typeof userTyped.profilePictureUrl !== "undefined" && updating) failedFlag = true;
+        else if (!updating && typeof userTyped.profilePictureUrl !== "undefined") failedFlag = true;
 
         if (failedFlag) return false;
         else if (updating && !updated) return false;

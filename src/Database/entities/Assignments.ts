@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { Course } from "./Course.js";
 import { AssignmentToFiles } from "./AssignmentToFiles.js";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
@@ -27,9 +27,8 @@ export class Assignments {
     })
     	dueDate!: string;
 
-    @ManyToMany(() => AssignmentToFiles, (assignmentToFile) => assignmentToFile.AssignmentToFileId)
-    @JoinColumn({ name: "AssignmentToFileId" })
-    	assignmentToFile!: AssignmentToFiles;
+	@OneToMany(() => AssignmentToFiles, (assignmentToFile) => assignmentToFile.assignment)
+    	assignmentToFiles!: AssignmentToFiles[];
 
     @ManyToOne(() => Course, (course) => course.assignments)
     @JoinColumn({ name: "courseId" })

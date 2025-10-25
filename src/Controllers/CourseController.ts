@@ -4,6 +4,7 @@ import { Course } from "../Database/entities/Course.js";
 import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
+import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -15,12 +16,6 @@ export interface CourseReturn {
     endDate: Date | string | null;
 };
 
-export interface AssignmentReturn {
-    assignmentId: string;
-    name: string;
-    description: string;
-    dueDate: Date | string;
-}
 
 
 /**
@@ -302,13 +297,17 @@ export class CourseController {
      * @returns Whether the structure is valid or not
      */
     // eslint-disable-next-line complexity
-    private checkCourseStructure(course: unknown, _creation: boolean=false, _updating: boolean=false): boolean {
+    private checkCourseStructure(course: unknown, _creation?: boolean, _updating?: boolean): boolean {
         if (typeof course !== "object" || course === null) return false;
+
+        // Set default values for optional parameters
+        _creation = _creation ?? false;
+        _updating = _updating ?? false;
 
         // Check if the course has any extra keys
         const courseKeys = ["name", "courseCode", "isOpen", "description", "startDate", "endDate"];
         for (const key of Object.keys(course)) {
-            if (key !in courseKeys && !(key === "userId" && _creation)) return false;
+            if (!courseKeys.includes(key) && !(key === "userId" && _creation)) return false;
         }
 
         // Make a Course object that is partial (all fields optional)
@@ -417,7 +416,7 @@ export class CourseController {
      * @param assignmentData - The assignment data from the database
      * @returns The assignment data acceptable for a return
      */
-    private assignmentReturn(assignmentData: Assignments): AssignmentReturn {
+    private assignmentReturn(assignmentData: Assignments): AssignmentReturnWithoutCourseId {
         return {
             assignmentId: assignmentData.assignmentId,
             name: assignmentData.name,

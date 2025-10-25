@@ -785,6 +785,111 @@ describe("CourseController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid course structure" });
         });
 
+        it("Should update a course with no new start date or end date", async () => {
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "testCourse",
+                courseCode: "tes-st01",
+                isOpen: true,
+                description: "A test course",
+                startDate: "2024-01-01",
+                endDate: "2024-06-01",
+            });
+            const req: any = {
+                params: {
+                    courseId: course.courseId
+                },
+                body: {
+                    isOpen: false,
+                    description: "An updated test course",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                courseId: course.courseId,
+                name: "testCourse",
+                courseCode: "tes-st01",
+                isOpen: false,
+                description: "An updated test course",
+                startDate: "2024-01-01",
+                endDate: "2024-06-01",
+            });
+        });
+
+        it("Should update a course with no new end date", async () => {
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "testCourse",
+                courseCode: "tes-st01",
+                isOpen: true,
+                description: "A test course",
+                startDate: "2024-01-01",
+            });
+            const req: any = {
+                params: {
+                    courseId: course.courseId
+                },
+                body: {
+                    isOpen: false,
+                    description: "An updated test course",
+                    startDate: "2024-02-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                courseId: course.courseId,
+                name: "testCourse",
+                courseCode: "tes-st01",
+                isOpen: false,
+                description: "An updated test course",
+                startDate: "2024-02-01",
+                endDate: null,
+            });
+        });
+
+        it("Should update a course with no new isOpen or description", async () => {
+            const course = await TestDataSource.getRepository("Course").save({
+                name: "testCourse",
+                courseCode: "tes-st01",
+                isOpen: true,
+                description: "A test course",
+                startDate: "2024-01-01",
+                endDate: "2024-06-01",
+            });
+            const req: any = {
+                params: {
+                    courseId: course.courseId
+                },
+                body: {
+                    startDate: "2024-02-01",
+                    endDate: "2024-07-01",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.updateCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                courseId: course.courseId,
+                name: "testCourse",
+                courseCode: "tes-st01",
+                isOpen: true,
+                description: "A test course",
+                startDate: "2024-02-01",
+                endDate: "2024-07-01",
+            });
+        });
+
         it("Should update a course with a valid ID", async () => {
             const course = await TestDataSource.getRepository("Course").save({
                 name: "testCourse",
@@ -1120,6 +1225,151 @@ describe("CourseController test:", () => {
                     dueDate: assignment2.dueDate,
                 }
             ]);
+        });
+    });
+
+    describe("checkCourseStructure function testing", () =>{
+        it.each([
+            {name: "Fails if courseData is null", courseData: null, creation: false, updating: false, expected: false},
+            {name: "Fails if courseData is string", courseData: "invalid", creation: false, updating: false, expected: false},
+            {name: "Fails if courseData is a number", courseData: 123, creation: false, updating: false, expected: false},
+
+            {name: "Fails if extra key in courseData", courseData: { extraKey: "value" }, creation: false, updating: false, expected: false},
+            {name: "Fails if userId is in keys", courseData: { userId: "123" }, creation: false, updating: false, expected: false},
+            { 
+                name: "Passes if userId included when creating", 
+                courseData: {
+                    userId: "123",
+                    name: "Test Course",
+                    courseCode: "test-01",
+                    isOpen: true,
+                    description: "A test course",
+                    startDate: "2024-01-01",
+                    endDate: "2024-06-01",
+                }, 
+                creation: true, 
+                updating: false, 
+                expected: true
+            },
+            { 
+                name: "Fails if userId included when updating", 
+                courseData: {
+                    userId: "123",
+                    name: "Test Course",
+                    courseCode: "test-01",
+                    isOpen: true,
+                    description: "A test course",
+                    startDate: "2024-01-01",
+                    endDate: "2024-06-01",
+                }, 
+                creation: false, 
+                updating: true, 
+                expected: false
+            },
+
+            // Creation mode specific failures
+            { name: "Creation fails when missing name", courseData: { courseCode: "cc", isOpen: true, startDate: "2024-01-01" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when name empty", courseData: { name: "", courseCode: "cc", isOpen: true, startDate: "2024-01-01" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when missing courseCode", courseData: { name: "C", isOpen: true, startDate: "2024-01-01" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when courseCode empty", courseData: { name: "C", courseCode: "", isOpen: true, startDate: "2024-01-01" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when missing isOpen", courseData: { name: "C", courseCode: "cc", startDate: "2024-01-01" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when isOpen wrong type", courseData: { name: "C", courseCode: "cc", isOpen: "true", startDate: "2024-01-01" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when missing startDate", courseData: { name: "C", courseCode: "cc", isOpen: true }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when invalid startDate", courseData: { name: "C", courseCode: "cc", isOpen: true, startDate: "not-a-date" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when endDate not string", courseData: { name: "C", courseCode: "cc", isOpen: true, startDate: "2024-01-01", endDate: 123 }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when endDate not valid", courseData: { name: "C", courseCode: "cc", isOpen: true, startDate: "2024-01-01", endDate: "not-a-date" }, creation: true, updating: false, expected: false },
+            { name: "Creation fails when description empty string", courseData: { name: "C", courseCode: "cc", isOpen: true, description: "", startDate: "2024-01-01" }, creation: true, updating: false, expected: false },
+            { name: "Creation passes with minimal valid fields", courseData: { name: "C", courseCode: "cc", isOpen: true, startDate: "2024-01-01" }, creation: true, updating: false, expected: true },
+
+            // Updating mode specific checks
+            { name: "Updating fails when no fields provided", courseData: {}, creation: false, updating: true, expected: false },
+            { name: "Updating fails when startDate not string", courseData: { startDate: 123 }, creation: false, updating: true, expected: false },
+            { name: "Updating fails when startDate not valid", courseData: { startDate: "not-a-date" }, creation: false, updating: true, expected: false },
+            { name: "Updating fails when endDate not string", courseData: { endDate: 123 }, creation: false, updating: true, expected: false },
+            { name: "Updating fails when endDate not valid", courseData: { endDate: "not-a-date" }, creation: false, updating: true, expected: false },
+            { name: "Updating fails when isOpen not boolean", courseData: { isOpen: "true" }, creation: false, updating: true, expected: false },
+            { name: "Updating passes when only isOpen provided", courseData: { isOpen: false }, creation: false, updating: true, expected: true },
+            { name: "Updating passes when only description provided", courseData: { description: "updated" }, creation: false, updating: true, expected: true },
+            { name: "Updating fails when name provided but wrong type", courseData: { name: 123 }, creation: false, updating: true, expected: false },
+            { name: "Updating fails when endDate provided but invalid", courseData: { endDate: "not-a-date" }, creation: false, updating: true, expected: false },
+            { name: "Updating passes when startDate provided and valid", courseData: { startDate: "2024-05-01" }, creation: false, updating: true, expected: true },
+            { name: "Updating passes when endDate provided and valid", courseData: { endDate: "2024-08-01" }, creation: false, updating: true, expected: true },
+
+        ])("$name", async ({ name: _name, courseData, creation, updating, expected }) => {
+            const result = controller["checkCourseStructure"](courseData, creation, updating);
+            expect(result).toBe(expected);
+        });
+    });
+
+    describe("checkUUID function tests", () => {
+        it.each([
+            { name: "undefined UUID returns undefined", input: undefined as unknown as string, expected: undefined },
+            { name: "empty string returns undefined", input: "", expected: undefined },
+            { name: "invalid structure returns undefined", input: "not-a-uuid", expected: undefined },
+            { name: "valid UUID is returned", input: "123e4567-e89b-12d3-a456-426614174000", expected: "123e4567-e89b-12d3-a456-426614174000" },
+        ])("$name", ({ input, expected }) => {
+            const result = controller["checkUUID"](input);
+            expect(result).toBe(expected as any);
+        });
+    });
+
+    describe("checkDates function tests", () => {
+        it.each([
+            { name: "endDate null => true", start: "2024-01-01", end: null, expected: true },
+            { name: "endDate after start => true", start: "2024-01-01", end: "2024-02-01", expected: true },
+            { name: "endDate equal to start => false", start: "2024-01-01", end: "2024-01-01", expected: false },
+            { name: "endDate before start => false", start: "2024-02-01", end: "2024-01-01", expected: false },
+        ])("$name", ({ start, end, expected }) => {
+            const result = controller["checkDates"](start, end as string | null);
+            expect(result).toBe(expected);
+        });
+    });
+
+    describe("courseReturn function tests", () => {
+        it.each([
+            {
+                name: "missing optional fields => nulls",
+                course: {
+                    courseId: "cid-1",
+                    name: "Course 1",
+                    courseCode: "C101",
+                    isOpen: true,
+                    startDate: "2024-01-01",
+                },
+                expected: {
+                    courseId: "cid-1",
+                    name: "Course 1",
+                    courseCode: "C101",
+                    isOpen: true,
+                    description: null,
+                    startDate: "2024-01-01",
+                    endDate: null,
+                }
+            },
+            {
+                name: "optional fields present => preserved",
+                course: {
+                    courseId: "cid-2",
+                    name: "Course 2",
+                    courseCode: "C102",
+                    isOpen: false,
+                    description: "A description",
+                    startDate: "2024-03-01",
+                    endDate: "2024-06-01",
+                },
+                expected: {
+                    courseId: "cid-2",
+                    name: "Course 2",
+                    courseCode: "C102",
+                    isOpen: false,
+                    description: "A description",
+                    startDate: "2024-03-01",
+                    endDate: "2024-06-01",
+                }
+            }
+        ])("$name", ({ course, expected }) => {
+            const result = controller["courseReturn"](course as any);
+            expect(result).toEqual(expected);
         });
     });
 });

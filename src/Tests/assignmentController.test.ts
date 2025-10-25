@@ -12,7 +12,6 @@ describe("AssignmentController test:", () => {
         await TestDataSource.initialize();
         controller = new AssignmentController(TestDataSource);
 
-        
         // Create a course for the assignments to use
         const courseData = {
             name: "Test Course",
@@ -40,6 +39,7 @@ describe("AssignmentController test:", () => {
 
     beforeEach(async () => {
         // Clear assignments before each test
+        await TestDataSource.getRepository("AssignmentSubmissions").clear();
         await TestDataSource.getRepository("Assignments").clear();
     });
 
@@ -47,21 +47,7 @@ describe("AssignmentController test:", () => {
         await TestDataSource.destroy();
     });
 
-    let getAllImplemented : boolean;
     describe("Get all assignments", () => {
-        beforeAll(async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.getAllAssignments(req, res);
-            if (res.status.mock.calls[0][0] === 501) {
-                getAllImplemented = false;
-            } else {
-                getAllImplemented = true;
-            }
-        });
-
         it("Should have implemented the method getAllAssignments", async () => {
             const req: any = {};
             const res: any = {};
@@ -72,7 +58,7 @@ describe("AssignmentController test:", () => {
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
-        (getAllImplemented ? it : it.skip)("Should return an empty array when there are no assignments", async () => {
+        it("Should return an empty array when there are no assignments", async () => {
             const req: any = {};
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -83,7 +69,7 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith([]);
         });
 
-        (getAllImplemented ? it : it.skip)("Should return one assignment when there is one assignment", async () => {
+        it("Should return one assignment when there is one assignment", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -101,7 +87,7 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith([assignment]);
         });
 
-        (getAllImplemented ? it : it.skip)("Should return multiple assignments when there are multiple assignments", async () => {
+        it("Should return multiple assignments when there are multiple assignments", async () => {
             const assignment1 = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -126,20 +112,7 @@ describe("AssignmentController test:", () => {
         });
     });
 
-    let createImplemented: boolean;
     describe("Creating a new assignment", () => {
-        beforeAll(async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.createAssignment(req, res);
-            if (res.status.mock.calls[0][0] === 501) {
-                createImplemented = false;
-            } else {
-                createImplemented = true;
-            }
-        });
         it("Should have implemented the method createAssignment", async () => {
             const req: any = {};
             const res: any = {};
@@ -149,7 +122,7 @@ describe("AssignmentController test:", () => {
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with an invalid structure", async () => {
+        it("Should not create an assignment with an invalid structure", async () => {
             const req: any = {
                 body: {
                     smth: "invalid"
@@ -161,10 +134,23 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with a invalid name", async () => {
+        it("Should not create an assignment with an empty structure", async () => {
+            const req: any = {
+                body: {}
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
+        it("Should not create an assignment with a invalid name", async () => {
             const req: any = {
                 body: {
                     name: 123,
@@ -179,10 +165,28 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with no name", async () => {
+        it("Should not create an assignment with an empty name", async () => {
+            const req: any = {
+                body: {
+                    name: "   ",
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                    courseId: course.courseId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
+        it("Should not create an assignment with no name", async () => {
             const req: any = {
                 body: {
                     description: "This is a test assignment",
@@ -196,10 +200,10 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with a invalid description", async () => {
+        it("Should not create an assignment with a invalid description", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
@@ -214,10 +218,10 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with no description", async () => {
+        it("Should not create an assignment with no description", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
@@ -231,10 +235,28 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with a invalid due date", async () => {
+        it("Should not create an assignment with an empty description", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "   ",
+                    dueDate: "2025-06-01",
+                    courseId: course.courseId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
+        it("Should not create an assignment with a invalid due date", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
@@ -249,10 +271,10 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with no due date", async () => {
+        it("Should not create an assignment with no due date", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
@@ -266,10 +288,10 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with a past due date", async () => {
+        it("Should not create an assignment with a past due date", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
@@ -284,10 +306,28 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid due date" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with a invalid class ID", async () => {
+        it("Should not create an assignment with a wrong due date", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "not-a-date",
+                    courseId: course.courseId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
+        });
+
+        it("Should not create an assignment with a invalid class ID", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
@@ -302,10 +342,10 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
         });
 
-        (createImplemented ? it : it.skip)("Should not create an assignment with no class ID", async () => {
+        it("Should not create an assignment with no class ID", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
@@ -319,15 +359,69 @@ describe("AssignmentController test:", () => {
             await controller.createAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
         });
 
-        (createImplemented ? it : it.skip)("Should create an assignment with valid data", async () => {
+        it("Should not create an assignment with a non-existent class ID", async () => {
             const req: any = {
                 body: {
                     name: "Test Assignment",
                     description: "This is a test assignment",
-                    dueDate: "2030-01-01",
+                    dueDate: "2025-06-01",
+                    courseId: "123e4567-e89b-12d3-a456-426614174000",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "Course not found" });
+        });
+
+        it("Should not create an assignment with an empty class ID", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                    courseId: "   ",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
+        });
+
+        it("Should not create an assignment with an incomplete class ID", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "2025-06-01",
+                    courseId: "123e4567-e89b-12d3-42661417",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course ID" });
+        });
+
+        it("Should create an assignment with valid data", async () => {
+            const req: any = {
+                body: {
+                    name: "Test Assignment",
+                    description: "This is a test assignment",
+                    dueDate: "3030-01-01",
                     courseId: course.courseId,
                 }
             };
@@ -341,26 +435,13 @@ describe("AssignmentController test:", () => {
                 assignmentId: expect.any(String),
                 name: "Test Assignment",
                 description: "This is a test assignment",
-                dueDate: "2030-01-01",
+                dueDate: "3030-01-01",
                 courseId: course.courseId,
             });
         });
     });
 
-    let gettingAssignmentImplemented: boolean;
     describe("Getting an assignment", () => {
-        beforeAll(async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.getAssignment(req, res);
-            if (res.status.mock.calls[0][0] === 501) {
-                gettingAssignmentImplemented = false;
-            } else {
-                gettingAssignmentImplemented = true;
-            }
-        });
         it("Should have implemented the method getAssignment", async () => {
             const req: any = {};
             const res: any = {};
@@ -371,7 +452,7 @@ describe("AssignmentController test:", () => {
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
-        (gettingAssignmentImplemented ? it : it.skip)("Should not get an assignment with an invalid ID", async () => {
+        it("Should not get an assignment with an invalid ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: 123,
@@ -383,10 +464,10 @@ describe("AssignmentController test:", () => {
             await controller.getAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment ID" });
         });
 
-        (gettingAssignmentImplemented ? it : it.skip)("Should not get an assignment with a non-existent ID", async () => {
+        it("Should not get an assignment with a non-existent ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: "123e4567-e89b-12d3-a456-426614174000",
@@ -398,10 +479,10 @@ describe("AssignmentController test:", () => {
             await controller.getAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Assignment not found" });
         });
 
-        (gettingAssignmentImplemented ? it : it.skip)("Should get an assignment with a valid ID", async () => {
+        it("Should get an assignment with a valid ID", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -430,20 +511,7 @@ describe("AssignmentController test:", () => {
         });
     });
 
-    let updatingAssignmentImplemented: boolean;
     describe("Updating an assignment", () => {
-        beforeAll(async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.updateAssignment(req, res);
-            if (res.status.mock.calls[0][0] === 501) {
-                updatingAssignmentImplemented = false;
-            } else {
-                updatingAssignmentImplemented = true;
-            }
-        });
         it("Should have implemented the method updateAssignment", async () => {
             const req: any = {};
             const res: any = {};
@@ -454,7 +522,7 @@ describe("AssignmentController test:", () => {
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with an invalid ID", async () => {
+        it("Should not update an assignment with an invalid ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: 123,
@@ -471,10 +539,10 @@ describe("AssignmentController test:", () => {
             await controller.updateAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment ID" });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with a non-existent ID", async () => {
+        it("Should not update an assignment with a non-existent ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: "123e4567-e89b-12d3-a456-426614174000",
@@ -491,10 +559,10 @@ describe("AssignmentController test:", () => {
             await controller.updateAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Assignment not found" });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with a invalid structure", async () => {
+        it("Should not update an assignment with a invalid structure", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -513,10 +581,10 @@ describe("AssignmentController test:", () => {
             await controller.updateAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with a invalid name", async () => {
+        it("Should not update an assignment with a invalid name", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -539,10 +607,10 @@ describe("AssignmentController test:", () => {
             await controller.updateAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with a invalid description", async () => {
+        it("Should not update an assignment with a invalid description", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -566,10 +634,10 @@ describe("AssignmentController test:", () => {
             await controller.updateAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with a invalid due date", async () => {
+        it("Should not update an assignment with a invalid due date", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -592,10 +660,10 @@ describe("AssignmentController test:", () => {
             await controller.updateAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment structure" });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with a past due date", async () => {
+        it("Should not update an assignment with a past due date", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -618,10 +686,10 @@ describe("AssignmentController test:", () => {
             await controller.updateAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid due date" });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should not update an assignment with no fields to update", async () => {
+        it("Should not update an assignment with no fields to update", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -649,7 +717,7 @@ describe("AssignmentController test:", () => {
             });
         });
 
-        (updatingAssignmentImplemented ? it : it.skip)("Should update an assignment with valid data", async () => {
+        it("Should update an assignment with valid data", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -663,7 +731,7 @@ describe("AssignmentController test:", () => {
                 body: {
                     name: "Updated Assignment",
                     description: "This is an updated test assignment",
-                    dueDate: "2025-06-02",
+                    dueDate: "3030-06-02",
                 }
             };
             const res: any = {};
@@ -676,26 +744,13 @@ describe("AssignmentController test:", () => {
                 assignmentId: assignment.assignmentId,
                 name: "Updated Assignment",
                 description: "This is an updated test assignment",
-                dueDate: "2025-06-02",
+                dueDate: "3030-06-02",
                 courseId: course.courseId,
             });
         });
     });
 
-    let deleteAssignmentImplemented: boolean;
     describe("Deleting an assignment", () => {
-        beforeAll(async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.deleteAssignment(req, res);
-            if (res.status.mock.calls[0][0] === 501) {
-                deleteAssignmentImplemented = false;
-            } else {
-                deleteAssignmentImplemented = true;
-            }
-        });
         it("Should have implemented the method deleteAssignment", async () => {
             const req: any = {};
             const res: any = {};
@@ -706,7 +761,7 @@ describe("AssignmentController test:", () => {
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
-        (deleteAssignmentImplemented ? it : it.skip)("Should not delete an assignment with an invalid ID", async () => {
+        it("Should not delete an assignment with an invalid ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: 123,
@@ -718,10 +773,10 @@ describe("AssignmentController test:", () => {
             await controller.deleteAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment ID" });
         });
 
-        (deleteAssignmentImplemented ? it : it.skip)("Should not delete an assignment with a non-existent ID", async () => {
+        it("Should not delete an assignment with a non-existent ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: "123e4567-e89b-12d3-a456-426614174000",
@@ -733,10 +788,10 @@ describe("AssignmentController test:", () => {
             await controller.deleteAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Assignment not found" });
         });
 
-        (deleteAssignmentImplemented ? it : it.skip)("Should delete an assignment with a valid ID", async () => {
+        it("Should delete an assignment with a valid ID", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -755,24 +810,11 @@ describe("AssignmentController test:", () => {
             await controller.deleteAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Assignment deleted" });
         });
     });
 
-    let gettingSubmissionsImplemented: boolean;
     describe("Getting submissions for an assignment", () => {
-        beforeAll(async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.getSubmissionsForAssignment(req, res);
-            if (res.status.mock.calls[0][0] === 501) {
-                gettingSubmissionsImplemented = false;
-            } else {
-                gettingSubmissionsImplemented = true;
-            }
-        });
         it("Should have implemented the method getSubmissionsForAssignment", async () => {
             const req: any = {};
             const res: any = {};
@@ -783,7 +825,7 @@ describe("AssignmentController test:", () => {
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
-        (gettingSubmissionsImplemented ? it : it.skip)("Should not get submissions with an invalid assignment ID", async () => {
+        it("Should not get submissions with an invalid assignment ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: 123,
@@ -795,10 +837,10 @@ describe("AssignmentController test:", () => {
             await controller.getSubmissionsForAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment ID" });
         });
 
-        (gettingSubmissionsImplemented ? it : it.skip)("Should not get submissions with a non-existent assignment ID", async () => {
+        it("Should not get submissions with a non-existent assignment ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: "123e4567-e89b-12d3-a456-426614174000",
@@ -810,10 +852,10 @@ describe("AssignmentController test:", () => {
             await controller.getSubmissionsForAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Assignment not found" });
         });
 
-        (gettingSubmissionsImplemented ? it : it.skip)("Should get submissions when no submissions exist", async () => {
+        it("Should get submissions when no submissions exist", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -834,7 +876,7 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith([]);
         });
 
-        (gettingSubmissionsImplemented ? it : it.skip)("Should get submissions when multiple submissions exist", async () => {
+        it("Should get submissions when multiple submissions exist", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -869,20 +911,7 @@ describe("AssignmentController test:", () => {
         });
     });
 
-    let createSubmissionImplemented: boolean;
     describe("Creating a submission for an assignment", () => {
-        beforeAll(async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.createSubmissionForAssignment(req, res);
-            if (res.status.mock.calls[0][0] === 501) {
-                createSubmissionImplemented = false;
-            } else {
-                createSubmissionImplemented = true;
-            }
-        });
         it("Should have implemented the method createSubmissionForAssignment", async () => {
             const req: any = {};
             const res: any = {};
@@ -892,7 +921,7 @@ describe("AssignmentController test:", () => {
             expect(res.status).not.toHaveBeenCalledWith(501);
         });
 
-        (createSubmissionImplemented ? it : it.skip)("Should not create a submission with an invalid assignment ID", async () => {
+        it("Should not create a submission with an invalid assignment ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: 123,
@@ -904,10 +933,10 @@ describe("AssignmentController test:", () => {
             await controller.createSubmissionForAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid assignment ID" });
         });
 
-        (createSubmissionImplemented ? it : it.skip)("Should not create a submission with a non-existent assignment ID", async () => {
+        it("Should not create a submission with a non-existent assignment ID", async () => {
             const req: any = {
                 params: {
                     assignmentId: "123e4567-e89b-12d3-a456-426614174000",
@@ -919,10 +948,80 @@ describe("AssignmentController test:", () => {
             await controller.createSubmissionForAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Assignment not found" });
         });
 
-        (createSubmissionImplemented ? it : it.skip)("Should not create a submission with an invalid timeSubmitted", async () => {
+        it("Should not create a submission with no body", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
+        it("Should not create a submission with an invalid structure", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    smth: "invalid"
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
+        it("Should not create a submission with no timeSubmitted", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    userId: user.userId,
+                    comment: "This is a test submission",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
+        it("Should not create a submission with an invalid timeSubmitted", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -945,10 +1044,10 @@ describe("AssignmentController test:", () => {
             await controller.createSubmissionForAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
         });
 
-        (createSubmissionImplemented ? it : it.skip)("Should not create a submission with no timeSubmitted", async () => {
+        it("Should not create a submission with a wrong timeSubmitted", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",
@@ -960,6 +1059,7 @@ describe("AssignmentController test:", () => {
                     assignmentId: assignment.assignmentId,
                 },
                 body: {
+                    timeSubmitted: "not-a-date",
                     userId: user.userId,
                     comment: "This is a test submission",
                 }
@@ -970,10 +1070,147 @@ describe("AssignmentController test:", () => {
             await controller.createSubmissionForAssignment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
         });
 
-        (createSubmissionImplemented ? it : it.skip)("Should create a submission with valid data", async () => {
+        it("Should not create a submission with no user ID", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    comment: "This is a test submission",
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
+        });
+
+        it("Should not create a submission with an invalid user ID", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    userId: 123,
+                    comment: "This is a test submission",
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
+        });
+
+        it("Should not create a submission with a non-existent user ID", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    userId: "123e4567-e89b-12d3-a456-426614174000",
+                    comment: "This is a test submission",
+                }
+            };
+
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+        });
+
+        it("Should not create a submission with an empty comment", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    userId: user.userId,
+                    comment: "   ",
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
+        it("Should create a submission without a comment", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                body: {
+                    timeSubmitted: "2025-05-01",
+                    userId: user.userId,
+                }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                submissionId: expect.any(String),
+                comment: null,
+                timeSubmitted: "2025-05-01",
+                assignmentId: assignment.assignmentId,
+                userId: user.userId,
+            });
+        });
+
+        it("Should create a submission with valid data", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
                 description: "This is a test assignment",

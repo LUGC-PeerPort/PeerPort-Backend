@@ -43,7 +43,6 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
                 const user = new User();
                 user.email = profile.emails[0].value;
                 user.name = profile.displayName;
-                user.password = Math.random().toString(36).slice(-8); // Random password
                 user.role = await AppDataSource.getRepository(Role).findOneBy({name: "user"}).then((r) => {return r!;});
                 user.idNumber = "ID_NUMBER_NOT_ASSIGNED";
 
