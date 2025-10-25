@@ -1237,7 +1237,7 @@ describe("CourseController test:", () => {
             {name: "Fails if extra key in courseData", courseData: { extraKey: "value" }, creation: false, updating: false, expected: false},
             {name: "Fails if userId is in keys", courseData: { userId: "123" }, creation: false, updating: false, expected: false},
             { 
-                name: "Passes if userId inlcuded when creating", 
+                name: "Passes if userId included when creating", 
                 courseData: {
                     userId: "123",
                     name: "Test Course",
