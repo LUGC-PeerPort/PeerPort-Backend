@@ -335,7 +335,7 @@ export class AssignmentController {
      * @param assignment - The request body / assignment to validate
      * @param _creation - Whether this is for creation (allows courseId)
      * @param _updating - Whether we are checking the structure for updating
-     * @returns boolean - Weather the body is valid
+     * @returns boolean - Whether the body is valid
      */
     // eslint-disable-next-line complexity
     private isValidAssBody(assignment: unknown, _creation: boolean=false, _updating: boolean=false): boolean {
