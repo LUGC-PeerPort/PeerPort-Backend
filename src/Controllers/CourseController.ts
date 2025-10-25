@@ -297,13 +297,17 @@ export class CourseController {
      * @returns Whether the structure is valid or not
      */
     // eslint-disable-next-line complexity
-    private checkCourseStructure(course: unknown, _creation: boolean=false, _updating: boolean=false): boolean {
+    private checkCourseStructure(course: unknown, _creation?: boolean, _updating?: boolean): boolean {
         if (typeof course !== "object" || course === null) return false;
+
+        // Set default values for optional parameters
+        _creation = _creation ?? false;
+        _updating = _updating ?? false;
 
         // Check if the course has any extra keys
         const courseKeys = ["name", "courseCode", "isOpen", "description", "startDate", "endDate"];
         for (const key of Object.keys(course)) {
-            if (key !in courseKeys && !(key === "userId" && _creation)) return false;
+            if (!courseKeys.includes(key) && !(key === "userId" && _creation)) return false;
         }
 
         // Make a Course object that is partial (all fields optional)
