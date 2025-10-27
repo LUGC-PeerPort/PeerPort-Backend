@@ -13,6 +13,8 @@ import {User} from "./Database/entities/User.js";
 import {Role} from "./Database/entities/Role.js";
 import {GoogleStrategySetup} from "./Auth/GoogleStrategy.js";
 import cors from "cors";
+import multer from "multer";
+import fs from "fs";
 
 
 const app = express();
@@ -25,6 +27,38 @@ app.use(cors({
     allowedHeaders: "Content-Type,Authorization"
 }));
 
+// Setting up swagger
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+
+// Initialize file upload middleware
+let uploadDir: string;
+if (!process.env.UPLOAD_DIR || process.env.UPLOAD_DIR === undefined) {
+    uploadDir = path.resolve(__dirname, "./uploads");
+    if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
+    console.warn(`UPLOAD_DIR environment variable not set, defaulting to '${uploadDir}'`);
+} else {
+    uploadDir = path.resolve(__dirname, process.env.UPLOAD_DIR);
+    if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
+    console.log(`Uploads will be stored in: ${uploadDir}`);
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+        // Make new filename to avoid collisions
+        const safeFileName = `${Date.now()}-${file.originalname.replace(" ", "_")}`;
+        cb(null, safeFileName);
+    }
+});
+const upload = multer({
+    storage,
+    limits: {fileSize: 10* 1024 * 1024} // 10MB file size limit
+});
 
 // Check if the environment variables are set
 if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
@@ -133,12 +167,28 @@ AppDataSource.initialize().then(() => {
     app.get("/assignments/:assignmentId/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
 });
 
-// Setting up swagger
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Error handler for multer
+app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // Check if the error is a Multer error
+    if (err && typeof err === "object" && "code" in err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const e = err as any;
+
+        // Handle specific Multer errors
+        if (e.code === "LIMIT_FILE_SIZE") {
+            return res.status(413).json({ message: "One or more files exceed the 10MB limit." });
+        }
+        if (e instanceof multer.MulterError) {
+            return res.status(400).json({ message: e.message });
+        }
+    }
+    // Go to next error handler
+    return next(err);
+});
+
+
+// Start the server
 app.listen(3000, () => {
     console.log("Server is running on port 3000 at http://localhost:3000/");
 });
