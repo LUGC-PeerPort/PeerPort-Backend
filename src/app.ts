@@ -51,11 +51,11 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadDir),
     filename: (req, file, cb) => {
         // Make new filename to avoid collisions
-        const safeFileName = `${Date.now()}-${file.originalname.replace(" ", "_")}`;
+        const safeFileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${file.originalname.replace(" ", "_")}`;
         cb(null, safeFileName);
     }
 });
-const upload = multer({
+const uploader = multer({
     storage,
     limits: {fileSize: 10* 1024 * 1024} // 10MB file size limit
 });
@@ -163,7 +163,7 @@ AppDataSource.initialize().then(() => {
     app.post("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
     app.put("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
     app.delete("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
-    app.post("/assignments/:assignmentId/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
+    app.post("/assignments/:assignmentId/submissions", uploader.any(), (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
     app.get("/assignments/:assignmentId/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
 });
 

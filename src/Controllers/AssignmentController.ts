@@ -5,6 +5,7 @@ import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmission
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 import { AssignmentToFiles } from "../Database/entities/AssignmentToFiles.js";
+import { Files } from "../Database/entities/Files.js";
 
 export interface AssignmentReturnWithoutCourseId {
     assignmentId: string;
@@ -39,6 +40,7 @@ export class AssignmentController {
     private userRepo: Repository<User>;
     private courseRepo: Repository<Course>;
     private assignmentToFilesRepo: Repository<AssignmentToFiles>;
+    private fileRepo: Repository<Files>;
 
     /**
      * Constructor for AssignmentController.
@@ -50,6 +52,7 @@ export class AssignmentController {
         this.userRepo = dataSource.getRepository(User);
         this.courseRepo = dataSource.getRepository(Course);
         this.assignmentToFilesRepo = dataSource.getRepository(AssignmentToFiles);
+        this.fileRepo = dataSource.getRepository(Files);
     }
 
     /**
@@ -284,7 +287,7 @@ export class AssignmentController {
             return;
         }
 
-        const user =  await this.userRepo.findOne({ where: { userId: userId as string }});
+        const user = await this.userRepo.findOne({ where: { userId: userId as string }});
         if (!user) {
             res.status(404).json({message: "User not found"});
             return;
@@ -296,6 +299,14 @@ export class AssignmentController {
             assignment: assignment,
             user: user,
         });
+
+        const files = (req.files as Express.Multer.File[]) || [];
+        for (const file of files) {
+            await this.fileRepo.create({
+                fileName: file.originalname,
+                location: file.path,
+            });
+        }
 
         // Save submission
         await this.assignmentSubmissionsRepo.save(submission);
