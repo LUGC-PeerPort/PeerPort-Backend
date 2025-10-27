@@ -1,7 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from "typeorm";
 import { ContentToFiles}from "./ContentToFiles.js";
 import { AssignmentToFiles } from "./AssignmentToFiles.js";
-import { AssignmentSubmissionToFiles } from "./AssignmentSubmissionToFiles.js";
 
 
 /**
@@ -10,19 +9,25 @@ import { AssignmentSubmissionToFiles } from "./AssignmentSubmissionToFiles.js";
 @Entity("Files")
 export class Files {
     @PrimaryGeneratedColumn("uuid")
-        filesId!: string;
+        fileId!: string;
 
     @Column({
         type: "text",
         nullable: false,
     })
-        FileName!: string;
+        fileName!: string;
     @Column({
         type: "text",
         nullable: false,
     })
-    	Location!: string; //check if this is correct type
+    	location!: string; //check if this is correct type
 
+    @Column({
+        type: "date",
+        nullable: false,
+        default: () => "CURRENT_DATE"
+    })
+        uploadedOn!: string;
 
     @OneToMany(() => ContentToFiles, (contentToFiles) => contentToFiles.filesId)
         contentToFiles!: ContentToFiles[];
@@ -30,7 +35,4 @@ export class Files {
     @ManyToOne(() => AssignmentToFiles, (assignmentToFiles) => assignmentToFiles.file)
     @JoinColumn({ name: "assignmentId" })
         assignmentToFiles!: AssignmentToFiles;
-    @ManyToOne(() => AssignmentSubmissionToFiles, (assignmentSubmissionToFiles) => assignmentSubmissionToFiles.assignmentSubmissionToFilesId)
-    @JoinColumn({ name: "assignmentSubmissionId" })
-        assignmentSubmissionToFiles!: AssignmentSubmissionToFiles;
 }

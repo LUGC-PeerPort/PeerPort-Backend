@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
-import { AssignmentSubmissionToFiles } from "./AssignmentSubmissionToFiles.js";
 import { Assignments } from "./Assignments.js";
 import { User } from "./User.js";
+import { Files } from "./Files.js";
 
 
 /**
@@ -40,8 +40,7 @@ export class AssignmentSubmissions {
     @JoinColumn({ name: "assignmentId" })
     	assignment!: Assignments;
 
-    @OneToOne(() => AssignmentSubmissionToFiles, (assignmentSubmissionToFiles) => assignmentSubmissionToFiles.assignmentSubmissionToFilesId)
-    @JoinColumn({ name: "assignmentSubmissionToFilesId" })
-        assignmentSubmissionToFiles!: AssignmentSubmissionToFiles;
-
+    @OneToOne(() => Files, (file) => file.fileId)
+    @JoinColumn({ name: "fileId" })
+        file!: Files;
 }
