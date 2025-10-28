@@ -27,15 +27,12 @@ export class Assignments {
     })
     	dueDate!: string;
 
-	@OneToMany(() => Files, (files) => files.fileId)
-	@JoinColumn({ name: "files" })
+	@OneToMany(() => Files, (files) => files.assignment)
     	files!: Files[];
 
     @ManyToOne(() => Course, (course) => course.assignments)
-    @JoinColumn({ name: "courseId" })
     	course!: Course;
 
     @ManyToOne(() => AssignmentSubmissions, (assignmentSubmissions) => assignmentSubmissions.user)
-    @JoinColumn({ name: "assignmentSubmissionsId" })
     	assignmentSubmissions!: AssignmentSubmissions;
 }

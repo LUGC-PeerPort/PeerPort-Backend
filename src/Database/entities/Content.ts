@@ -32,7 +32,8 @@ export class Content {
     	nullable: false,
     })
     	viewable!: boolean;
-    @OneToMany(() => Files, (files) => files.fileId)
+	
+    @OneToMany(() => Files, (files) => files.content)
     @JoinColumn({ name: "files" })
     	files!: Files;
 
