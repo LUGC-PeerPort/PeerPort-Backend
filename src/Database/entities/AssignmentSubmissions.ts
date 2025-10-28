@@ -36,7 +36,7 @@ export class AssignmentSubmissions {
     @JoinColumn({ name: "userId" })
     	user!: User;
 
-    @ManyToOne(() => Assignments, (assignment) => assignment.assignmentId)
+    @ManyToOne(() => Assignments, (assignment) => assignment.assignmentSubmissions)
     @JoinColumn({ name: "assignmentId" })
     	assignment!: Assignments;
 

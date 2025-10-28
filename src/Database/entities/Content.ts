@@ -34,12 +34,12 @@ export class Content {
     	viewable!: boolean;
 	
     @OneToMany(() => Files, (files) => files.content)
-    	files!: Files;
+    	files!: Files[];
 
-	@OneToOne(() => Course, (course) => course.courseId)
-	    parent?: Course;
+	@OneToOne(() => Content, (content) => content.contentId)
+	    parent?: Content;
 
-	@ManyToOne(() => Course, (course) => course.courseId)
+	@ManyToOne(() => Course, (course) => course.content)
 	@JoinColumn({ name: "courseId" })
-		courseId?: Course;
+	    course?: Course;
 }
