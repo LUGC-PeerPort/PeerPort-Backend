@@ -9,11 +9,8 @@ import { Course } from "./entities/Course.js";
 import { Content } from "./entities/Content.js";
 import { Assignments } from "./entities/Assignments.js";
 import { UsersToCourses } from "./entities/UsersToCourses.js";
-import { ContentToFiles } from "./entities/ContentToFiles.js";
-import { AssignmentToFiles } from "./entities/AssignmentToFiles.js";
 import { FederatedCredentials } from "./entities/FederatedCredentials.js";
 import { AssignmentSubmissions } from "./entities/AssignmentSubmissions.js";
-import { AssignmentSubmissionToFiles } from "./entities/AssignmentSubmissionToFiles.js";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -31,11 +28,8 @@ export const AppDataSource = new DataSource({
         Content,
         Assignments,
         UsersToCourses,
-        ContentToFiles,
-        AssignmentToFiles,
         FederatedCredentials,
         AssignmentSubmissions,
-        AssignmentSubmissionToFiles,
     ],
     synchronize: true,
 

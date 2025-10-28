@@ -1034,6 +1034,15 @@ components:
               type: string
               format: uuid
               description: Unique identifier for the user making the submission
+            files:
+              type: array
+              items:
+                type: string
+                format: byte
+                description: File data
+            comment:
+              type: string
+              description: Comment or feedback for the submission
 
     BasicError:
       type: object

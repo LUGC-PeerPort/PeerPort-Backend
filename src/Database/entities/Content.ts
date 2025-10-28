@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne } from "typeorm";
-import { ContentToFiles } from "./ContentToFiles.js";
+import { Files } from "./Files.js";
 import { Course } from "./Course.js";
 
 /**
@@ -32,9 +32,9 @@ export class Content {
     	nullable: false,
     })
     	viewable!: boolean;
-    @OneToMany(() => ContentToFiles, (contentToFiles) => contentToFiles.contentToFilesId)
-    @JoinColumn({ name: "contentToFilesId" })
-    	contentToFiles!: ContentToFiles;
+    @OneToMany(() => Files, (files) => files.fileId)
+    @JoinColumn({ name: "files" })
+    	files!: Files;
 
 	@OneToOne(() => Course, (course) => course.courseId)
 	@JoinColumn({ name: "courseId" })

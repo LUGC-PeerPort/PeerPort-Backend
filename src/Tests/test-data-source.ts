@@ -6,10 +6,7 @@ import { Course } from "../Database/entities/Course.js";
 import { Content } from "../Database/entities/Content.js";
 import { Assignments } from "../Database/entities/Assignments.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
-import { ContentToFiles } from "../Database/entities/ContentToFiles.js";
-import { AssignmentToFiles } from "../Database/entities/AssignmentToFiles.js";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { AssignmentSubmissionToFiles } from "../Database/entities/AssignmentSubmissionToFiles.js";
 
 export const TestDataSource = new DataSource({
     type: "sqlite",
@@ -24,9 +21,6 @@ export const TestDataSource = new DataSource({
         Content,
         Assignments,
         UsersToCourses,
-        ContentToFiles,
-        AssignmentToFiles,
         AssignmentSubmissions,
-        AssignmentSubmissionToFiles,
     ],
 });

@@ -4,7 +4,6 @@ import type { Request, Response } from "express";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
-import { AssignmentToFiles } from "../Database/entities/AssignmentToFiles.js";
 import { Files } from "../Database/entities/Files.js";
 
 export interface AssignmentReturnWithoutCourseId {
@@ -39,7 +38,6 @@ export class AssignmentController {
     private assignmentSubmissionsRepo: Repository<AssignmentSubmissions>;
     private userRepo: Repository<User>;
     private courseRepo: Repository<Course>;
-    private assignmentToFilesRepo: Repository<AssignmentToFiles>;
     private fileRepo: Repository<Files>;
 
     /**
@@ -51,7 +49,6 @@ export class AssignmentController {
         this.assignmentSubmissionsRepo = dataSource.getRepository(AssignmentSubmissions);
         this.userRepo = dataSource.getRepository(User);
         this.courseRepo = dataSource.getRepository(Course);
-        this.assignmentToFilesRepo = dataSource.getRepository(AssignmentToFiles);
         this.fileRepo = dataSource.getRepository(Files);
     }
 
