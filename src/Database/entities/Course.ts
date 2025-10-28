@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { UsersToCourses } from "./UsersToCourses.js";
+import { Content } from "./Content.js";
 
 /**
  * Used to represent a class/course the the user can be enrolled in.
@@ -51,5 +52,8 @@ export class Course {
 
     @OneToMany(() => Course, (course) => course.courseId)
     	assignments!: Course[];
+
+    @OneToMany(() => Content, (content) => content.courseId)
+        content!: Content[];
 
 }

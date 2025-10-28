@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne, ManyToOne } from "typeorm";
 import { Files } from "./Files.js";
 import { Course } from "./Course.js";
 
@@ -34,10 +34,12 @@ export class Content {
     	viewable!: boolean;
 	
     @OneToMany(() => Files, (files) => files.content)
-    @JoinColumn({ name: "files" })
     	files!: Files;
 
 	@OneToOne(() => Course, (course) => course.courseId)
-	@JoinColumn({ name: "courseId" })
 	    parent?: Course;
+
+	@ManyToOne(() => Course, (course) => course.courseId)
+	@JoinColumn({ name: "courseId" })
+		courseId?: Course;
 }
