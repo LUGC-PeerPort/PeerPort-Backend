@@ -57,7 +57,7 @@ const storage = multer.diskStorage({
 });
 const uploader = multer({
     storage,
-    limits: {fileSize: 10* 1024 * 1024} // 10MB file size limit
+    // Removed limit temproaraly limits: {fileSize: 1e+7} // 10MB file size limit
 });
 
 // Check if the environment variables are set
