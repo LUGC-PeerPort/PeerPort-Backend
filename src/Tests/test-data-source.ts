@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { User } from "../Database/entities/User.js";
 import { Role } from "../Database/entities/Role.js";
+import { Grade } from "../Database/entities/Grade.js";
 import { Files } from "../Database/entities/Files.js";
 import { Course } from "../Database/entities/Course.js";
 import { Content } from "../Database/entities/Content.js";
@@ -15,7 +16,8 @@ export const TestDataSource = new DataSource({
     synchronize: true,
     entities: [
         User, 
-        Role, 
+        Role,
+        Grade, 
         Files,
         Course,
         Content,

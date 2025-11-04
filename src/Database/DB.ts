@@ -4,6 +4,7 @@ import { DataSource } from "typeorm";
 // Models
 import { User } from "./entities/User.js";
 import { Role } from "./entities/Role.js";
+import { Grade } from "./entities/Grade.js";
 import { Files } from "./entities/Files.js";
 import { Course } from "./entities/Course.js";
 import { Content } from "./entities/Content.js";
@@ -24,6 +25,7 @@ export const AppDataSource = new DataSource({
         User,
         Role,
         Files,
+        Grade,
         Course,
         Content,
         Assignments,
