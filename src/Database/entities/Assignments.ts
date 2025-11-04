@@ -1,11 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { Course } from "./Course.js";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 import { Files } from "./Files.js";
 
 
 /**
- *
+ * Keeps track of the assignments for a course
  */
 @Entity("Assignments")
 export class Assignments {
