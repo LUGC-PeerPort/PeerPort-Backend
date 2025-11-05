@@ -110,9 +110,9 @@ describe.skip("GradeController test:", () => {
                 user: user,
                 course: course,
                 assignmentSubmission: assignmentSubmission2,
-                minScore: 0,
-                maxScore: 100,
-                achievedScore: 85,
+                minScore: 10,
+                maxScore: 110,
+                achievedScore: 80,
             });
 
             const grade2 = generalGrade; // Created in beforeEach
@@ -254,28 +254,38 @@ describe.skip("GradeController test:", () => {
     describe("Update grade", () => {
         it("Should implement updateGrade method", async () => {});
 
+        const gradeId = (): string => generalGrade.gradeId;
+        const defaultBody = { minScore: 0, maxScore: 100, achievedScore: 50 };
         it.each([
             // Missing values
-            { name: "fails when missing gradeId",                           value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when no values are passed",                      value: {  }, expectedStatus: 400, expectedResult: { message: "Invalid grade structure" } },
+            { name: "fails when missing gradeId",                           value: { body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid grade structure" } },
 
             // Invalid values
-            { name: "fails when gradeId is invalid",                        value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when minScore is invalid",                       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when maxScore is invalid",                       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when achievedScore is invalid",                  value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when gradeId is empty",                          value: { params: { gradeId: "   " }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when gradeId is a number",                       value: { params: { gradeId: 123 }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when gradeId is an invalid format",              value: { params: { gradeId: "invalid-format" }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when minScore is invalid",                       value: { params: { gradeId: gradeId }, body: { minScore: "invalid", maxScore: 100, achievedScore: 50 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when maxScore is invalid",                       value: { params: { gradeId: gradeId }, body: { minScore: 0, maxScore: "invalid", achievedScore: 50 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when achievedScore is invalid",                  value: { params: { gradeId: gradeId }, body: { minScore: 0, maxScore: 100, achievedScore: "invalid" } }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when grade does not exist",                      value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
-            { name: "fails when minScore is negative",                      value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when maxScore is less than minScore",            value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when achievedScore is less than minScore",       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when achievedScore is greater than maxScore",    value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when grade does not exist",                      value: { params: { gradeId: "123e4567-e89b-12d3-a456-426614174000" } }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when minScore is negative",                      value: { params: { gradeId: gradeId }, body: { minScore: -1, maxScore: 100, achievedScore: 50 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when maxScore is less than minScore",            value: { params: { gradeId: gradeId }, body: { minScore: 1, maxScore: 0, achievedScore: 50 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when achievedScore is less than minScore",       value: { params: { gradeId: gradeId }, body: { minScore: 1, maxScore: 100, achievedScore: 0 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when achievedScore is greater than maxScore",    value: { params: { gradeId: gradeId }, body: { minScore: 0, maxScore: 100, achievedScore: 101 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when updating maxScore below achievedScore",     value: { params: { gradeId: gradeId }, body: { maxScore: 40 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when updating minScore above achievedScore",     value: { params: { gradeId: gradeId }, body: { minScore: 60 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when updating minScore above maxScore",         value: { params: { gradeId: gradeId }, body: { minScore: 110 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when updating maxScore below minScore",         value: { params: { gradeId: gradeId }, body: { maxScore: -10 } }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when updating achievedScore below minScore",    value: { params: { gradeId: gradeId }, body: { achievedScore: 0 } }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when updating minScore",                      value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when updating maxScore",                      value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when updating achievedScore",                 value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when updating all fields",                    value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating minScore",                      value: { params: { gradeId: gradeId }, body: { minScore: 20 } }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating maxScore",                      value: { params: { gradeId: gradeId }, body: { maxScore: 90 } }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating achievedScore",                 value: { params: { gradeId: gradeId }, body: { achievedScore: 50 } }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating all fields",                    value: { params: { gradeId: gradeId }, body: { minScore: 20, maxScore: 90, achievedScore: 50 } }, expectedStatus: 200, expectedResult: {} },
 
             // No changes
             { name: "succeeds when no fields are updated",                  value: {  }, expectedStatus: 200, expectedResult: {} },
