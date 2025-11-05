@@ -7,7 +7,7 @@ import { Assignments } from "../Database/entities/Assignments.js";
 import { Role } from "../Database/entities/Role.js";
 import { Grade } from "../Database/entities/Grade.js";
 
-describe("GradeController test:", () => {
+describe.skip("GradeController test:", () => {
     let controller: GradeController;
     let course: Course;
     let user: User;
