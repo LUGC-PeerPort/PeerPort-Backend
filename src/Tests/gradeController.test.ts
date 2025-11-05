@@ -175,23 +175,17 @@ describe("GradeController test:", () => {
                 achievedScore: generalGrade.achievedScore,
             }) },
         ])("Getting a grade with $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
-            // Resolve any functions in the test data at runtime so they run when the test executes
-            const resolvedValue: any = value ? { ...value } : {};
-            if (resolvedValue.params && typeof resolvedValue.params.gradeId === "function") {
-                resolvedValue.params = { ...resolvedValue.params, gradeId: resolvedValue.params.gradeId() };
-            }
+            const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 
-            const req: any = resolvedValue ?? {};
+            const req: any = fixedValue ?? {};
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
 
-            const resolvedExpected = typeof expectedResult === "function" ? expectedResult() : expectedResult;
-
             await controller.getGrade(req, res);
 
             expect(res.status).toHaveBeenCalledWith(expectedStatus);
-            expect(res.json).toHaveBeenCalledWith(resolvedExpected);
+            expect(res.json).toHaveBeenCalledWith(fixedExpectedResult);
         });
     });
 
