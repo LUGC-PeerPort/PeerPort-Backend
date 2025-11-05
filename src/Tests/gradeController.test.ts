@@ -69,7 +69,7 @@ describe("GradeController test:", () => {
             assignmentSubmission: assignmentSubmission,
             minScore: 0,
             maxScore: 100,
-            acheivedScore: 75,
+            achievedScore: 75,
         });
     });
 
@@ -105,7 +105,7 @@ describe("GradeController test:", () => {
                 assignmentSubmission: assignmentSubmission,
                 minScore: 0,
                 maxScore: 100,
-                acheivedScore: 85,
+                achievedScore: 85,
             });
 
             const grade2 = await TestDataSource.getRepository(Grade).save({
@@ -114,7 +114,7 @@ describe("GradeController test:", () => {
                 assignmentSubmission: assignmentSubmission,
                 minScore: 0,
                 maxScore: 100,
-                acheivedScore: 90,
+                achievedScore: 90,
             });
 
             const req: any = {};
@@ -133,7 +133,7 @@ describe("GradeController test:", () => {
                     assignmentSubmissionId: grade1.assignmentSubmission,
                     minScore: grade1.minScore,
                     maxScore: grade1.maxScore,
-                    acheivedScore: grade1.acheivedScore,
+                    achievedScore: grade1.achievedScore,
                 },
                 {
                     gradeId: grade2.gradeId,
@@ -142,7 +142,7 @@ describe("GradeController test:", () => {
                     assignmentSubmissionId: grade2.assignmentSubmission,
                     minScore: grade2.minScore,
                     maxScore: grade2.maxScore,
-                    acheivedScore: grade2.acheivedScore,
+                    achievedScore: grade2.achievedScore,
                 }
             ]);
         });
@@ -194,43 +194,42 @@ describe("GradeController test:", () => {
         });
 
         const defaultParams = { userId: user.userId, courseId: course.courseId };
-        const defaultBody = { minScore: 0, maxScore: 100, acheivedScore: 85 };
+        const defaultBody = { minScore: 0, maxScore: 100, achievedScore: 85 };
         it.each([
             // Missing values
             { name: "fails when missing all values",                                value: {  }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },  
             { name: "fails when missing userId",                                    value: { params: { courseId: course.courseId }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
             { name: "fails when missing courseId",                                  value: { params: { userId: user.userId }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
-            { name: "fails when missing minScore",                                  value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
-            { name: "fails when missing maxScore",                                  value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
-            { name: "fails when missing acheivedScore",                             value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
+            { name: "fails when missing minScore",                                  value: { body: { maxScore: 100, achievedScore: 85 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
+            { name: "fails when missing maxScore",                                  value: { body: { minScore: 0, achievedScore: 85 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
+            { name: "fails when missing achievedScore",                             value: { body: { minScore: 0, maxScore: 100 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
 
             // Invalid values
-            { name: "fails when userId is a number",                                value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid user ID" } },
-            { name: "fails when userId is empty",                                   value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid user ID" } },
-            { name: "fails when userId is not the right format",                    value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid user ID" } },
-            { name: "fails when courseId is a number",                              value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
-            { name: "fails when courseId is empty",                                 value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
-            { name: "fails when courseId is not the right format",                  value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
-            { name: "fails when assignmentSubmissionId is a number",                value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
-            { name: "fails when assignmentSubmissionId is empty",                   value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
-            { name: "fails when assignmentSubmissionId is not the right format",    value: { params: {  }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
-            { name: "fails when minScore is invalid",                               value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
-            { name: "fails when maxScore is invalid",                               value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
-            { name: "fails when acheivedScore is invalid",                          value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
+            { name: "fails when userId is a number",                                value: { params: { userId: 123, courseId: course.courseId }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid user ID" } },
+            { name: "fails when userId is empty",                                   value: { params: { userId: "  ", courseId: course.courseId }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid user ID" } },
+            { name: "fails when userId is not the right format",                    value: { params: { userId: "invalid-format", courseId: course.courseId }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid user ID" } },
+            { name: "fails when courseId is a number",                              value: { params: { userId: user.userId, courseId: 123 }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
+            { name: "fails when courseId is empty",                                 value: { params: { userId: user.userId, courseId: "  " }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
+            { name: "fails when courseId is not the right format",                  value: { params: { userId: user.userId, courseId: "invalid-format" }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
+            { name: "fails when assignmentSubmissionId is a number",                value: { params: { userId: user.userId, courseId: course.courseId, assignmentSubmissionId: 123 }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
+            { name: "fails when assignmentSubmissionId is empty",                   value: { params: { userId: user.userId, courseId: course.courseId, assignmentSubmissionId: "  " }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
+            { name: "fails when assignmentSubmissionId is not the right format",    value: { params: { userId: user.userId, courseId: course.courseId, assignmentSubmissionId: "invalid-format" }, body: defaultBody }, expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
+            { name: "fails when minScore is invalid",                               value: { body: { minScore: "invalid", maxScore: 100, achievedScore: 50}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
+            { name: "fails when maxScore is invalid",                               value: { body: { minScore: 0, maxScore: "invalid", achievedScore: 50 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
+            { name: "fails when achievedScore is invalid",                          value: { body: { minScore: 0, maxScore: 100, achievedScore: "invalid" }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
 
             // Logical errors
-            { name: "fails when user does not exist",                               value: { params: {  }, body: defaultBody }, expectedStatus: 404, expectedResult: { message: "User not found" } },
-            { name: "fails when course does not exist",                             value: { params: {  }, body: defaultBody }, expectedStatus: 404, expectedResult: { message: "Course not found" } },
-            { name: "fails when assignment submission does not exist",              value: { params: {  }, body: defaultBody }, expectedStatus: 404, expectedResult: { message: "Assignment submission not found" } },
-            { name: "fails when minScore is negative",                              value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
-            { name: "fails when maxScore is less than minScore",                    value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
-            { name: "fails when acheivedScore is less than minScore",               value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid acheived score" } },
-            { name: "fails when acheivedScore is greater than maxScore",            value: { body: {}, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid acheived score" } },
+            { name: "fails when user does not exist",                               value: { params: { userId: "123e4567-e89b-12d3-a456-426614174000", courseId: course.courseId }, body: defaultBody }, expectedStatus: 404, expectedResult: { message: "User not found" } },
+            { name: "fails when course does not exist",                             value: { params: { userId: user.userId, courseId: "123e4567-e89b-12d3-a456-426614174000" }, body: defaultBody }, expectedStatus: 404, expectedResult: { message: "Course not found" } },
+            { name: "fails when assignment submission does not exist",              value: { params: { userId: user.userId, courseId: course.courseId, assignmentSubmissionId: "123e4567-e89b-12d3-a456-426614174000" }, body: defaultBody }, expectedStatus: 404, expectedResult: { message: "Assignment submission not found" } },
+            { name: "fails when minScore is negative",                              value: { body: { minScore: -5, maxScore: 100, achievedScore: 50 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid Grade structure" } },
+            { name: "fails when maxScore is less than minScore",                    value: { body: { minScore: 10, maxScore: 5, achievedScore: 50 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
+            { name: "fails when achievedScore is less than minScore",               value: { body: { minScore: 20, maxScore: 100, achievedScore: 10 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
+            { name: "fails when achievedScore is greater than maxScore",            value: { body: { minScore: 0, maxScore: 100, achievedScore: 150 }, params: defaultParams }, expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
 
             // Valid cases
-            { name: "succeeds when all required fields are present",                value: { body: defaultBody, params: defaultParams }, expectedStatus: 201, expectedResult: {  } },
-            { name: "succeeds when assignmentSubmissionId is present",              value: { params: { ...defaultParams }, body: defaultBody }, expectedStatus: 201, expectedResult: {  } },
-            { name: "succeeds when assignmentSubmissionId is not present",          value: { params: defaultParams, body: defaultBody }, expectedStatus: 201, expectedResult: {  } },
+            { name: "succeeds when assignmentSubmissionId is present",              value: { params: { ...defaultParams, assignmentSubmissionId: assignmentSubmission.assignmentSubmissionId }, body: defaultBody }, expectedStatus: 201, expectedResult: { gradeId: expect.any(String), userId: defaultParams.userId, courseId: defaultParams.courseId, assignmentSubmissionId: assignmentSubmission.assignmentSubmissionId, minScore: defaultBody.minScore, maxScore: defaultBody.maxScore, achievedScore: defaultBody.achievedScore } },
+            { name: "succeeds when assignmentSubmissionId is not present",          value: { params: defaultParams, body: defaultBody }, expectedStatus: 201, expectedResult: {  gradeId: expect.any(String), userId: defaultParams.userId, courseId: defaultParams.courseId, assignmentSubmissionId: undefined, minScore: defaultBody.minScore, maxScore: defaultBody.maxScore, achievedScore: defaultBody.achievedScore  } },
 
         ])("Creating a grade $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const req: any = value ?? {};
@@ -250,29 +249,29 @@ describe("GradeController test:", () => {
 
         it.each([
             // Missing values
-            { name: "fails when missing gradeId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing gradeId",                           value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Invalid values
-            { name: "fails when gradeId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when minScore is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when maxScore is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when acheivedScore is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when gradeId is invalid",                        value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when minScore is invalid",                       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when maxScore is invalid",                       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when achievedScore is invalid",                  value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when grade does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
-            { name: "fails when minScore is negative", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when maxScore is less than minScore", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when acheivedScore is less than minScore", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when acheivedScore is greater than maxScore", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when grade does not exist",                      value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when minScore is negative",                      value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when maxScore is less than minScore",            value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when achievedScore is less than minScore",       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when achievedScore is greater than maxScore",    value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when updating minScore", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when updating maxScore", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when updating acheivedScore", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when updating all fields", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating minScore",                      value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating maxScore",                      value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating achievedScore",                 value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when updating all fields",                    value: {  }, expectedStatus: 200, expectedResult: {} },
 
             // No changes
-            { name: "succeeds when no fields are updated", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when no fields are updated",                  value: {  }, expectedStatus: 200, expectedResult: {} },
         ])("Updating a grade $name", async ({name: _name, value, expectedStatus, expectedResult }) => {});
     });
 
@@ -281,16 +280,16 @@ describe("GradeController test:", () => {
 
         it.each([
             // Missing values
-            { name: "fails when missing gradeId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing gradeId",       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Invalid values
-            { name: "fails when gradeId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when gradeId is invalid",    value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when grade does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when grade does not exist",  value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when grade exists", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when grade exists",       value: {  }, expectedStatus: 200, expectedResult: {} },
         ])("Deleting a grade $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {});
     });
 
@@ -299,17 +298,17 @@ describe("GradeController test:", () => {
 
         it.each([
             // Missing values
-            { name: "fails when missing userId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing userId",                value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Invalid values
-            { name: "fails when userId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when userId is invalid",             value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when user does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when user does not exist",           value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when user has no grades", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when user has multiple grades", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when user has no grades",         value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when user has multiple grades",   value: {  }, expectedStatus: 200, expectedResult: {} },
         ])("Getting all grades for a user $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {});
     });
     
@@ -318,17 +317,17 @@ describe("GradeController test:", () => {
 
         it.each([
             // Missing values
-            { name: "fails when missing courseId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing courseId",                  value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Invalid values
-            { name: "fails when courseId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when courseId is invalid",               value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when course does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when course does not exist",             value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when course has no grades", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when course has multiple grades", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when course has no grades",           value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when course has multiple grades",     value: {  }, expectedStatus: 200, expectedResult: {} },
         ])("Getting all grades for a course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {});
     });
 
@@ -337,20 +336,20 @@ describe("GradeController test:", () => {
 
         it.each([
             // Missing values
-            { name: "fails when missing userId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when missing courseId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing userId",                            value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing courseId",                          value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Invalid values
-            { name: "fails when userId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when courseId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when userId is invalid",                         value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when courseId is invalid",                       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when user does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
-            { name: "fails when course does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when user does not exist",                       value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when course does not exist",                     value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when user has no grades in course", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when user has multiple grades in course", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when user has no grades in course",           value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when user has multiple grades in course",     value: {  }, expectedStatus: 200, expectedResult: {} },
         ])("Getting all grades for a user in a specific course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {});
     });
 
@@ -359,20 +358,20 @@ describe("GradeController test:", () => {
 
         it.each([
             // Missing values
-            { name: "fails when missing userId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when missing courseId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing userId",                            value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing courseId",                          value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Invalid values
-            { name: "fails when userId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
-            { name: "fails when courseId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when userId is invalid",                         value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when courseId is invalid",                       value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when user does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
-            { name: "fails when course does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when user does not exist",                       value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when course does not exist",                     value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when user has no grades in course", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when user has multiple grades in course", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when user has no grades in course",           value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when user has multiple grades in course",     value: {  }, expectedStatus: 200, expectedResult: {} },
         ])("Getting the calculated grade for a user in a specific course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {});
     });
 
@@ -381,17 +380,17 @@ describe("GradeController test:", () => {
 
         it.each([
             // Missing values
-            { name: "fails when missing courseId", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when missing courseId",                  value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Invalid values
-            { name: "fails when courseId is invalid", value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
+            { name: "fails when courseId is invalid",               value: {  }, expectedStatus: 400, expectedResult: { message: "" } },
 
             // Logical errors
-            { name: "fails when course does not exist", value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
+            { name: "fails when course does not exist",             value: {  }, expectedStatus: 404, expectedResult: { message: "" } },
 
             // Valid cases
-            { name: "succeeds when course has no grades", value: {  }, expectedStatus: 200, expectedResult: {} },
-            { name: "succeeds when course has multiple grades", value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when course has no grades",           value: {  }, expectedStatus: 200, expectedResult: {} },
+            { name: "succeeds when course has multiple grades",     value: {  }, expectedStatus: 200, expectedResult: {} },
         ])("Getting the average of the grades in a course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {});
     });
 });
