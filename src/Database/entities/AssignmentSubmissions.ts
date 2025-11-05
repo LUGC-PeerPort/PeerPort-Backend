@@ -32,8 +32,7 @@ export class AssignmentSubmissions {
     	timeSubmitted!: string;
         
         
-    @OneToOne(() => User, (user) => user.courses)
-    @JoinColumn({ name: "userId" })
+    @ManyToOne(() => User, (user) => user.courses)
     	user!: User;
 
     @ManyToOne(() => Assignments, (assignment) => assignment.assignmentSubmissions)

@@ -1,6 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from "typeorm";
 import { Role } from "./Role.js";
 import { UsersToCourses } from "./UsersToCourses.js";
+import { Grade } from "./Grade.js";
+import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 
 /**
  * The users details
@@ -8,37 +10,43 @@ import { UsersToCourses } from "./UsersToCourses.js";
 @Entity("Users")
 export class User {
     @PrimaryGeneratedColumn("uuid")
-    	userId!: string;
+        userId!: string;
 
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
-    	name!: string;
+        name!: string;
 
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
-    	email!: string;
+        email!: string;
 
     @Column({
-    	type: "text",
-    	nullable: true,
+        type: "text",
+        nullable: true,
     })
-    	profilePictureUrl?: string;
+        profilePictureUrl?: string;
 
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
-    	idNumber!: string;
+        idNumber!: string;
 
     // Connections
     @OneToOne(() => Role, (role) => role.user)
     @JoinColumn({ name: "roleId" })
-    	role!: Role;
+        role!: Role;
 
     @OneToMany(() => UsersToCourses, (usersToCourses) => usersToCourses.user)
-    	courses?: UsersToCourses[];
+        courses?: UsersToCourses[];
+
+	@OneToMany(() => AssignmentSubmissions, (assignmentSubmission) => assignmentSubmission.user)
+	    assignmentSubmissions?: AssignmentSubmissions[];
+
+	@OneToMany(() => Grade, (grade) => grade.user)
+	    grades?: Grade[];
 }

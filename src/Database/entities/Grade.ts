@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne, ManyToOne } from "typeorm";
 import { Course } from "./Course.js";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 import { User } from "./User.js";
@@ -29,15 +29,13 @@ export class Grade {
     })
         achievedScore!: number;
 
-    @OneToOne(() => Course)
-    @JoinColumn()
+    @ManyToOne(() => Course, (course) => course.grades)
         course!: Course;
 
-    @OneToOne(() => User)
-    @JoinColumn()
+    @ManyToOne(() => User, (user) => user.grades)
         user!: User;
 
-    @OneToOne(() => AssignmentSubmissions)
-    @JoinColumn()
-        assignmentSubmission!: AssignmentSubmissions;
+    @OneToOne(() => AssignmentSubmissions, { nullable: true })
+    @JoinColumn({ name: "assignmentSubmissionId" })
+        assignmentSubmission?: AssignmentSubmissions | null;
 }
