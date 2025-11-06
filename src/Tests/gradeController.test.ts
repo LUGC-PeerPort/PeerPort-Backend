@@ -304,6 +304,7 @@ describe("GradeController test:", () => {
             { name: "fails when grade does not exist",                      value: { params: { gradeId: "123e4567-e89b-12d3-a456-426614174000" } },                                                 expectedStatus: 404, expectedResult: { message: "Grade not found" } },
             { name: "fails when weight is negative",                        value: { params: { gradeId: gradeId }, body: { weight: -1 } },                                                          expectedStatus: 400, expectedResult: { message: "Invalid weight" } },
             { name: "fails when minScore is negative",                      value: { params: { gradeId: gradeId }, body: { minScore: -1} },                                                         expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
+            { name: "fails when maxScore is negative",                      value: { params: { gradeId: gradeId }, body: { maxScore: -1} },                                                         expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
             { name: "fails when maxScore is less than minScore",            value: { params: { gradeId: gradeId }, body: { minScore: 1, maxScore: 0 } },                                            expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
             { name: "fails when achievedScore is less than minScore",       value: { params: { gradeId: gradeId }, body: { minScore: 1, achievedScore: 0 } },                                       expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
             { name: "fails when achievedScore is greater than maxScore",    value: { params: { gradeId: gradeId }, body: { maxScore: 100, achievedScore: 101 } },                                   expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
@@ -589,6 +590,17 @@ describe("GradeController test:", () => {
             expect(res.status).toHaveBeenCalledWith(expectedStatus);
             expect(res.json).toHaveBeenCalledWith(fixedExpectedResult);
         });
+    });
+
+    it("Check structure should return false for an extra property", () => {
+        const invalidGrade = {
+            minScore: 0,
+            maxScore: 100,
+            achievedScore: 50,
+            weight: 1,
+            extraProperty: "invalid"
+        };
+        expect(controller["isValidGradeStructure"](invalidGrade)).toBe(false);
     });
 });
 
