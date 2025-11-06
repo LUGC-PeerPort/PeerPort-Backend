@@ -770,6 +770,403 @@ paths:
               schema:
                 $ref: '#/components/schemas/BasicError'
 
+  /grades:
+    get:
+      tags:
+        - Grades
+      summary: Retrieve a list of grades
+      responses:
+        '200':
+          description: A list of grades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeWithId'
+
+  /grades/{gradeId}:
+    get:
+      tags:
+        - Grades
+      summary: Retrieve a specific grade by ID
+      parameters:
+        - name: gradeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid grade ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Grade not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    put:
+      tags:
+        - Grades
+      summary: Update a specific grade by ID
+      parameters:
+        - name: gradeId
+          in: path
+          required: true
+          description: The ID of the grade to update
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradePatch'
+      responses:
+        '200':
+          description: Grade updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Grade not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Grades
+      summary: Delete a specific grade by ID
+      parameters:
+        - name: gradeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Grade deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Grade deleted
+        '404':
+          description: Grade not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid grade ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  /grades/{userId}/{courseId}:
+    post:
+      tags:
+        - Grades
+      summary: Create a new grade for a user in a course
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeBasic'
+      responses:
+        '201':
+          description: Grade created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  /grades/{userId}/{courseId}/{assignmentSubmissionId}:
+    post:
+      tags:
+        - Grades
+      summary: Create a new grade for a user in a course tied to an assignment submission
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: assignmentSubmissionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeBasic'
+      responses:
+        '201':
+          description: Grade created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User, course, or assignment submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  /grades/user/{userId}:
+    get:
+      tags:
+        - Grades
+        - Users
+      summary: Retrieve all grades for a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of grades for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid user ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  /grades/course/{courseId}:
+    get:
+      tags:
+        - Grades
+        - Courses
+      summary: Retrieve all grades for a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of grades for the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  /grades/user/{userId}/course/{courseId}:
+    get:
+      tags:
+        - Grades
+        - Users
+        - Courses
+      summary: Retrieve all grades for a user in a specific course
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of grades for the user in the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  /grades/calculated/user/{userId}/course/{courseId}:
+    get:
+      tags:
+        - Grades
+        - Users
+        - Courses
+      summary: Retrieve the calculated grade (percentage) for a user in a course
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Calculated grade for the user in the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculatedGrade'
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  /grades/average/course/{courseId}:
+    get:
+      tags:
+        - Grades
+        - Courses
+      summary: Retrieve the average grade for a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Average grade for the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculatedGrade'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
 
 
 components:
@@ -1043,6 +1440,69 @@ components:
             comment:
               type: string
               description: Comment or feedback for the submission
+
+    GradeBasic:
+      type: object
+      required:
+        - minScore
+        - maxScore
+        - weight
+      properties:
+        minScore:
+          type: number
+          description: Minimum possible score for the grade
+        maxScore:
+          type: number
+          description: Maximum possible score for the grade
+        achievedScore:
+          type: number
+          description: Achieved score (optional)
+        weight:
+          type: number
+          description: Weight of this grade toward the course total
+
+    GradeWithId:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/GradeBasic'
+        - type: object
+          properties:
+            gradeId:
+              type: string
+              format: uuid
+              description: Unique identifier for the grade
+            userId:
+              type: string
+              format: uuid
+              description: ID of the user the grade belongs to
+            courseId:
+              type: string
+              format: uuid
+              description: ID of the course the grade belongs to
+            assignmentSubmissionId:
+              type: string
+              format: uuid
+              description: Optional assignment submission ID associated with the grade
+
+    GradePatch:
+      type: object
+      properties:
+        minScore:
+          type: number
+        maxScore:
+          type: number
+        achievedScore:
+          type: number
+        weight:
+          type: number
+
+    CalculatedGrade:
+      type: object
+      properties:
+        grade:
+          type: number
+          format: float
+          description: Calculated grade as a percentage (0-100)
 
     BasicError:
       type: object
