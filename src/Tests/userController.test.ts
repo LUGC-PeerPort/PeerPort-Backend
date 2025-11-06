@@ -834,43 +834,24 @@ describe("UserController test:", () => {
     });
 
     describe("Getting the current user that is logged in", () => {
-        it("Should not get the current user when there is no session", async () => {
-            const req: any = {};
+
+        it.each([
+            { name: "fail when there is no session",                            value: {  },                                                                            expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the session is malformed",                       value: { session: {  } },                                                               expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user is not logged in",              value: { session: { passport: {  } } },                                                 expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user ID is null",                    value: { session: { passport: { user: null } } },                                       expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user ID is a number",                value: { session: { passport: { user: 123 } } },                                        expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user ID is an invalid format",       value: { session: { passport: { user: "invalid-format" } } },                           expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user doesn't exist",                 value: { session: { passport: { user: "123e4567-e89b-12d3-a456-426618874000" } } },     expectedStatus: 401, expectedResult: { message: "Unauthorized" } }
+        ])("Authentication should $name", async ({name: _name, value, expectedStatus, expectedResult}) => {
+            const req: any = value;
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
             await controller.getCurrentUser(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
-        });
-
-        it("Should not get the current user when the session is not logged in",  async () => {
-            const req: any = {
-                session: {}
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.getCurrentUser(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
-        });
-
-        it("Should not get the current user when the user ID is not in the session",  async () => {
-            const req: any = {
-                session: {
-                    user: null,
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.getCurrentUser(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+            expect(res.status).toHaveBeenCalledWith(expectedStatus);
+            expect(res.json).toHaveBeenCalledWith(expectedResult);
         });
 
         it("Should get the current logged in user", async () => {
@@ -884,7 +865,9 @@ describe("UserController test:", () => {
 
             const req: any = {
                 session: {
-                    user: user.userId,
+                    passport: {
+                        user: user.userId,
+                    }
                 },
             };
             const res: any = {};
