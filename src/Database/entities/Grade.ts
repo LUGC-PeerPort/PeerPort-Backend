@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Course } from "./Course.js";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 import { User } from "./User.js";
@@ -34,6 +34,12 @@ export class Grade {
         nullable: false,
     })
         weight!: number;
+
+    @CreateDateColumn()
+        dateGraded!: Date;
+
+    @UpdateDateColumn()
+        dateUpdated!: Date;
 
     @ManyToOne(() => Course, (course) => course.grades)
         course!: Course;
