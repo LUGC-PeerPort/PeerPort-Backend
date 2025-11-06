@@ -73,12 +73,13 @@ export class GradeController {
      * @param req - The request object.
      * @param res - The response object.
      */
+    // eslint-disable-next-line complexity
     async createGrade(req: Request, res: Response): Promise<void> {
         // Get the grade structure
         const gradeUnknown = req.body as unknown;
-        const userIdUnknown = req.params?.userId as unknown;
-        const courseIdUnknown = req.params?.courseId as unknown;
-        const assignmentSubmissionIdUnknown = req.params?.assignmentSubmissionId as unknown;
+        const userIdUnknown = req?.params?.userId as unknown;
+        const courseIdUnknown = req?.params?.courseId as unknown;
+        const assignmentSubmissionIdUnknown = req?.params?.assignmentSubmissionId as unknown;
 
         // Validate the userId
         if (!this.checkUUID(userIdUnknown)) {
@@ -132,6 +133,12 @@ export class GradeController {
         // Make the grade object typed
         const gradeTyped = gradeUnknown as Grade;
 
+        // Check the minScore
+        if (gradeTyped.minScore < 0) {
+            res.status(400).json({ message: "Invalid min score" });
+            return;
+        }
+
         // Check the maxScore
         if (gradeTyped.maxScore < gradeTyped.minScore) {
             res.status(400).json({ message: "Invalid max score" });
@@ -144,6 +151,12 @@ export class GradeController {
                 res.status(400).json({ message: "Invalid achieved score" });
                 return;
             }
+        }
+
+        // Check the weight
+        if (gradeTyped.weight <= 0) {
+            res.status(400).json({ message: "Invalid weight" });
+            return;
         }
 
         // Create the grade
@@ -173,9 +186,10 @@ export class GradeController {
      * @param req - The request object.
      * @param res - The response object.
      */
+    // eslint-disable-next-line complexity
     async updateGrade(req: Request, res: Response): Promise<void> {
         // Check the grade ID
-        const gradeId = req.params.gradeId as unknown;
+        const gradeId = req?.params?.gradeId as unknown;
         if (!this.checkUUID(gradeId)) {
             res.status(400).json({ message: "Invalid grade ID" });
             return;
@@ -200,29 +214,58 @@ export class GradeController {
         // Make the grade object typed
         const gradeTyped = gradeUnknown as Partial<Grade>;
 
-        const minScore = grade.minScore ?? gradeTyped.minScore;
-        const maxScore = grade.maxScore ?? gradeTyped.maxScore;
-        const achievedScore = grade.achievedScore ?? gradeTyped.achievedScore;
+        const minScore = gradeTyped.minScore ?? grade.minScore;
+        const maxScore = gradeTyped.maxScore ?? grade.maxScore;
+        const achievedScore = gradeTyped.achievedScore ?? grade.achievedScore;
+        const weight = gradeTyped.weight ?? grade.weight;
 
-        // Check if the maxScore is below minScore 
-        if (maxScore < minScore) {
-            res.status(400).json({ message: "Invalid max score" });
-            return;
+        // Check minScore
+        if (gradeTyped.minScore !== undefined) {
+            if (gradeTyped.minScore < 0) {
+                res.status(400).json({ message: "Invalid min score" });
+                return;
+            }
+        }
+
+        // Check maxScore
+        if (gradeTyped.maxScore !== undefined) {
+            if (gradeTyped.maxScore < 0) {
+                res.status(400).json({ message: "Invalid max score" });
+                return;
+            } else if (gradeTyped.maxScore < minScore) {
+                res.status(400).json({ message: "Invalid max score" });
+                return;
+            }
         }
 
         // Check if the achievedScore is above maxScore or below minScore
         if (typeof achievedScore === "number") {
-            if (achievedScore < minScore || achievedScore > maxScore) {
-                res.status(400).json({ message: "Invalid achieved score" });
+            // Check if the achieved score was updated wrongly
+            if (gradeTyped.achievedScore !== undefined) {
+                if (achievedScore < minScore || achievedScore > maxScore) {
+                    res.status(400).json({ message: "Invalid achieved score" });
+                    return;
+                }
+            } else if (achievedScore < minScore) {
+                res.status(400).json({ message: "Invalid min score" });
+                return;
+            } else if (achievedScore > maxScore) {
+                res.status(400).json({ message: "Invalid max score" });
                 return;
             }
+        }
+
+        // Check the weight
+        if (weight <= 0) {
+            res.status(400).json({ message: "Invalid weight" });
+            return;
         }
 
         // Update the grade
         grade.minScore = minScore;
         grade.maxScore = maxScore;
         grade.achievedScore = achievedScore;
-        grade.weight = gradeTyped.weight ?? grade.weight;
+        grade.weight = weight;
 
         // Save the grade
         await this.gradeRepo.save(grade);
@@ -241,7 +284,7 @@ export class GradeController {
      */
     async deleteGrade(req: Request, res: Response): Promise<void> {
         // Check the grade ID
-        const gradeId = req.params.gradeId as unknown;
+        const gradeId = req.params?.gradeId as unknown;
         if (!this.checkUUID(gradeId)) {
             res.status(400).json({ message: "Invalid grade ID" });
             return;
@@ -272,7 +315,7 @@ export class GradeController {
      */
     async getAllGradesForUser(req: Request, res: Response): Promise<void> {
         // Check the user ID
-        const userId = req.params.userId as unknown;
+        const userId = req.params?.userId as unknown;
         if (!this.checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -286,7 +329,7 @@ export class GradeController {
         }
 
         // Get all grades for the user
-        const grades = await this.gradeRepo.find({ where: { user: user }, relations: ["course", "assignmentSubmission"] });
+        const grades = await this.gradeRepo.find({ where: { user: user }, relations: ["user", "course", "assignmentSubmission"] });
 
         // Map grades to user appropriate objects
         const userGrades = grades.map(grade => this.gradeReturn(grade));
@@ -303,7 +346,7 @@ export class GradeController {
      */
     async getAllGradesForCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
-        const courseId = req.params.courseId as unknown;
+        const courseId = req.params?.courseId as unknown;
         if (!this.checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -317,7 +360,7 @@ export class GradeController {
         }
 
         // Get all grades for the course
-        const grades = await this.gradeRepo.find({ where: { course: course }, relations: ["user", "assignmentSubmission"] });
+        const grades = await this.gradeRepo.find({ where: { course: course }, relations: ["user", "course", "assignmentSubmission"] });
 
         // Map grades to user appropriate objects
         const courseGrades = grades.map(grade => this.gradeReturn(grade));
@@ -334,7 +377,7 @@ export class GradeController {
      */
     async getAllGradesForUserInCourse(req: Request, res: Response): Promise<void> {
         // Check the user ID
-        const userId = req.params.userId as unknown;
+        const userId = req.params?.userId as unknown;
         if (!this.checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -348,7 +391,7 @@ export class GradeController {
         }
 
         // Check the course ID
-        const courseId = req.params.courseId as unknown;
+        const courseId = req.params?.courseId as unknown;
         if (!this.checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -362,7 +405,7 @@ export class GradeController {
         }
 
         // Get all grades for the user in the course
-        const grades = await this.gradeRepo.find({ where: { user: user, course: course }, relations: ["assignmentSubmission"] });
+        const grades = await this.gradeRepo.find({ where: { user: user, course: course }, relations: ["user", "course", "assignmentSubmission"] });
 
         // Map grades to user appropriate objects
         const userCourseGrades = grades.map(grade => this.gradeReturn(grade));
@@ -379,7 +422,7 @@ export class GradeController {
      */
     async getCalculatedGradeForUserInCourse(req: Request, res: Response): Promise<void> {
         // Check the user ID
-        const userId = req.params.userId as unknown;
+        const userId = req.params?.userId as unknown;
         if (!this.checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -393,7 +436,7 @@ export class GradeController {
         }
 
         // Check the course ID
-        const courseId = req.params.courseId as unknown;
+        const courseId = req.params?.courseId as unknown;
         if (!this.checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -407,7 +450,7 @@ export class GradeController {
         }
 
         // Get the user's grades in the course
-        const userGrades = await this.gradeRepo.find({ where: { user: user, course: course }, relations: ["assignmentSubmission"] });
+        const userGrades = await this.gradeRepo.find({ where: { user: user, course: course }, relations: ["user", "course", "assignmentSubmission"] });
 
         // Get the calculated grade
         // total weight = weight1 + weight2 + ...
@@ -494,7 +537,7 @@ export class GradeController {
      * @param _updating - Whether this is for updating
      * @returns True if the grade structure is valid, false otherwise
      */
-    //eslint-disable-next-line complexity
+    // eslint-disable-next-line complexity
     private isValidGradeStructure(grade: unknown, _updating?: boolean): boolean {
         // Check if grade is an object
         if (typeof grade !== "object" || grade === null) return false;
@@ -517,33 +560,25 @@ export class GradeController {
         let updated = false;
 
         // -- Required --
-        if (typeof gradeTyped.minScore === "number") {
-            if (gradeTyped.minScore < 0) failedFlag = true;
-            else updated = true;
-        } else if (typeof gradeTyped.minScore !== "undefined" && _updating) failedFlag = true;
+        if (typeof gradeTyped.minScore === "number") updated = true;
+        else if (typeof gradeTyped.minScore !== "undefined") failedFlag = true;
         else if (!_updating) failedFlag = true;
 
-        if (typeof gradeTyped.maxScore === "number") {
-            if (gradeTyped.maxScore <= 0) failedFlag = true;
-            else updated = true;
-        } else if (typeof gradeTyped.maxScore !== "undefined" && _updating) failedFlag = true;
+        if (typeof gradeTyped.maxScore === "number") updated = true;
+        else if (typeof gradeTyped.maxScore !== "undefined") failedFlag = true;
         else if (!_updating) failedFlag = true;
 
-        if (typeof gradeTyped.weight === "number") {
-            if (gradeTyped.weight < 0) failedFlag = true;
-            else updated = true;
-        } else if (typeof gradeTyped.weight !== "undefined" && _updating) failedFlag = true;
+        if (typeof gradeTyped.weight === "number") updated = true;
+        else if (typeof gradeTyped.weight !== "undefined") failedFlag = true;
         else if (!_updating) failedFlag = true;
 
         // -- Optional --
-        if (typeof gradeTyped.achievedScore === "number") {
-            if (gradeTyped.achievedScore < 0) failedFlag = true;
-            else updated = true;
-        } else if (typeof gradeTyped.achievedScore !== "undefined" && _updating) failedFlag = true;
+        if (typeof gradeTyped.achievedScore === "number") updated = true;
+        else if (typeof gradeTyped.achievedScore !== "undefined") failedFlag = true;
 
         // Check the results
         if (failedFlag) return false;
-        if (!updated && _updating) return false;
+        //if (!updated && _updating) return false;
 
         // Passes all checks
         return true;

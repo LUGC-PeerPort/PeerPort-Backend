@@ -16,6 +16,7 @@ describe("GradeController test:", () => {
     let user2: User;
     let assignmentSubmission: AssignmentSubmissions;
     let assignmentSubmission2: AssignmentSubmissions;
+    let assignmentSubmissionUnique: AssignmentSubmissions;
     let generalGrade: Grade;
 
     beforeAll(async () => {
@@ -31,8 +32,10 @@ describe("GradeController test:", () => {
             startDate: new Date().toString(),
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toString()
         };
-        course = await TestDataSource.getRepository(Course).save(courseData);
-        course2 = await TestDataSource.getRepository(Course).save(courseData);
+        course = await TestDataSource.getRepository(Course).create(courseData);
+        await TestDataSource.getRepository(Course).save(course);
+        course2 = await TestDataSource.getRepository(Course).create(courseData);
+        await TestDataSource.getRepository(Course).save(course2);
 
         // Create a role for the user to use
         await TestDataSource.getRepository(Role).save({ name: "student" });
@@ -45,13 +48,14 @@ describe("GradeController test:", () => {
             idNumber: "123456",
             role: await TestDataSource.getRepository("Role").findOneBy({ name: "student" }) as Role,
         };
-        user = await TestDataSource.getRepository(User).save(userData);
-        user2 = await TestDataSource.getRepository(User).save(userData);
+        user = await TestDataSource.getRepository(User).create(userData);
+        await TestDataSource.getRepository(User).save(user);
+        user2 = await TestDataSource.getRepository(User).create(userData);
+        await TestDataSource.getRepository(User).save(user2);
 
-        await TestDataSource.getRepository(UsersToCourses).save({user: user, course: course});
-        await TestDataSource.getRepository(UsersToCourses).save({user: user, course: course2});
-        await TestDataSource.getRepository(UsersToCourses).save({user: user2, course: course2});
-        await TestDataSource.getRepository(UsersToCourses).save({user: user2, course: course2});
+        await TestDataSource.getRepository(UsersToCourses).save({ user: user, course: course });
+        await TestDataSource.getRepository(UsersToCourses).save({ user: user, course: course2 });
+        await TestDataSource.getRepository(UsersToCourses).save({ user: user2, course: course2 });
 
         // Create an assignment for the assignment submission
         const assignment = await TestDataSource.getRepository(Assignments).save({
@@ -62,18 +66,18 @@ describe("GradeController test:", () => {
         });
 
         // Create an assignment submission for the grades to be associated with
-        assignmentSubmission = await TestDataSource.getRepository(AssignmentSubmissions).save({
+        const assignmentSubmissionData = {
             comment: "This is a test submission",
             timeSubmitted: new Date().toISOString(),
             user: user,
             assignment: assignment,
-        });
-        assignmentSubmission2 = await TestDataSource.getRepository(AssignmentSubmissions).save({
-            comment: "This is a test submission",
-            timeSubmitted: new Date().toISOString(),
-            user: user,
-            assignment: assignment,
-        });
+        };
+        assignmentSubmission = await TestDataSource.getRepository(AssignmentSubmissions).create(assignmentSubmissionData);
+        await TestDataSource.getRepository(AssignmentSubmissions).save(assignmentSubmission);
+        assignmentSubmission2 = await TestDataSource.getRepository(AssignmentSubmissions).create(assignmentSubmissionData);
+        await TestDataSource.getRepository(AssignmentSubmissions).save(assignmentSubmission2);
+        assignmentSubmissionUnique = await TestDataSource.getRepository(AssignmentSubmissions).create(assignmentSubmissionData);
+        await TestDataSource.getRepository(AssignmentSubmissions).save(assignmentSubmissionUnique);
     });
 
     beforeEach(async () => {
@@ -81,9 +85,9 @@ describe("GradeController test:", () => {
         generalGrade = await TestDataSource.getRepository(Grade).save({
             user: user,
             course: course,
-            assignmentSubmission: assignmentSubmission,
-            minScore: 0,
-            maxScore: 100,
+            assignmentSubmission: assignmentSubmissionUnique,
+            minScore: 10,
+            maxScore: 110,
             achievedScore: 75,
             weight: 1,
         });
@@ -122,7 +126,7 @@ describe("GradeController test:", () => {
             const grade1 = await TestDataSource.getRepository(Grade).save({
                 user: user,
                 course: course,
-                assignmentSubmission: assignmentSubmission2,
+                assignmentSubmission: assignmentSubmission,
                 minScore: 10,
                 maxScore: 110,
                 achievedScore: 80,
@@ -142,7 +146,7 @@ describe("GradeController test:", () => {
                     gradeId: grade1.gradeId,
                     userId: grade1.user.userId,
                     courseId: grade1.course.courseId,
-                    assignmentSubmissionId: grade1.assignmentSubmission.assignmentSubmissionId,
+                    assignmentSubmissionId: grade1.assignmentSubmission?.assignmentSubmissionId,
                     achievedScore: grade1.achievedScore,
                     weight: grade1.weight,
                     minScore: grade1.minScore,
@@ -236,7 +240,6 @@ describe("GradeController test:", () => {
             { name: "fails when assignmentSubmissionId is a number",                value: { params: { userId: userId, courseId: courseId, assignmentSubmissionId: 123 }, body: defaultBody },                      expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
             { name: "fails when assignmentSubmissionId is empty",                   value: { params: { userId: userId, courseId: courseId, assignmentSubmissionId: "  " }, body: defaultBody },                     expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
             { name: "fails when assignmentSubmissionId is not the right format",    value: { params: { userId: userId, courseId: courseId, assignmentSubmissionId: "invalid-format" }, body: defaultBody },         expectedStatus: 400, expectedResult: { message: "Invalid assignment submission ID" } },
-            { name: "fails when weight is negative",                                value: { body: { minScore: 0, maxScore: 100, achievedScore: 85, weight: -1 }, params: defaultParams },                          expectedStatus: 400, expectedResult: { message: "Invalid grade structure" } },
             { name: "fails when minScore is invalid",                               value: { body: { minScore: "invalid", maxScore: 100, achievedScore: 50, weight: 1}, params: defaultParams },                    expectedStatus: 400, expectedResult: { message: "Invalid grade structure" } },
             { name: "fails when maxScore is invalid",                               value: { body: { minScore: 0, maxScore: "invalid", achievedScore: 50, weight: 1 }, params: defaultParams },                     expectedStatus: 400, expectedResult: { message: "Invalid grade structure" } },
             { name: "fails when achievedScore is invalid",                          value: { body: { minScore: 0, maxScore: 100, achievedScore: "invalid", weight: 1 }, params: defaultParams },                    expectedStatus: 400, expectedResult: { message: "Invalid grade structure" } },
@@ -246,10 +249,12 @@ describe("GradeController test:", () => {
             { name: "fails when user does not exist",                               value: { params: { userId: "123e4567-e89b-12d3-a456-426614174000", courseId: courseId }, body: defaultBody },                   expectedStatus: 404, expectedResult: { message: "User not found" } },
             { name: "fails when course does not exist",                             value: { params: { userId: userId, courseId: "123e4567-e89b-12d3-a456-426614174000" }, body: defaultBody },                     expectedStatus: 404, expectedResult: { message: "Course not found" } },
             { name: "fails when assignment submission does not exist",              value: { params: { ...defaultParams, assignmentSubmissionId: "123e4567-e89b-12d3-a456-426614174000" }, body: defaultBody },     expectedStatus: 404, expectedResult: { message: "Assignment submission not found" } },
-            { name: "fails when minScore is negative",                              value: { body: { minScore: -5, maxScore: 100, achievedScore: 50, weight: 1 }, params: defaultParams },                          expectedStatus: 400, expectedResult: { message: "Invalid grade structure" } },
+            { name: "fails when minScore is negative",                              value: { body: { minScore: -5, maxScore: 100, achievedScore: 50, weight: 1 }, params: defaultParams },                          expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
             { name: "fails when maxScore is less than minScore",                    value: { body: { minScore: 10, maxScore: 5, achievedScore: 50, weight: 1 }, params: defaultParams },                            expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
             { name: "fails when achievedScore is less than minScore",               value: { body: { minScore: 20, maxScore: 100, achievedScore: 10, weight: 1 }, params: defaultParams },                          expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
             { name: "fails when achievedScore is greater than maxScore",            value: { body: { minScore: 0, maxScore: 100, achievedScore: 150, weight: 1 }, params: defaultParams },                          expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
+            { name: "fails when weight is negative",                                value: { body: { minScore: 0, maxScore: 100, achievedScore: 85, weight: -1 }, params: defaultParams },                          expectedStatus: 400, expectedResult: { message: "Invalid weight" } },
+
 
             // Valid cases
             { name: "succeeds when assignmentSubmissionId is present",              value: { params: { ...defaultParams, assignmentSubmissionId: assignmentSubmissionId }, body: defaultBody },                     expectedStatus: 201, expectedResult: { gradeId: expect.any(String), userId: defaultParams.userId, courseId: defaultParams.courseId, assignmentSubmissionId: assignmentSubmissionId, ...defaultBody } },
@@ -277,6 +282,9 @@ describe("GradeController test:", () => {
         });
 
         const gradeId = (): string => generalGrade.gradeId;
+        const userId = (): string => generalGrade.user.userId;
+        const courseId = (): string => generalGrade.course.courseId;
+        const assignmentSubmissionId = (): string | undefined => generalGrade.assignmentSubmission?.assignmentSubmissionId;
         const defaultBody = { minScore: 0, maxScore: 100, achievedScore: 50, weight: 2 };
         it.each([
             // Missing values
@@ -294,27 +302,27 @@ describe("GradeController test:", () => {
 
             // Logical errors
             { name: "fails when grade does not exist",                      value: { params: { gradeId: "123e4567-e89b-12d3-a456-426614174000" } },                                                 expectedStatus: 404, expectedResult: { message: "Grade not found" } },
-            { name: "fails when minScore is negative",                      value: { params: { gradeId: gradeId }, body: { minScore: -1, maxScore: 100, achievedScore: 50, weight: 1 } },           expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
-            { name: "fails when maxScore is less than minScore",            value: { params: { gradeId: gradeId }, body: { minScore: 1, maxScore: 0, achievedScore: 50, weight: 1 } },              expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
-            { name: "fails when achievedScore is less than minScore",       value: { params: { gradeId: gradeId }, body: { minScore: 1, maxScore: 100, achievedScore: 0, weight: 1 } },             expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
-            { name: "fails when achievedScore is greater than maxScore",    value: { params: { gradeId: gradeId }, body: { minScore: 0, maxScore: 100, achievedScore: 101, weight: 1 } },           expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
-            { name: "fails when updating maxScore below achievedScore",     value: { params: { gradeId: gradeId }, body: { maxScore: 10 } },                                                        expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
-            { name: "fails when updating minScore above achievedScore",     value: { params: { gradeId: gradeId }, body: { minScore: 60 } },                                                        expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
-            { name: "fails when updating minScore above maxScore",          value: { params: { gradeId: gradeId }, body: { minScore: 110 } },                                                       expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
-            { name: "fails when updating maxScore below minScore",          value: { params: { gradeId: gradeId }, body: { maxScore: 0 } },                                                         expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
-            { name: "fails when updating achievedScore below minScore",     value: { params: { gradeId: gradeId }, body: { achievedScore: 0 } },                                                    expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
-            { name: "fails when updating achievedScore above maxScore",     value: { params: { gradeId: gradeId }, body: { achievedScore: 110 } },                                                  expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
             { name: "fails when weight is negative",                        value: { params: { gradeId: gradeId }, body: { weight: -1 } },                                                          expectedStatus: 400, expectedResult: { message: "Invalid weight" } },
+            { name: "fails when minScore is negative",                      value: { params: { gradeId: gradeId }, body: { minScore: -1} },                                                         expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
+            { name: "fails when maxScore is less than minScore",            value: { params: { gradeId: gradeId }, body: { minScore: 1, maxScore: 0 } },                                            expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
+            { name: "fails when achievedScore is less than minScore",       value: { params: { gradeId: gradeId }, body: { minScore: 1, achievedScore: 0 } },                                       expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
+            { name: "fails when achievedScore is greater than maxScore",    value: { params: { gradeId: gradeId }, body: { maxScore: 100, achievedScore: 101 } },                                   expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
+            { name: "fails when updating maxScore below achievedScore",     value: { params: { gradeId: gradeId }, body: { maxScore: () => generalGrade.achievedScore - 1 } },                      expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
+            { name: "fails when updating minScore above achievedScore",     value: { params: { gradeId: gradeId }, body: { minScore: () => generalGrade.achievedScore + 1 } },                      expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
+            { name: "fails when updating minScore above maxScore",          value: { params: { gradeId: gradeId }, body: { minScore: () => generalGrade.maxScore + 1 } },                           expectedStatus: 400, expectedResult: { message: "Invalid min score" } },
+            { name: "fails when updating maxScore below minScore",          value: { params: { gradeId: gradeId }, body: { maxScore: () => generalGrade.minScore - 1 } },                           expectedStatus: 400, expectedResult: { message: "Invalid max score" } },
+            { name: "fails when updating achievedScore below minScore",     value: { params: { gradeId: gradeId }, body: { achievedScore: () => generalGrade.minScore - 1 } },                      expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
+            { name: "fails when updating achievedScore above maxScore",     value: { params: { gradeId: gradeId }, body: { achievedScore: () => generalGrade.maxScore + 1 } },                      expectedStatus: 400, expectedResult: { message: "Invalid achieved score" } },
 
             // Valid cases
-            { name: "succeeds when updating minScore",                      value: { params: { gradeId: gradeId }, body: { minScore: 20 } },                                                        expectedStatus: 200, expectedResult: { gradeId: gradeId, minScore: 20, maxScore: () => generalGrade.maxScore, achievedScore: () => generalGrade.achievedScore, weight: () => generalGrade.weight } },
-            { name: "succeeds when updating maxScore",                      value: { params: { gradeId: gradeId }, body: { maxScore: 90 } },                                                        expectedStatus: 200, expectedResult: { gradeId: gradeId, minScore: () => generalGrade.minScore, maxScore: 90, achievedScore: () => generalGrade.achievedScore, weight: () => generalGrade.weight } },
-            { name: "succeeds when updating achievedScore",                 value: { params: { gradeId: gradeId }, body: { achievedScore: 50 } },                                                   expectedStatus: 200, expectedResult: { gradeId: gradeId, minScore: () => generalGrade.minScore, maxScore: () => generalGrade.maxScore, achievedScore: 50, weight: () => generalGrade.weight } },
-            { name: "succeeds when updating weight",                        value: { params: { gradeId: gradeId }, body: { weight: 2 } },                                                           expectedStatus: 200, expectedResult: { gradeId: gradeId, minScore: () => generalGrade.minScore, maxScore: () => generalGrade.maxScore, achievedScore: () => generalGrade.achievedScore, weight: 2 } },
-            { name: "succeeds when updating all fields",                    value: { params: { gradeId: gradeId }, body: defaultBody },                                                             expectedStatus: 200, expectedResult: { gradeId: gradeId, minScore: 20, maxScore: 90, achievedScore: 50, weight: 2 } },
+            { name: "succeeds when updating minScore",                      value: { params: { gradeId: gradeId }, body: { minScore: 20 } },                                                        expectedStatus: 200, expectedResult: { gradeId: gradeId, assignmentSubmissionId: assignmentSubmissionId, courseId: courseId, userId: userId, minScore: 20, maxScore: () => generalGrade.maxScore, achievedScore: () => generalGrade.achievedScore, weight: () => generalGrade.weight } },
+            { name: "succeeds when updating maxScore",                      value: { params: { gradeId: gradeId }, body: { maxScore: 90 } },                                                        expectedStatus: 200, expectedResult: { gradeId: gradeId, assignmentSubmissionId: assignmentSubmissionId, courseId: courseId, userId: userId, minScore: () => generalGrade.minScore, maxScore: 90, achievedScore: () => generalGrade.achievedScore, weight: () => generalGrade.weight } },
+            { name: "succeeds when updating achievedScore",                 value: { params: { gradeId: gradeId }, body: { achievedScore: 50 } },                                                   expectedStatus: 200, expectedResult: { gradeId: gradeId, assignmentSubmissionId: assignmentSubmissionId, courseId: courseId, userId: userId, minScore: () => generalGrade.minScore, maxScore: () => generalGrade.maxScore, achievedScore: 50, weight: () => generalGrade.weight } },
+            { name: "succeeds when updating weight",                        value: { params: { gradeId: gradeId }, body: { weight: 2 } },                                                           expectedStatus: 200, expectedResult: { gradeId: gradeId, assignmentSubmissionId: assignmentSubmissionId, courseId: courseId, userId: userId, minScore: () => generalGrade.minScore, maxScore: () => generalGrade.maxScore, achievedScore: () => generalGrade.achievedScore, weight: 2 } },
+            { name: "succeeds when updating all fields",                    value: { params: { gradeId: gradeId }, body: defaultBody },                                                             expectedStatus: 200, expectedResult: { gradeId: gradeId, assignmentSubmissionId: assignmentSubmissionId, courseId: courseId, userId: userId, ...defaultBody } },
 
             // No changes
-            { name: "succeeds when no fields are updated",                  value: { params: { gradeId: gradeId } },                                                                                expectedStatus: 200, expectedResult: { gradeId: gradeId, minScore: () => generalGrade.minScore, maxScore: () => generalGrade.maxScore, achievedScore: () => generalGrade.achievedScore, weight: () => generalGrade.weight } },
+            { name: "succeeds when no fields are updated",                  value: { params: { gradeId: gradeId }, body: {  } },                                                                    expectedStatus: 200, expectedResult: { gradeId: gradeId, assignmentSubmissionId: assignmentSubmissionId, courseId: courseId, userId: userId, minScore: () => generalGrade.minScore, maxScore: () => generalGrade.maxScore, achievedScore: () => generalGrade.achievedScore, weight: () => generalGrade.weight } },
         ])("Updating a grade $name", async ({name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 
