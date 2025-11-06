@@ -595,7 +595,7 @@ export class GradeController {
             gradeId: grade.gradeId,
             userId: grade.user.userId,
             courseId: grade.course.courseId,
-            assignmentSubmissionId: grade.assignmentSubmission?.assignmentSubmissionId ?? undefined,
+            assignmentSubmissionId: grade.assignmentSubmission?.assignmentSubmissionId ?? null,
             achievedScore: grade.achievedScore,
             weight: grade.weight,
             minScore: grade.minScore,
