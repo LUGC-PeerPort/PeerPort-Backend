@@ -28,6 +28,12 @@ export class Grade {
         nullable: false,
     })
         achievedScore!: number;
+    
+    @Column({
+        type: "decimal",
+        nullable: false,
+    })
+        weight!: number;
 
     @ManyToOne(() => Course, (course) => course.grades)
         course!: Course;
