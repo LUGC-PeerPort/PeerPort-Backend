@@ -454,13 +454,14 @@ export class GradeController {
 
         // Get the calculated grade
         // total weight = weight1 + weight2 + ...
+        // score = achievedScore / (maxScore - minScore)
         // weightedSum = weight1 * score1 + weight2 * score2 + ...
         // calculatedGrade = (weightedSum / totalWeight) * 100
         let totalWeight = 0;
         let weightedScoreSum = 0;
         for (const grade of userGrades) {
             const weight = grade.weight;
-            const score = grade.achievedScore / grade.maxScore;
+            const score = grade.achievedScore / (grade.maxScore - grade.minScore);
             weightedScoreSum += score * weight;
             totalWeight += weight;
         }
