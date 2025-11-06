@@ -25,7 +25,7 @@ export class Grade {
 
     @Column({
         type: "decimal",
-        nullable: false,
+        nullable: true,
     })
         achievedScore!: number;
     
