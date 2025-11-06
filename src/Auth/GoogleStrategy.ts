@@ -88,7 +88,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             res.redirect(process.env.CLIENT_URL + "/home");
         });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:() => void) => {
 
         if(process.env.IS_PRODUCTION === "false") {

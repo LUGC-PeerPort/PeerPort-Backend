@@ -492,18 +492,21 @@ export class GradeController {
      * Called after a grade is created.
      * @param grade - The created grade.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private async afterGradeCreated(grade: Grade): Promise<void> {}
 
     /**
      * Called after a grade is updated.
      * @param grade - The updated grade.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private async afterGradeUpdated(grade: Grade): Promise<void> {}
 
     /**
      * Called after a grade is deleted.
      * @param gradeId - The ID of the deleted grade.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private async afterGradeDeleted(gradeId: string): Promise<void> {}
 
 
@@ -538,7 +541,6 @@ export class GradeController {
      * @param _updating - Whether this is for updating
      * @returns True if the grade structure is valid, false otherwise
      */
-    // eslint-disable-next-line complexity
     private isValidGradeStructure(grade: unknown, _updating?: boolean): boolean {
         // Check if grade is an object
         if (typeof grade !== "object" || grade === null) return false;
@@ -577,9 +579,11 @@ export class GradeController {
         if (typeof gradeTyped.achievedScore === "number") updated = true;
         else if (typeof gradeTyped.achievedScore !== "undefined") failedFlag = true;
 
-        // Check the results
+        // Check if any test failed
         if (failedFlag) return false;
-        //if (!updated && _updating) return false;
+
+        // Check if any updates occourred
+        if (!updated && _updating) return true;
 
         // Passes all checks
         return true;
