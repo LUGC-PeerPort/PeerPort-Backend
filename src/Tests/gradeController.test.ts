@@ -258,7 +258,7 @@ describe("GradeController test:", () => {
 
             // Valid cases
             { name: "succeeds when assignmentSubmissionId is present",              value: { params: { ...defaultParams, assignmentSubmissionId: assignmentSubmissionId }, body: defaultBody },                     expectedStatus: 201, expectedResult: { gradeId: expect.any(String), userId: defaultParams.userId, courseId: defaultParams.courseId, assignmentSubmissionId: assignmentSubmissionId, ...defaultBody } },
-            { name: "succeeds when assignmentSubmissionId is not present",          value: { params: defaultParams, body: defaultBody },                                                                            expectedStatus: 201, expectedResult: {  gradeId: expect.any(String), userId: defaultParams.userId, courseId: defaultParams.courseId, ...defaultBody } },
+            { name: "succeeds when assignmentSubmissionId is not present",          value: { params: defaultParams, body: defaultBody },                                                                            expectedStatus: 201, expectedResult: { gradeId: expect.any(String), userId: defaultParams.userId, courseId: defaultParams.courseId, assignmentSubmissionId: null, ...defaultBody } },
 
         ])("Creating a grade $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
