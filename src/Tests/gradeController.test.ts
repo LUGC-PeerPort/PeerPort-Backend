@@ -8,7 +8,7 @@ import { Role } from "../Database/entities/Role.js";
 import { Grade } from "../Database/entities/Grade.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 
-describe.skip("GradeController test:", () => {
+describe("GradeController test:", () => {
     let controller: GradeController;
     let course: Course;
     let course2: Course;
