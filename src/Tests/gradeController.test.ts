@@ -393,7 +393,16 @@ describe("GradeController test:", () => {
 
             // Valid cases
             { name: "succeeds when user has no grades",             value: { params: { userId: () => user2.userId } },                          expectedStatus: 200, expectedResult: [] },
-            { name: "succeeds when user has multiple grades",       value: { params: { userId: () => user.userId } },                           expectedStatus: 200, expectedResult: () => [ generalGrade ] },
+            { name: "succeeds when user has multiple grades",       value: { params: { userId: () => user.userId } },                           expectedStatus: 200, expectedResult: () => [ { 
+                gradeId: generalGrade.gradeId, 
+                userId: generalGrade.user.userId,
+                courseId: generalGrade.course.courseId, 
+                assignmentSubmissionId: generalGrade.assignmentSubmission?.assignmentSubmissionId, 
+                minScore: generalGrade.minScore, 
+                maxScore: generalGrade.maxScore, 
+                achievedScore: generalGrade.achievedScore, 
+                weight: generalGrade.weight 
+            } ] },
         ])("Getting all grades for a user $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 
@@ -429,7 +438,16 @@ describe("GradeController test:", () => {
 
             // Valid cases
             { name: "succeeds when course has no grades",           value: { params: { courseId: () => course2.courseId } },                    expectedStatus: 200, expectedResult: [] },
-            { name: "succeeds when course has multiple grades",     value: { params: { courseId: () => course.courseId } },                     expectedStatus: 200, expectedResult: () => [ generalGrade ] },
+            { name: "succeeds when course has multiple grades",     value: { params: { courseId: () => course.courseId } },                     expectedStatus: 200, expectedResult: () => [ {
+                gradeId: generalGrade.gradeId, 
+                userId: generalGrade.user.userId,
+                courseId: generalGrade.course.courseId, 
+                assignmentSubmissionId: generalGrade.assignmentSubmission?.assignmentSubmissionId, 
+                minScore: generalGrade.minScore, 
+                maxScore: generalGrade.maxScore, 
+                achievedScore: generalGrade.achievedScore, 
+                weight: generalGrade.weight 
+            } ] },
         ])("Getting all grades for a course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 
@@ -471,7 +489,16 @@ describe("GradeController test:", () => {
 
             // Valid cases
             { name: "succeeds when user has no grades in course",           value: { params: { userId: () => user.userId, courseId: () => course2.courseId } },                         expectedStatus: 200, expectedResult: [] },
-            { name: "succeeds when user has multiple grades in course",     value: { params: { userId: () => user.userId, courseId: () => course.courseId } },                          expectedStatus: 200, expectedResult: () => [ generalGrade ] },
+            { name: "succeeds when user has multiple grades in course",     value: { params: { userId: () => user.userId, courseId: () => course.courseId } },                          expectedStatus: 200, expectedResult: () => [ {
+                gradeId: generalGrade.gradeId, 
+                userId: generalGrade.user.userId,
+                courseId: generalGrade.course.courseId, 
+                assignmentSubmissionId: generalGrade.assignmentSubmission?.assignmentSubmissionId, 
+                minScore: generalGrade.minScore, 
+                maxScore: generalGrade.maxScore, 
+                achievedScore: generalGrade.achievedScore, 
+                weight: generalGrade.weight 
+            } ] },
         ])("Getting all grades for a user in a specific course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 
@@ -595,22 +622,24 @@ function generateParameters(value: any, expectedResult: any): { fixedValue: any;
         }
     }
 
+    // Resolve any functions inside expectedResult arrays or objects
+    if (expectedResult && Array.isArray(expectedResult)) {
+        expectedResult = expectedResult.map((item) => {
+            if (typeof item === "function") return item();
+            return item;
+        });
+
     // Resolve any functions inside expectedResult so assertions compare concrete values
-    if (expectedResult && typeof expectedResult === "object") {
+    } else if (expectedResult && typeof expectedResult === "object") {
         const resolved = { ...(expectedResult as any) } as any;
         for (const [k, v] of Object.entries(resolved)) {
             if (typeof v === "function") resolved[k] = v();
         }
         expectedResult = resolved;
-    }
-
+    
     // Check if expectedResult is a function and resolve it
-    if (expectedResult && typeof expectedResult === "function") {
+    } else if (expectedResult && typeof expectedResult === "function") {
         expectedResult = expectedResult();
-    }
-
-    if (resolvedValue.params && typeof resolvedValue.params.gradeId === "function") {
-        resolvedValue.params = { ...resolvedValue.params, gradeId: resolvedValue.params.gradeId() };
     }
 
     return { fixedValue: resolvedValue, fixedExpectedResult: expectedResult };
