@@ -1041,6 +1041,9 @@ describe("CourseController test:", () => {
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
             await controller.enrollUserInCourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
         });
 
         it("Should not enroll a user with a non-existent user ID", async () => {
