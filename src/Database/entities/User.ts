@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Role } from "./Role.js";
 import { UsersToCourses } from "./UsersToCourses.js";
 import { Grade } from "./Grade.js";
@@ -37,8 +37,7 @@ export class User {
         idNumber!: string;
 
     // Connections
-    @OneToOne(() => Role, (role) => role.user)
-    @JoinColumn({ name: "roleId" })
+    @OneToMany(() => Role, (role) => role.user)
         role!: Role;
 
     @OneToMany(() => UsersToCourses, (usersToCourses) => usersToCourses.user)
