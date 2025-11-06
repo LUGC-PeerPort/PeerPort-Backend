@@ -1,4 +1,4 @@
-import {Entity, Column, PrimaryGeneratedColumn, ManyToOne} from "typeorm";
+import {Entity, Column, PrimaryGeneratedColumn, OneToMany} from "typeorm";
 import { User } from "./User.js";
 
 
@@ -16,6 +16,6 @@ export class Role {
     })
     	name!: string;
 
-    @ManyToOne(() => User, (user) => user.role)
-    	user!: User;
+    @OneToMany(() => User, (user) => user.role)
+    	users!: User[];
 }
