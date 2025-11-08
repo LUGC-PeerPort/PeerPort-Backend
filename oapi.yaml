@@ -784,7 +784,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GradeWithId'
-
   /grades/{gradeId}:
     get:
       tags:
@@ -887,8 +886,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
   /grades/{userId}/{courseId}:
+    get:
+      tags:
+        - Grades
+        - Users
+        - Courses
+      summary: Retrieve all grades for a user in a specific course
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of grades for the user in the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeWithId'
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
     post:
       tags:
         - Grades
@@ -931,7 +969,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
   /grades/{userId}/{courseId}/{assignmentSubmissionId}:
     post:
       tags:
@@ -981,7 +1018,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
   /grades/user/{userId}:
     get:
       tags:
@@ -1016,8 +1052,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
-  /grades/course/{courseId}:
+  /grades/{courseId}:
     get:
       tags:
         - Grades
@@ -1051,50 +1086,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
-  /grades/user/{userId}/course/{courseId}:
-    get:
-      tags:
-        - Grades
-        - Users
-        - Courses
-      summary: Retrieve all grades for a user in a specific course
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: A list of grades for the user in the course
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GradeWithId'
-        '400':
-          description: Bad request - Invalid user ID or course ID format
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-        '404':
-          description: User or course not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-
-  /grades/calculated/user/{userId}/course/{courseId}:
+  /grades/calculated/{userId}/{courseId}:
     get:
       tags:
         - Grades
@@ -1133,8 +1125,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
-  /grades/average/course/{courseId}:
+  /grades/average/{courseId}:
     get:
       tags:
         - Grades
