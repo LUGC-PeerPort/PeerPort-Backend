@@ -5,7 +5,7 @@ import { Content } from "./Content.js";
 
 
 /**
- *
+ * Used to manage files that are uploaded
  */
 @Entity("Files")
 export class Files {
