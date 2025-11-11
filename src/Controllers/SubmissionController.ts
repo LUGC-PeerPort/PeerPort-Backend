@@ -1,12 +1,17 @@
 import type { DataSource, Repository } from "typeorm";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions";
 import type { Request, Response } from "express";
+import { User } from "../Database/entities/User";
+import { Course } from "../Database/entities/Course";
 
 /**
  * Used to manage assignment submissions.
  */
 export class SubmissionController {
     private submissionRepo: Repository<AssignmentSubmissions>;
+    private userRepo: Repository<User>;
+    private courseRepo: Repository<Course>;
+
 
     /**
      * Constructor for SubmissionController.
@@ -14,6 +19,8 @@ export class SubmissionController {
      */
     constructor(dataSource: DataSource) {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
+        this.userRepo = dataSource.getRepository(User);
+        this.courseRepo = dataSource.getRepository(Course);
     }
 
     /**
@@ -22,6 +29,18 @@ export class SubmissionController {
      * @param res - The response object.
      */
     async getAllSubmissions(req: Request, res: Response): Promise<void> {
+        try{
+            const submissions = await this.submissionRepo.find(
+                { relations: ["assignment", "student"] }
+            );
+            res.status(200).json(submissions);
+            return;
+        }        
+        catch (error) {
+            console.error("Error fetching submissions:", error);
+            res.status(500).json({ message: "Internal server error" }
+            );
+        }
         res.status(501).json({ message: "Not implemented" });
     }
 
@@ -31,7 +50,7 @@ export class SubmissionController {
      * @param res - The response object.
      */
     async getSubmission(req: Request, res: Response): Promise<void> {
-        res.status(501).json({ message: "Not implemented" });
+
     }
 
     /**
@@ -40,7 +59,6 @@ export class SubmissionController {
      * @param res - The response object
      */
     async deleteSubmission(req: Request, res: Response): Promise<void> {
-        res.status(501).json({ message: "Not implemented" });
     }
 
 }
