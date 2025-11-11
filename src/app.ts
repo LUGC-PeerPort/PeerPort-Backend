@@ -1,6 +1,6 @@
 import express from "express";
 import YAML from "yamljs";
-import path from "path/win32";
+import path from "path";
 import swaggerUi from "swagger-ui-express";
 import { AppDataSource } from "./Database/DB.js";
 import { UserController } from "./Controllers/UserController.js";
@@ -28,7 +28,7 @@ app.use(cors({
     allowedHeaders: "Content-Type,Authorization"
 }));
 
-// Setting up swagger
+// // Setting up swagger
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
@@ -38,7 +38,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Initialize file upload middleware
 let uploadDir: string;
-if (!process.env.UPLOAD_DIR || process.env.UPLOAD_DIR === undefined) {
+if (!process.env.UPLOAD_DIR) {
     uploadDir = path.resolve(__dirname, "./uploads");
     if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
     console.warn(`UPLOAD_DIR environment variable not set, defaulting to '${uploadDir}'`);
