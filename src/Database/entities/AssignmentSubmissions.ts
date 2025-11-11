@@ -1,7 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
-import { AssignmentSubmissionToFiles } from "./AssignmentSubmissionToFiles.js";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne } from "typeorm";
 import { Assignments } from "./Assignments.js";
 import { User } from "./User.js";
+import { Files } from "./Files.js";
 
 
 /**
@@ -32,16 +32,13 @@ export class AssignmentSubmissions {
     	timeSubmitted!: string;
         
         
-    @OneToOne(() => User, (user) => user.courses)
-    @JoinColumn({ name: "userId" })
+    @ManyToOne(() => User, (user) => user.courses)
     	user!: User;
 
-    @OneToOne(() => Assignments, (assignment) => assignment.assignmentId)
+    @ManyToOne(() => Assignments, (assignment) => assignment.assignmentSubmissions)
     @JoinColumn({ name: "assignmentId" })
     	assignment!: Assignments;
 
-    @OneToOne(() => AssignmentSubmissionToFiles, (assignmentSubmissionToFiles) => assignmentSubmissionToFiles.assignmentSubmissionToFilesId)
-    @JoinColumn({ name: "assignmentSubmissionToFilesId" })
-        assignmentSubmissionToFiles!: AssignmentSubmissionToFiles;
-
+    @OneToMany(() => Files, (files) => files.submission)
+        files!: Files[];
 }

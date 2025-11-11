@@ -43,7 +43,20 @@ export class UserController {
      */
     async getCurrentUser(req: Request, res: Response): Promise<void> {
         // Get user ID from request (assuming it's set by authentication middleware)
-        const userID = (req.session as any).user;
+        if(!req.session) {
+            res.status(401).json({message: "Unauthorized"});
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if(!(req.session as any).passport) {
+            res.status(401).json({message: "Unauthorized"});
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const userID = (req.session as any).passport.user;
+
         if (!userID) {
             res.status(401).json({message: "Unauthorized"});
             return;

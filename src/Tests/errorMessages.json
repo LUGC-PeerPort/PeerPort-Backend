@@ -1,0 +1,24 @@
+{
+    "Invalid ____ structure": [
+        "Properties in the request that aren't recognized are present",
+        "Missing required properties",
+        "Property has an invalid type or data",
+        "Whenever a required ID is not provided"
+    ],
+    "invalid ____": [
+        "Whenever the value of a property doesn't conform to the standard",
+        "Whenever the value is out of an expected range",
+        "Whenever the value is of an invalid format"
+    ],
+    "Invalid ____ ID": [
+        "Whenever an ID provided is not in the correct format",
+        "Whenever an ID provided is not the right data type",
+        "Whenever an ID provided is empty"
+    ],
+    "____ not found": [
+        "Whenever an ID provided does not correspond to an existing object"
+    ],
+    "____ deleted": [
+        "Whenever an object has been successfully deleted"
+    ]
+}

@@ -1,6 +1,6 @@
 import express from "express";
 import YAML from "yamljs";
-import path from "path/win32";
+import path from "path";
 import swaggerUi from "swagger-ui-express";
 import { AppDataSource } from "./Database/DB.js";
 import { UserController } from "./Controllers/UserController.js";
@@ -13,6 +13,9 @@ import {User} from "./Database/entities/User.js";
 import {Role} from "./Database/entities/Role.js";
 import {GoogleStrategySetup} from "./Auth/GoogleStrategy.js";
 import cors from "cors";
+import multer from "multer";
+import fs from "fs";
+import { GradeController } from "./Controllers/GradeController.js";
 
 
 const app = express();
@@ -25,6 +28,38 @@ app.use(cors({
     allowedHeaders: "Content-Type,Authorization"
 }));
 
+// // Setting up swagger
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+
+// Initialize file upload middleware
+let uploadDir: string;
+if (!process.env.UPLOAD_DIR) {
+    uploadDir = path.resolve(__dirname, "./uploads");
+    if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
+    console.warn(`UPLOAD_DIR environment variable not set, defaulting to '${uploadDir}'`);
+} else {
+    uploadDir = path.resolve(__dirname, process.env.UPLOAD_DIR);
+    if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
+    console.log(`Uploads will be stored in: ${uploadDir}`);
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+        // Make new filename to avoid collisions
+        const safeFileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${file.originalname.replace(" ", "_")}`;
+        cb(null, safeFileName);
+    }
+});
+const uploader = multer({
+    storage,
+    // Removed limit temproaraly limits: {fileSize: 1e+7} // 10MB file size limit
+});
 
 // Check if the environment variables are set
 if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
@@ -53,6 +88,7 @@ AppDataSource.initialize().then(() => {
 
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
+    const gradeController = new GradeController(AppDataSource);
 
     // Setup Google OAuth Strategy
     const ifAuthed = GoogleStrategySetup(app, AppDataSource);
@@ -113,7 +149,7 @@ AppDataSource.initialize().then(() => {
     app.get("/users/:userId/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourses(req, res)));
     app.get("/users/:userId/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getCourse(req, res)));
 
-    //Course controller
+    // Course controller
     app.get("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getAllCourses(req, res)));
     app.post("/courses", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.createCourse(req, res)));
     app.put("/courses/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.updateCourse(req, res)));
@@ -123,22 +159,51 @@ AppDataSource.initialize().then(() => {
     app.get("/courses/:courseId/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
 
 
-    //Assignment controller
+    // Assignment controller
     app.get("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
     app.get("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
     app.post("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
     app.put("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
     app.delete("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
-    app.post("/assignments/:assignmentId/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
+    app.post("/assignments/:assignmentId/submissions", uploader.any(), (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
     app.get("/assignments/:assignmentId/submissions", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
+
+    // Grade controller
+    app.get("/grades", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGrades(req, res)));
+    app.get("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getGrade(req, res)));
+    app.put("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res)));
+    app.delete("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res)));
+    app.post("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
+    app.post("/grades/:userId/:courseId/:assignmentSubmissionId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
+    app.get("/grades/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
+    app.get("/grades/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
+    app.get("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
+    app.get("/grades/calculated/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
+    app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
 });
 
-// Setting up swagger
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Error handler for multer
+app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // Check if the error is a Multer error
+    if (err && typeof err === "object" && "code" in err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const e = err as any;
+
+        // Handle specific Multer errors
+        if (e.code === "LIMIT_FILE_SIZE") {
+            return res.status(413).json({ message: "One or more files exceed the 10MB limit." });
+        }
+        if (e instanceof multer.MulterError) {
+            return res.status(400).json({ message: e.message });
+        }
+    }
+    // Go to next error handler
+    return next(err);
+});
+
+
+// Start the server
 app.listen(3000, () => {
     console.log("Server is running on port 3000 at http://localhost:3000/");
 });

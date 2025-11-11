@@ -1,15 +1,13 @@
 import { DataSource } from "typeorm";
 import { User } from "../Database/entities/User.js";
 import { Role } from "../Database/entities/Role.js";
+import { Grade } from "../Database/entities/Grade.js";
 import { Files } from "../Database/entities/Files.js";
 import { Course } from "../Database/entities/Course.js";
 import { Content } from "../Database/entities/Content.js";
 import { Assignments } from "../Database/entities/Assignments.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
-import { ContentToFiles } from "../Database/entities/ContentToFiles.js";
-import { AssignmentToFiles } from "../Database/entities/AssignmentToFiles.js";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { AssignmentSubmissionToFiles } from "../Database/entities/AssignmentSubmissionToFiles.js";
 
 export const TestDataSource = new DataSource({
     type: "sqlite",
@@ -18,15 +16,13 @@ export const TestDataSource = new DataSource({
     synchronize: true,
     entities: [
         User, 
-        Role, 
+        Role,
+        Grade, 
         Files,
         Course,
         Content,
         Assignments,
         UsersToCourses,
-        ContentToFiles,
-        AssignmentToFiles,
         AssignmentSubmissions,
-        AssignmentSubmissionToFiles,
     ],
 });

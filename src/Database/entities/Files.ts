@@ -1,36 +1,44 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from "typeorm";
-import { ContentToFiles}from "./ContentToFiles.js";
-import { AssignmentToFiles } from "./AssignmentToFiles.js";
-import { AssignmentSubmissionToFiles } from "./AssignmentSubmissionToFiles.js";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
+import { Assignments } from "./Assignments.js";
+import { Content } from "./Content.js";
 
 
 /**
- *
+ * Used to manage files that are uploaded
  */
 @Entity("Files")
 export class Files {
     @PrimaryGeneratedColumn("uuid")
-        filesId!: string;
+        fileId!: string;
 
     @Column({
         type: "text",
         nullable: false,
     })
-        FileName!: string;
+        fileName!: string;
     @Column({
         type: "text",
         nullable: false,
     })
-    	Location!: string; //check if this is correct type
+    	location!: string; //check if this is correct type
 
+    @Column({
+        type: "date",
+        nullable: false,
+        default: () => "CURRENT_DATE"
+    })
+        uploadedOn!: string;
 
-    @OneToMany(() => ContentToFiles, (contentToFiles) => contentToFiles.filesId)
-        contentToFiles!: ContentToFiles[];
+    @ManyToOne(() => AssignmentSubmissions, (submission) => submission.files)
+    @JoinColumn({ name: "submissionId" })
+        submission!: AssignmentSubmissions;
 
-    @ManyToOne(() => AssignmentToFiles, (assignmentToFiles) => assignmentToFiles.file)
+    @ManyToOne(() => Content, (content) => content.files)
+    @JoinColumn({ name: "contentId" })
+        content!: Content;
+
+    @ManyToOne(() => Assignments, (assignment) => assignment.files)
     @JoinColumn({ name: "assignmentId" })
-        assignmentToFiles!: AssignmentToFiles;
-    @ManyToOne(() => AssignmentSubmissionToFiles, (assignmentSubmissionToFiles) => assignmentSubmissionToFiles.assignmentSubmissionToFilesId)
-    @JoinColumn({ name: "assignmentSubmissionId" })
-        assignmentSubmissionToFiles!: AssignmentSubmissionToFiles;
+        assignment!: Assignments;
 }

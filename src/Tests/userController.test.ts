@@ -834,43 +834,24 @@ describe("UserController test:", () => {
     });
 
     describe("Getting the current user that is logged in", () => {
-        it("Should not get the current user when there is no session", async () => {
-            const req: any = {};
+
+        it.each([
+            { name: "fail when there is no session",                            value: {  },                                                                            expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the session is malformed",                       value: { session: {  } },                                                               expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user is not logged in",              value: { session: { passport: {  } } },                                                 expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user ID is null",                    value: { session: { passport: { user: null } } },                                       expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user ID is a number",                value: { session: { passport: { user: 123 } } },                                        expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user ID is an invalid format",       value: { session: { passport: { user: "invalid-format" } } },                           expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
+            { name: "fail when the current user doesn't exist",                 value: { session: { passport: { user: "123e4567-e89b-12d3-a456-426618874000" } } },     expectedStatus: 401, expectedResult: { message: "Unauthorized" } }
+        ])("Authentication should $name", async ({name: _name, value, expectedStatus, expectedResult}) => {
+            const req: any = value;
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
             await controller.getCurrentUser(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
-        });
-
-        it("Should not get the current user when the session is not logged in",  async () => {
-            const req: any = {
-                session: {}
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.getCurrentUser(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
-        });
-
-        it("Should not get the current user when the user ID is not in the session",  async () => {
-            const req: any = {
-                session: {
-                    user: null,
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.getCurrentUser(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+            expect(res.status).toHaveBeenCalledWith(expectedStatus);
+            expect(res.json).toHaveBeenCalledWith(expectedResult);
         });
 
         it("Should get the current logged in user", async () => {
@@ -884,7 +865,9 @@ describe("UserController test:", () => {
 
             const req: any = {
                 session: {
-                    user: user.userId,
+                    passport: {
+                        user: user.userId,
+                    }
                 },
             };
             const res: any = {};
@@ -948,7 +931,7 @@ describe("UserController test:", () => {
                 { name: "Non-string name while updating should return false", data: { name: 123, ...basicValues }, expected: false, isUpdate: true },
                 { name: "Too short name while updating should return false", data: { name: "A", ...basicValues }, expected: false, isUpdate: true },
 
-            ])("$name", ({ name, data, expected, isUpdate }) => {
+            ])("$name", ({ name: _name, data, expected, isUpdate }) => {
                 expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
             });
         });
@@ -970,7 +953,7 @@ describe("UserController test:", () => {
                 { name: "Should return false for a non-string email while updating", data: { email: 12345, ...basicValues }, expected: false, isUpdate: true },
                 { name: "Should return false for an invalid email format while updating", data: { email: "invalid-email", ...basicValues }, expected: false, isUpdate: true },
                 { name: "Should return true for valid email", data: { email: "valid.email@example.com", ...basicValues }, expected: true, isUpdate: false },
-            ])("$name", ({ name, data, expected, isUpdate }) => {
+            ])("$name", ({ name: _name, data, expected, isUpdate }) => {
                 expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
             });
         });
@@ -992,7 +975,7 @@ describe("UserController test:", () => {
                 { name: "Should return false for an empty idNumber while updating", data: { idNumber: "   ", ...basicValues }, expected: false, isUpdate: true },
                 { name: "Should return true for missing idNumber while updating", data: basicValues, expected: true, isUpdate: true },
                 { name: "Should return true for valid idNumber", data: { idNumber: "123456789", ...basicValues }, expected: true, isUpdate: true },
-            ])("$name", ({ name, data, expected, isUpdate }) => {
+            ])("$name", ({ name: _name, data, expected, isUpdate }) => {
                 expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
             });
         });
@@ -1014,7 +997,7 @@ describe("UserController test:", () => {
                 { name: "Should return false for a non-string profilePictureUrl while updating", data: { profilePictureUrl: 12345, ...basicValues }, expected: false, isUpdate: true },
                 { name: "Should return false for a URL that is too short while updating", data: { profilePictureUrl: "a", ...basicValues }, expected: false, isUpdate: true },
                 { name: "Should return true for valid profilePictureUrl while updating", data: { profilePictureUrl: "http://example.com/profile.jpg", ...basicValues }, expected: true, isUpdate: true },
-            ])("$name", ({ name, data, expected, isUpdate }) => {
+            ])("$name", ({ name: _name, data, expected, isUpdate }) => {
                 expect((controller as any).checkUserStructure(data, isUpdate)).toBe(expected);
             });
         });
@@ -1297,7 +1280,7 @@ describe("UserController test:", () => {
                         ]
                     }
                 },
-            ])("$name", ({ name, data, expected }) => {
+            ])("$name", ({ name: _name, data, expected }) => {
                 const result = (controller as any).userReturn(data);
                 expect(result).toEqual(expected);
             });
@@ -1342,7 +1325,7 @@ describe("UserController test:", () => {
                 { name: "Should handle null description", data: { ...baseData, description: null }, expected: { ...baseData, description: null, endDate: null } },
                 { name: "Should handle undefined endDate", data: { ...baseData, endDate: undefined }, expected: { ...baseData, description: (baseData as any).description ?? null, endDate: null } },
                 { name: "Should handle null endDate", data: { ...baseData, endDate: null }, expected: { ...baseData, description: (baseData as any).description ?? null, endDate: null } },
-            ])("$name", ({ name, data, expected }) => {
+            ])("$name", ({ name: _name, data, expected }) => {
                 expect((controller as any).courseReturn(data)).toEqual(expected);
             });
         });
