@@ -5,7 +5,7 @@ import type { User } from "../Database/entities/User.js";
 import type { Assignments } from "../Database/entities/Assignments.js";
 
 // Skip all tests in this file temporarily while the controller is not made yet
-describe.skip("SubmissionController test:", () => {
+describe("SubmissionController test:", () => {
     let controller: SubmissionController;
     let course: Course;
     let user: User;
