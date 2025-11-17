@@ -37,7 +37,7 @@ export default defineConfig([
 		ignores: [
 			"node_modules",
 			"dist",
-			"src/tests/coverage",
+			"src/Tests/coverage",
 			"*.config.js"
 		],
 		rules: {
