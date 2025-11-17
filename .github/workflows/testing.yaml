@@ -37,7 +37,7 @@ jobs:
     - name: Publish test summary results
       uses: ctrf-io/github-test-reporter@v1
       with:
-        report-path: ./src/Tests/ctrf-report.json
+        report-path: ./tests/ctrf-report.json
         github-report: true
         summary-report: true
         summary: true
@@ -46,18 +46,18 @@ jobs:
       if: always()
 
     - name: Get coverage
-      run: npx jest --coverage | tee ./src/Tests/coverage/coverage.txt && exit ${PIPESTATUS[0]}
+      run: npx jest --coverage | tee ./tests/coverage/coverage.txt && exit ${PIPESTATUS[0]}
       if: always()
 
     - name: Comment coverage report
       uses: MishaKav/jest-coverage-comment@main
       with:
         junitxml-title: Test Results
-        junitxml-path: ./src/Tests/coverage/junit.xml
+        junitxml-path: ./tests/coverage/junit.xml
         coverage-title: Detailed Coverage Report
-        coverage-path: ./src/Tests/coverage/coverage.txt
+        coverage-path: ./tests/coverage/coverage.txt
         title: "Code Coverage Report of Changed Files"
-        coverage-summary-path: ./src/Tests/coverage/coverage-summary.json
+        coverage-summary-path: ./tests/coverage/coverage-summary.json
         report-only-changed-files: true
         coverage-path-prefix: ./src/
       if: always()
