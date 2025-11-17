@@ -1,12 +1,12 @@
 import { TestDataSource } from "./test-data-source.js";
-import { GradeController } from "../Controllers/GradeController.js";
-import { Course } from "../Database/entities/Course.js";
-import { User } from "../Database/entities/User.js";
-import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { Assignments } from "../Database/entities/Assignments.js";
-import { Role } from "../Database/entities/Role.js";
-import { Grade } from "../Database/entities/Grade.js";
-import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import { GradeController } from "../src/Controllers/GradeController.js";
+import { Course } from "../src/Database/entities/Course.js";
+import { User } from "../src/Database/entities/User.js";
+import { AssignmentSubmissions } from "../src/Database/entities/AssignmentSubmissions.js";
+import { Assignments } from "../src/Database/entities/Assignments.js";
+import { Role } from "../src/Database/entities/Role.js";
+import { Grade } from "../src/Database/entities/Grade.js";
+import { UsersToCourses } from "../src/Database/entities/UsersToCourses.js";
 
 describe("GradeController test:", () => {
     let controller: GradeController;

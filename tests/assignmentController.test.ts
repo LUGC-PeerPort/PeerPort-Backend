@@ -1,7 +1,7 @@
 import { TestDataSource } from "./test-data-source.js";
-import { AssignmentController } from "../Controllers/AssignmentController.js";
-import type { Course } from "../Database/entities/Course.js";
-import type { User } from "../Database/entities/User.js";
+import { AssignmentController } from "../src/Controllers/AssignmentController.js";
+import type { Course } from "../src/Database/entities/Course.js";
+import type { User } from "../src/Database/entities/User.js";
 
 describe("AssignmentController test:", () => {
     let controller: AssignmentController;

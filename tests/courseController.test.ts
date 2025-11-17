@@ -1,5 +1,5 @@
 import { TestDataSource } from "./test-data-source.js";
-import { CourseController } from "../Controllers/CourseController.js";
+import { CourseController } from "../src/Controllers/CourseController.js";
 
 describe("CourseController test:", () => {
     let controller: CourseController;

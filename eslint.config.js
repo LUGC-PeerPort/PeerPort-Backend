@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-	globalIgnores(["**/node_modules", "**/dist", "src/Tests/coverage"]), 
+	globalIgnores(["**/node_modules", "**/dist", "src/tests/coverage"]),
 	{
 		extends: compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended"),
 
@@ -134,7 +134,7 @@ export default defineConfig([
 		},
 	},
 	{
-		files: ["**/Tests/**/*.ts"],
+		files: ["**/tests/**/*.ts"],
 		rules: {
 			"max-lines-per-function": "off",
 			"@typescript-eslint/no-explicit-any": "off",
