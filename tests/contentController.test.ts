@@ -198,7 +198,7 @@ describe("ContentController test:", () => {
             { name: "fails when content Id is not a valid UUID",    data: { params: { contentId: "123-123" } },                                 expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
             { name: "fails when content Id does not exist",         data: { params: { contentId: "123e4567-e89b-12d3-a456-426614174000" } },    expectedStatus: 404, expectedData: { message: "Content not found" } },
 
-            { name: "succeeds when content Id is valid",           data: { params: { contentId: contentId } },                                  expectedStatus: 200, expectedData: { message: "Content deleted" } }
+            { name: "succeeds when content Id is valid",            data: { params: { contentId: contentId } },                                  expectedStatus: 200, expectedData: { message: "Content deleted" } }
         ])("Deleting content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(data, expectedData);
 
