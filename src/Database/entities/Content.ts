@@ -15,17 +15,19 @@ export class Content {
     	nullable: false,
     })
     	name!: string;
+	
     @Column({
     	type: "text",
-    	nullable: false,
+    	nullable: true,
     })
-    	Description!: string;
+    	description!: string;
+
     @Column({
     	type: "date",
     	nullable: false,
         default: () => "CURRENT_DATE"
     })
-    	DateCreated!: Date;
+    	dateCreated!: Date;
     
     @Column({
     	type: "boolean",
