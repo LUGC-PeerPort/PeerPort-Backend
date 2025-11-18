@@ -38,7 +38,7 @@ export class ContentController {
      */
     async getContentById(req: Request, res: Response): Promise<void> {
         // Check the content ID
-        const contentIdUnknown = req.params.contentID as unknown;
+        const contentIdUnknown = req.params.contentId as unknown;
         if (!this.checkUUID(contentIdUnknown)) {
             res.status(400).json({ message: "Invalid content ID" });
             return;
@@ -148,7 +148,7 @@ export class ContentController {
      */
     async updateContent(req: Request, res: Response): Promise<void> {
         // Check the content ID
-        const contentIdUnknown = req.params.contentID as unknown;
+        const contentIdUnknown = req.params.contentId as unknown;
         if (!this.checkUUID(contentIdUnknown)) {
             res.status(400).json({ message: "Invalid content ID" });
             return;
@@ -186,7 +186,7 @@ export class ContentController {
      */
     async deleteContent(req: Request, res: Response): Promise<void> {
         // Check the content ID
-        const contentIdUnknown = req.params.contentID as unknown;
+        const contentIdUnknown = req.params.contentId as unknown;
         if (!this.checkUUID(contentIdUnknown)) {
             res.status(400).json({ message: "Invalid content ID" });
             return;
@@ -252,6 +252,10 @@ export class ContentController {
         if (typeof contentTyped.name === "string") {
             if (contentTyped.name.trim() === "") return false;
         } else if (!_updating) return false;
+
+        if (typeof contentTyped.viewable !== "boolean") {
+            if (!_updating) return false;
+        }
 
         // -- Optional --
         if (typeof contentTyped.description === "string") {
