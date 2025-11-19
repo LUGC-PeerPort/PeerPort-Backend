@@ -102,7 +102,7 @@ export class SubmissionController {
         const assSubID = id.trim();
 
         // Check if the ID has content
-        if (assSubID == "") return;
+        if (assSubID === "") return;
 
         // Check if the ID is a valid UUID
         if (
