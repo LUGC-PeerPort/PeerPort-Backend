@@ -55,8 +55,8 @@ export class SubmissionController {
     async getSubmission(req: Request, res: Response): Promise<void> {
         const submissionId = this.checkUUID(req.params.submissionId);
         if (!submissionId) {
-        res.status(400).json({ message: "Invalid submission ID" });
-        return;
+            res.status(400).json({ message: "Invalid submission ID" });
+            return;
         }
         try {
             const submission = await this.submissionRepo.findOne({
