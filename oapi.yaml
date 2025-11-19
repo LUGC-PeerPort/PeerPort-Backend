@@ -739,7 +739,7 @@ paths:
               $ref: '#/components/schemas/AssignmentBasic'
             examples: 
               payload:
-                $ref: '#/components/examples/AssignmentPostExample'
+                $ref: '#/components/examples/AssignmentUpdateExample'
       responses:
         '200':
           description: Assignment updated successfully
