@@ -87,7 +87,7 @@ export class SubmissionController {
     */
     async deleteSubmission(req: Request, res: Response): Promise<void> {
         //Students should not be able to delete a submission. Leaving the function here in case we need it later.
-        //as well as there will be errors if it is removed now. which I will not be able to fix untill I pull from main
+        //as well as there will be errors if it is removed now. which I will not be able to fix until I pull from main
         res.status(501).json({ message: "Not implemented" });
     }
     /**
