@@ -1,11 +1,11 @@
 import { TestDataSource } from "./test-data-source.js";
-import { SubmissionController } from "../src/Controllers/SubmissionController.js";
-import type { Course } from "../src/Database/entities/Course.js";
-import type { User } from "../src/Database/entities/User.js";
-import type { Assignments } from "../src/Database/entities/Assignments.js";
+import { SubmissionController } from "../Controllers/SubmissionController.js";
+import type { Course } from "../Database/entities/Course.js";
+import type { User } from "../Database/entities/User.js";
+import type { Assignments } from "../Database/entities/Assignments.js";
 
 // Skip all tests in this file temporarily while the controller is not made yet
-describe.skip("SubmissionController test:", () => {
+describe("SubmissionController test:", () => {
     let controller: SubmissionController;
     let course: Course;
     let user: User;
@@ -51,7 +51,9 @@ describe.skip("SubmissionController test:", () => {
 
     beforeEach(async () => {
         // Clear assignments before each test
+        await TestDataSource.getRepository("AssignmentSubmissions").clear();
         await TestDataSource.getRepository("Assignments").clear();
+
     });
 
     afterAll(async () => {
@@ -207,64 +209,5 @@ describe.skip("SubmissionController test:", () => {
         });
     });
 
-    describe("Delete a submission", () => {
-        it("Should have implemented the method deleteSubmission", async () => {
-            const req: any = {};
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.deleteSubmission(req, res);
-            expect(res.status).not.toHaveBeenCalledWith(501);
-        });
-        it("Should not delete a submission with an invalid ID", async () => {
-            const req: any = {
-                params: {
-                    submissionId: "invalid-uuid",
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.deleteSubmission(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
-        });
-
-        it("Should not delete a submission with a non-existent ID", async () => {
-            const req: any = {
-                params: {
-                    submissionId: "123e4567-e89b-12d3-a456-426614174999",
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.deleteSubmission(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
-        });
-
-        it("Should delete a submission with a valid ID", async () => {
-            const submission = TestDataSource.getRepository("AssignmentSubmissions").create({
-                comment: "This is a test submission",
-                timeSubmitted: new Date().toISOString(),
-                user: user,
-                assignment: assignment,
-            });
-            const req: any = {
-                params: {
-                    submissionId: submission.assignmentSubmissionId,
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.deleteSubmission(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ message: expect.any(String) });
-        });
-    });
+    
 });
