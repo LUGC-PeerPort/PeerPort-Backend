@@ -1,0 +1,862 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="385" failures="6" errors="0" time="8.855">
+  <testsuite name="AssignmentController test:" errors="0" failures="0" skipped="0" timestamp="2025-11-18T23:52:33" time="5.627" tests="60">
+    <testcase classname="AssignmentController test: Get all assignments Should have implemented the method getAllAssignments" name="AssignmentController test: Get all assignments Should have implemented the method getAllAssignments" time="0.015">
+    </testcase>
+    <testcase classname="AssignmentController test: Get all assignments Should return an empty array when there are no assignments" name="AssignmentController test: Get all assignments Should return an empty array when there are no assignments" time="0.004">
+    </testcase>
+    <testcase classname="AssignmentController test: Get all assignments Should return one assignment when there is one assignment" name="AssignmentController test: Get all assignments Should return one assignment when there is one assignment" time="0.008">
+    </testcase>
+    <testcase classname="AssignmentController test: Get all assignments Should return multiple assignments when there are multiple assignments" name="AssignmentController test: Get all assignments Should return multiple assignments when there are multiple assignments" time="0.009">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should have implemented the method createAssignment" name="AssignmentController test: Creating a new assignment Should have implemented the method createAssignment" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with an invalid structure" name="AssignmentController test: Creating a new assignment Should not create an assignment with an invalid structure" time="0.004">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with an empty structure" name="AssignmentController test: Creating a new assignment Should not create an assignment with an empty structure" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid name" name="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid name" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with an empty name" name="AssignmentController test: Creating a new assignment Should not create an assignment with an empty name" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with no name" name="AssignmentController test: Creating a new assignment Should not create an assignment with no name" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid description" name="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid description" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with no description" name="AssignmentController test: Creating a new assignment Should not create an assignment with no description" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with an empty description" name="AssignmentController test: Creating a new assignment Should not create an assignment with an empty description" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid due date" name="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid due date" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with no due date" name="AssignmentController test: Creating a new assignment Should not create an assignment with no due date" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with a past due date" name="AssignmentController test: Creating a new assignment Should not create an assignment with a past due date" time="0.004">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with a wrong due date" name="AssignmentController test: Creating a new assignment Should not create an assignment with a wrong due date" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid class ID" name="AssignmentController test: Creating a new assignment Should not create an assignment with a invalid class ID" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with no class ID" name="AssignmentController test: Creating a new assignment Should not create an assignment with no class ID" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with a non-existent class ID" name="AssignmentController test: Creating a new assignment Should not create an assignment with a non-existent class ID" time="0.005">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with an empty class ID" name="AssignmentController test: Creating a new assignment Should not create an assignment with an empty class ID" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should not create an assignment with an incomplete class ID" name="AssignmentController test: Creating a new assignment Should not create an assignment with an incomplete class ID" time="0.008">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a new assignment Should create an assignment with valid data" name="AssignmentController test: Creating a new assignment Should create an assignment with valid data" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting an assignment Should have implemented the method getAssignment" name="AssignmentController test: Getting an assignment Should have implemented the method getAssignment" time="0.001">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting an assignment Should not get an assignment with an invalid ID" name="AssignmentController test: Getting an assignment Should not get an assignment with an invalid ID" time="0.001">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting an assignment Should not get an assignment with a non-existent ID" name="AssignmentController test: Getting an assignment Should not get an assignment with a non-existent ID" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting an assignment Should get an assignment with a valid ID" name="AssignmentController test: Getting an assignment Should get an assignment with a valid ID" time="0.01">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should have implemented the method updateAssignment" name="AssignmentController test: Updating an assignment Should have implemented the method updateAssignment" time="0.004">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with an invalid ID" name="AssignmentController test: Updating an assignment Should not update an assignment with an invalid ID" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with a non-existent ID" name="AssignmentController test: Updating an assignment Should not update an assignment with a non-existent ID" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with a invalid structure" name="AssignmentController test: Updating an assignment Should not update an assignment with a invalid structure" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with a invalid name" name="AssignmentController test: Updating an assignment Should not update an assignment with a invalid name" time="0.007">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with a invalid description" name="AssignmentController test: Updating an assignment Should not update an assignment with a invalid description" time="0.009">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with a invalid due date" name="AssignmentController test: Updating an assignment Should not update an assignment with a invalid due date" time="0.009">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with a past due date" name="AssignmentController test: Updating an assignment Should not update an assignment with a past due date" time="0.008">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should not update an assignment with no fields to update" name="AssignmentController test: Updating an assignment Should not update an assignment with no fields to update" time="0.014">
+    </testcase>
+    <testcase classname="AssignmentController test: Updating an assignment Should update an assignment with valid data" name="AssignmentController test: Updating an assignment Should update an assignment with valid data" time="0.018">
+    </testcase>
+    <testcase classname="AssignmentController test: Deleting an assignment Should have implemented the method deleteAssignment" name="AssignmentController test: Deleting an assignment Should have implemented the method deleteAssignment" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Deleting an assignment Should not delete an assignment with an invalid ID" name="AssignmentController test: Deleting an assignment Should not delete an assignment with an invalid ID" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Deleting an assignment Should not delete an assignment with a non-existent ID" name="AssignmentController test: Deleting an assignment Should not delete an assignment with a non-existent ID" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Deleting an assignment Should delete an assignment with a valid ID" name="AssignmentController test: Deleting an assignment Should delete an assignment with a valid ID" time="0.011">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting submissions for an assignment Should have implemented the method getSubmissionsForAssignment" name="AssignmentController test: Getting submissions for an assignment Should have implemented the method getSubmissionsForAssignment" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting submissions for an assignment Should not get submissions with an invalid assignment ID" name="AssignmentController test: Getting submissions for an assignment Should not get submissions with an invalid assignment ID" time="0.001">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting submissions for an assignment Should not get submissions with a non-existent assignment ID" name="AssignmentController test: Getting submissions for an assignment Should not get submissions with a non-existent assignment ID" time="0.004">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting submissions for an assignment Should get submissions when no submissions exist" name="AssignmentController test: Getting submissions for an assignment Should get submissions when no submissions exist" time="0.009">
+    </testcase>
+    <testcase classname="AssignmentController test: Getting submissions for an assignment Should get submissions when multiple submissions exist" name="AssignmentController test: Getting submissions for an assignment Should get submissions when multiple submissions exist" time="0.01">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should have implemented the method createSubmissionForAssignment" name="AssignmentController test: Creating a submission for an assignment Should have implemented the method createSubmissionForAssignment" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid assignment ID" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid assignment ID" time="0.002">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with a non-existent assignment ID" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with a non-existent assignment ID" time="0.003">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with no body" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with no body" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid structure" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid structure" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with no timeSubmitted" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with no timeSubmitted" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid timeSubmitted" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid timeSubmitted" time="0.007">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with a wrong timeSubmitted" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with a wrong timeSubmitted" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with no user ID" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with no user ID" time="0.005">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid user ID" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with an invalid user ID" time="0.005">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with a non-existent user ID" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with a non-existent user ID" time="0.006">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should not create a submission with an empty comment" name="AssignmentController test: Creating a submission for an assignment Should not create a submission with an empty comment" time="0.007">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should create a submission without a comment" name="AssignmentController test: Creating a submission for an assignment Should create a submission without a comment" time="0.014">
+    </testcase>
+    <testcase classname="AssignmentController test: Creating a submission for an assignment Should create a submission with valid data" name="AssignmentController test: Creating a submission for an assignment Should create a submission with valid data" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="CourseController test:" errors="0" failures="0" skipped="0" timestamp="2025-11-18T23:52:33" time="5.681" tests="91">
+    <testcase classname="CourseController test: Get all courses Should return an empty array when there are no courses" name="CourseController test: Get all courses Should return an empty array when there are no courses" time="0.013">
+    </testcase>
+    <testcase classname="CourseController test: Get all courses Should return all courses" name="CourseController test: Get all courses Should return all courses" time="0.009">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with invalid structure" name="CourseController test: Create a course Should not create a course with invalid structure" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course without a name" name="CourseController test: Create a course Should not create a course without a name" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with an invalid name" name="CourseController test: Create a course Should not create a course with an invalid name" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course without a course code" name="CourseController test: Create a course Should not create a course without a course code" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with an invalid course code" name="CourseController test: Create a course Should not create a course with an invalid course code" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course without the isOpen field" name="CourseController test: Create a course Should not create a course without the isOpen field" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with an invalid isOpen field" name="CourseController test: Create a course Should not create a course with an invalid isOpen field" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course without a start date" name="CourseController test: Create a course Should not create a course without a start date" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with an invalid start date" name="CourseController test: Create a course Should not create a course with an invalid start date" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course without a user ID" name="CourseController test: Create a course Should not create a course without a user ID" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with an invalid user ID" name="CourseController test: Create a course Should not create a course with an invalid user ID" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with a non-existent user ID" name="CourseController test: Create a course Should not create a course with a non-existent user ID" time="0.005">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with a invalid description" name="CourseController test: Create a course Should not create a course with a invalid description" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with an invalid end date" name="CourseController test: Create a course Should not create a course with an invalid end date" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should not create a course with an end date before the start date" name="CourseController test: Create a course Should not create a course with an end date before the start date" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should create a course with valid data" name="CourseController test: Create a course Should create a course with valid data" time="0.016">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should create a course with a valid description" name="CourseController test: Create a course Should create a course with a valid description" time="0.017">
+    </testcase>
+    <testcase classname="CourseController test: Create a course Should create a course without an end date" name="CourseController test: Create a course Should create a course without an end date" time="0.013">
+    </testcase>
+    <testcase classname="CourseController test: Get a course Should not get a course with an invalid ID" name="CourseController test: Get a course Should not get a course with an invalid ID" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Get a course Should not get a course with a non-existent ID" name="CourseController test: Get a course Should not get a course with a non-existent ID" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Get a course Should get a course with a valid ID" name="CourseController test: Get a course Should get a course with a valid ID" time="0.006">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid ID" name="CourseController test: Update a course Should not update a course with an invalid ID" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with a non-existent ID" name="CourseController test: Update a course Should not update a course with a non-existent ID" time="0.005">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid structure" name="CourseController test: Update a course Should not update a course with an invalid structure" time="0.007">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid name" name="CourseController test: Update a course Should not update a course with an invalid name" time="0.006">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid course code" name="CourseController test: Update a course Should not update a course with an invalid course code" time="0.007">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid isOpen field" name="CourseController test: Update a course Should not update a course with an invalid isOpen field" time="0.007">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid description" name="CourseController test: Update a course Should not update a course with an invalid description" time="0.006">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid start date" name="CourseController test: Update a course Should not update a course with an invalid start date" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an invalid end date" name="CourseController test: Update a course Should not update a course with an invalid end date" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should not update a course with an end date before the start date" name="CourseController test: Update a course Should not update a course with an end date before the start date" time="0.006">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should update a course with no new start date or end date" name="CourseController test: Update a course Should update a course with no new start date or end date" time="0.016">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should update a course with no new end date" name="CourseController test: Update a course Should update a course with no new end date" time="0.006">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should update a course with no new isOpen or description" name="CourseController test: Update a course Should update a course with no new isOpen or description" time="0.008">
+    </testcase>
+    <testcase classname="CourseController test: Update a course Should update a course with a valid ID" name="CourseController test: Update a course Should update a course with a valid ID" time="0.011">
+    </testcase>
+    <testcase classname="CourseController test: Delete a course Should not delete a course with an invalid ID" name="CourseController test: Delete a course Should not delete a course with an invalid ID" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Delete a course Should not delete a course with a non-existent ID" name="CourseController test: Delete a course Should not delete a course with a non-existent ID" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Delete a course Should delete a course with a valid ID" name="CourseController test: Delete a course Should delete a course with a valid ID" time="0.01">
+    </testcase>
+    <testcase classname="CourseController test: Enroll a user in a course Should not enroll a user with an invalid course ID" name="CourseController test: Enroll a user in a course Should not enroll a user with an invalid course ID" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Enroll a user in a course Should not enroll a user with a non-existent course ID" name="CourseController test: Enroll a user in a course Should not enroll a user with a non-existent course ID" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Enroll a user in a course Should not enroll a user with an invalid user ID" name="CourseController test: Enroll a user in a course Should not enroll a user with an invalid user ID" time="0.006">
+    </testcase>
+    <testcase classname="CourseController test: Enroll a user in a course Should not enroll a user with a non-existent user ID" name="CourseController test: Enroll a user in a course Should not enroll a user with a non-existent user ID" time="0.008">
+    </testcase>
+    <testcase classname="CourseController test: Enroll a user in a course Should enroll a user with valid IDs" name="CourseController test: Enroll a user in a course Should enroll a user with valid IDs" time="0.017">
+    </testcase>
+    <testcase classname="CourseController test: Enroll a user in a course Should not enroll a user in a course they are already enrolled in" name="CourseController test: Enroll a user in a course Should not enroll a user in a course they are already enrolled in" time="0.02">
+    </testcase>
+    <testcase classname="CourseController test: Get assignments for a course Should not get assignments with no course ID" name="CourseController test: Get assignments for a course Should not get assignments with no course ID" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: Get assignments for a course Should not get assignments with an invalid course ID" name="CourseController test: Get assignments for a course Should not get assignments with an invalid course ID" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: Get assignments for a course Should not get assignments with a non-existent course ID" name="CourseController test: Get assignments for a course Should not get assignments with a non-existent course ID" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: Get assignments for a course Should get assignments with a valid course ID" name="CourseController test: Get assignments for a course Should get assignments with a valid course ID" time="0.012">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Fails if courseData is null" name="CourseController test: checkCourseStructure function testing Fails if courseData is null" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Fails if courseData is string" name="CourseController test: checkCourseStructure function testing Fails if courseData is string" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Fails if courseData is a number" name="CourseController test: checkCourseStructure function testing Fails if courseData is a number" time="0.001">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Fails if extra key in courseData" name="CourseController test: checkCourseStructure function testing Fails if extra key in courseData" time="0.001">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Fails if userId is in keys" name="CourseController test: checkCourseStructure function testing Fails if userId is in keys" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Passes if userId included when creating" name="CourseController test: checkCourseStructure function testing Passes if userId included when creating" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Fails if userId included when updating" name="CourseController test: checkCourseStructure function testing Fails if userId included when updating" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when missing name" name="CourseController test: checkCourseStructure function testing Creation fails when missing name" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when name empty" name="CourseController test: checkCourseStructure function testing Creation fails when name empty" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when missing courseCode" name="CourseController test: checkCourseStructure function testing Creation fails when missing courseCode" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when courseCode empty" name="CourseController test: checkCourseStructure function testing Creation fails when courseCode empty" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when missing isOpen" name="CourseController test: checkCourseStructure function testing Creation fails when missing isOpen" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when isOpen wrong type" name="CourseController test: checkCourseStructure function testing Creation fails when isOpen wrong type" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when missing startDate" name="CourseController test: checkCourseStructure function testing Creation fails when missing startDate" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when invalid startDate" name="CourseController test: checkCourseStructure function testing Creation fails when invalid startDate" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when endDate not string" name="CourseController test: checkCourseStructure function testing Creation fails when endDate not string" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when endDate not valid" name="CourseController test: checkCourseStructure function testing Creation fails when endDate not valid" time="0.001">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation fails when description empty string" name="CourseController test: checkCourseStructure function testing Creation fails when description empty string" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Creation passes with minimal valid fields" name="CourseController test: checkCourseStructure function testing Creation passes with minimal valid fields" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when no fields provided" name="CourseController test: checkCourseStructure function testing Updating fails when no fields provided" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when startDate not string" name="CourseController test: checkCourseStructure function testing Updating fails when startDate not string" time="0.004">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when startDate not valid" name="CourseController test: checkCourseStructure function testing Updating fails when startDate not valid" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when endDate not string" name="CourseController test: checkCourseStructure function testing Updating fails when endDate not string" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when endDate not valid" name="CourseController test: checkCourseStructure function testing Updating fails when endDate not valid" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when isOpen not boolean" name="CourseController test: checkCourseStructure function testing Updating fails when isOpen not boolean" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating passes when only isOpen provided" name="CourseController test: checkCourseStructure function testing Updating passes when only isOpen provided" time="0.001">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating passes when only description provided" name="CourseController test: checkCourseStructure function testing Updating passes when only description provided" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when name provided but wrong type" name="CourseController test: checkCourseStructure function testing Updating fails when name provided but wrong type" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating fails when endDate provided but invalid" name="CourseController test: checkCourseStructure function testing Updating fails when endDate provided but invalid" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating passes when startDate provided and valid" name="CourseController test: checkCourseStructure function testing Updating passes when startDate provided and valid" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkCourseStructure function testing Updating passes when endDate provided and valid" name="CourseController test: checkCourseStructure function testing Updating passes when endDate provided and valid" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkUUID function tests undefined UUID returns undefined" name="CourseController test: checkUUID function tests undefined UUID returns undefined" time="0.001">
+    </testcase>
+    <testcase classname="CourseController test: checkUUID function tests empty string returns undefined" name="CourseController test: checkUUID function tests empty string returns undefined" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkUUID function tests invalid structure returns undefined" name="CourseController test: checkUUID function tests invalid structure returns undefined" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: checkUUID function tests valid UUID is returned" name="CourseController test: checkUUID function tests valid UUID is returned" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkDates function tests endDate null =&gt; true" name="CourseController test: checkDates function tests endDate null =&gt; true" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkDates function tests endDate after start =&gt; true" name="CourseController test: checkDates function tests endDate after start =&gt; true" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: checkDates function tests endDate equal to start =&gt; false" name="CourseController test: checkDates function tests endDate equal to start =&gt; false" time="0.003">
+    </testcase>
+    <testcase classname="CourseController test: checkDates function tests endDate before start =&gt; false" name="CourseController test: checkDates function tests endDate before start =&gt; false" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: courseReturn function tests missing optional fields =&gt; nulls" name="CourseController test: courseReturn function tests missing optional fields =&gt; nulls" time="0.002">
+    </testcase>
+    <testcase classname="CourseController test: courseReturn function tests optional fields present =&gt; preserved" name="CourseController test: courseReturn function tests optional fields present =&gt; preserved" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserController test:" errors="0" failures="3" skipped="0" timestamp="2025-11-18T23:52:33" time="5.723" tests="98">
+    <testcase classname="UserController test: Getting all users from the database Should get an empty array when there are no users" name="UserController test: Getting all users from the database Should get an empty array when there are no users" time="0.013">
+    </testcase>
+    <testcase classname="UserController test: Getting all users from the database Should get an array of users when there are users" name="UserController test: Getting all users from the database Should get an array of users when there are users" time="0.01">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user with an invalid structure" name="UserController test: Create a user in the database Should not create a user with an invalid structure" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user with less than 2 characters in the name" name="UserController test: Create a user in the database Should not create a user with less than 2 characters in the name" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user with no name" name="UserController test: Create a user in the database Should not create a user with no name" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user with an invalid email" name="UserController test: Create a user in the database Should not create a user with an invalid email" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user with an empty email" name="UserController test: Create a user in the database Should not create a user with an empty email" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user with no email" name="UserController test: Create a user in the database Should not create a user with no email" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user with an empty id number" name="UserController test: Create a user in the database Should not create a user with an empty id number" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should not create a user when the same email already exists" name="UserController test: Create a user in the database Should not create a user when the same email already exists" time="0.008">
+    </testcase>
+    <testcase classname="UserController test: Create a user in the database Should create a user with valid data" name="UserController test: Create a user in the database Should create a user with valid data" time="0.018">
+    </testcase>
+    <testcase classname="UserController test: Get a user profile from the database Should not get a user with an invalid ID" name="UserController test: Get a user profile from the database Should not get a user with an invalid ID" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Get a user profile from the database Should not get a user that does not exist" name="UserController test: Get a user profile from the database Should not get a user that does not exist" time="0.004">
+    </testcase>
+    <testcase classname="UserController test: Get a user profile from the database Should get a user that does exist" name="UserController test: Get a user profile from the database Should get a user that does exist" time="0.011">
+    </testcase>
+    <testcase classname="UserController test: Get a user profile from the database Should get a user and their courses" name="UserController test: Get a user profile from the database Should get a user and their courses" time="0.018">
+    </testcase>
+    <testcase classname="UserController test: Update a user profile in the database Should not update a user with an invalid ID" name="UserController test: Update a user profile in the database Should not update a user with an invalid ID" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Update a user profile in the database Should not update a user that does not exist" name="UserController test: Update a user profile in the database Should not update a user that does not exist" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Update a user profile in the database Should not update a user with an invalid structure" name="UserController test: Update a user profile in the database Should not update a user with an invalid structure" time="0.007">
+    </testcase>
+    <testcase classname="UserController test: Update a user profile in the database Should not update a user with no body" name="UserController test: Update a user profile in the database Should not update a user with no body" time="0.004">
+    </testcase>
+    <testcase classname="UserController test: Update a user profile in the database Should update a user with no change to name or email" name="UserController test: Update a user profile in the database Should update a user with no change to name or email" time="0.012">
+    </testcase>
+    <testcase classname="UserController test: Update a user profile in the database Should update a user with valid data" name="UserController test: Update a user profile in the database Should update a user with valid data" time="0.011">
+    </testcase>
+    <testcase classname="UserController test: Delete a user profile from the database Should not delete a user with an invalid ID" name="UserController test: Delete a user profile from the database Should not delete a user with an invalid ID" time="0.004">
+    </testcase>
+    <testcase classname="UserController test: Delete a user profile from the database Should delete a user that does exist" name="UserController test: Delete a user profile from the database Should delete a user that does exist" time="0.009">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s courses from the database Should not get courses for a user with an invalid ID" name="UserController test: Get a user&apos;s courses from the database Should not get courses for a user with an invalid ID" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s courses from the database Should not get courses for a user that does not exist" name="UserController test: Get a user&apos;s courses from the database Should not get courses for a user that does not exist" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s courses from the database Should get courses for a user that does exist" name="UserController test: Get a user&apos;s courses from the database Should get courses for a user that does exist" time="0.008">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s courses from the database Should get an empty array for a user with no courses" name="UserController test: Get a user&apos;s courses from the database Should get an empty array for a user with no courses" time="0.004">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s course from the database Should not get a course for a user with an invalid user ID" name="UserController test: Get a user&apos;s course from the database Should not get a course for a user with an invalid user ID" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s course from the database Should not get a course for a user that does not exist" name="UserController test: Get a user&apos;s course from the database Should not get a course for a user that does not exist" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s course from the database Should not get a course for a user with an invalid course ID" name="UserController test: Get a user&apos;s course from the database Should not get a course for a user with an invalid course ID" time="0.009">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s course from the database Should not get a course for a user that is not enrolled in the course" name="UserController test: Get a user&apos;s course from the database Should not get a course for a user that is not enrolled in the course" time="0.007">
+    </testcase>
+    <testcase classname="UserController test: Get a user&apos;s course from the database Should get a course for a user that is enrolled in the course" name="UserController test: Get a user&apos;s course from the database Should get a course for a user that is enrolled in the course" time="0.009">
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Authentication should fail when there is no session" name="UserController test: Getting the current user that is logged in Authentication should fail when there is no session" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Authentication should fail when the session is malformed" name="UserController test: Getting the current user that is logged in Authentication should fail when the session is malformed" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Authentication should fail when the current user is not logged in" name="UserController test: Getting the current user that is logged in Authentication should fail when the current user is not logged in" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Authentication should fail when the current user ID is null" name="UserController test: Getting the current user that is logged in Authentication should fail when the current user ID is null" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Authentication should fail when the current user ID is a number" name="UserController test: Getting the current user that is logged in Authentication should fail when the current user ID is a number" time="0.004">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 401
+Received: 200
+
+Number of calls: 1
+    at C:\Users\Rebecca\Documents\Rebecca\School\uni\3.1-SoftwareEng\PeerPort-Backend\src\Tests\userController.test.ts:853:32</failure>
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Authentication should fail when the current user ID is an invalid format" name="UserController test: Getting the current user that is logged in Authentication should fail when the current user ID is an invalid format" time="0.002">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 401
+Received: 200
+
+Number of calls: 1
+    at C:\Users\Rebecca\Documents\Rebecca\School\uni\3.1-SoftwareEng\PeerPort-Backend\src\Tests\userController.test.ts:853:32</failure>
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Authentication should fail when the current user doesn&apos;t exist" name="UserController test: Getting the current user that is logged in Authentication should fail when the current user doesn&apos;t exist" time="0.002">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 401
+Received: 200
+
+Number of calls: 1
+    at C:\Users\Rebecca\Documents\Rebecca\School\uni\3.1-SoftwareEng\PeerPort-Backend\src\Tests\userController.test.ts:853:32</failure>
+    </testcase>
+    <testcase classname="UserController test: Getting the current user that is logged in Should get the current logged in user" name="UserController test: Getting the current user that is logged in Should get the current logged in user" time="0.005">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Should return false for a null object" name="UserController test: checkUserStructure function tests Should return false for a null object" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Should return false for an empty object" name="UserController test: checkUserStructure function tests Should return false for an empty object" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Should return false for unnecessary fields" name="UserController test: checkUserStructure function tests Should return false for unnecessary fields" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Should return false for valid fields with extra unnecessary fields" name="UserController test: checkUserStructure function tests Should return false for valid fields with extra unnecessary fields" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Missing name should return false" name="UserController test: checkUserStructure function tests Name tests Missing name should return false" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Empty name should return false" name="UserController test: checkUserStructure function tests Name tests Empty name should return false" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Non-string name should return false" name="UserController test: checkUserStructure function tests Name tests Non-string name should return false" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Too short name should return false" name="UserController test: checkUserStructure function tests Name tests Too short name should return false" time="0.006">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Missing name while updating should return true" name="UserController test: checkUserStructure function tests Name tests Missing name while updating should return true" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Empty name while updating should return false" name="UserController test: checkUserStructure function tests Name tests Empty name while updating should return false" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Non-string name while updating should return false" name="UserController test: checkUserStructure function tests Name tests Non-string name while updating should return false" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Name tests Too short name while updating should return false" name="UserController test: checkUserStructure function tests Name tests Too short name while updating should return false" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return false for missing email" name="UserController test: checkUserStructure function tests Email tests Should return false for missing email" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return false for empty email" name="UserController test: checkUserStructure function tests Email tests Should return false for empty email" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return false for a non-string email" name="UserController test: checkUserStructure function tests Email tests Should return false for a non-string email" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return false for an invalid email format" name="UserController test: checkUserStructure function tests Email tests Should return false for an invalid email format" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return true for missing email while updating" name="UserController test: checkUserStructure function tests Email tests Should return true for missing email while updating" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return false for a non-string email while updating" name="UserController test: checkUserStructure function tests Email tests Should return false for a non-string email while updating" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return false for an invalid email format while updating" name="UserController test: checkUserStructure function tests Email tests Should return false for an invalid email format while updating" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Email tests Should return true for valid email" name="UserController test: checkUserStructure function tests Email tests Should return true for valid email" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return false for missing idNumber" name="UserController test: checkUserStructure function tests idNumber tests Should return false for missing idNumber" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return false for empty idNumber" name="UserController test: checkUserStructure function tests idNumber tests Should return false for empty idNumber" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return false for a non-string idNumber" name="UserController test: checkUserStructure function tests idNumber tests Should return false for a non-string idNumber" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return true for valid idNumber" name="UserController test: checkUserStructure function tests idNumber tests Should return true for valid idNumber" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return false for a non-string idNumber while updating" name="UserController test: checkUserStructure function tests idNumber tests Should return false for a non-string idNumber while updating" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return false for an empty idNumber while updating" name="UserController test: checkUserStructure function tests idNumber tests Should return false for an empty idNumber while updating" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return true for missing idNumber while updating" name="UserController test: checkUserStructure function tests idNumber tests Should return true for missing idNumber while updating" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests idNumber tests Should return true for valid idNumber" name="UserController test: checkUserStructure function tests idNumber tests Should return true for valid idNumber" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for empty profilePictureUrl" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for empty profilePictureUrl" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for a non-string profilePictureUrl" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for a non-string profilePictureUrl" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for an URL that is too short" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for an URL that is too short" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return true for missing profilePictureUrl" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return true for missing profilePictureUrl" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return true for missing profilePictureUrl while updating" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return true for missing profilePictureUrl while updating" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for a non-string profilePictureUrl while updating" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for a non-string profilePictureUrl while updating" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for a URL that is too short while updating" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return false for a URL that is too short while updating" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests profilePictureUrl tests Should return true for valid profilePictureUrl while updating" name="UserController test: checkUserStructure function tests profilePictureUrl tests Should return true for valid profilePictureUrl while updating" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUserStructure function tests Should return true for valid fields" name="UserController test: checkUserStructure function tests Should return true for valid fields" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUUID function tests Should return nothing for an undefined UUID" name="UserController test: checkUUID function tests Should return nothing for an undefined UUID" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUUID function tests Should return nothing if the UUID is an empty string" name="UserController test: checkUUID function tests Should return nothing if the UUID is an empty string" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: checkUUID function tests Should return nothing for an invalid UUID structure" name="UserController test: checkUUID function tests Should return nothing for an invalid UUID structure" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: checkUUID function tests Should return the UUID if it is valid" name="UserController test: checkUUID function tests Should return the UUID if it is valid" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Should correctly parse a User entity to UserReturn type" name="UserController test: userReturn function tests Should correctly parse a User entity to UserReturn type" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle undefined profilePictureUrl" name="UserController test: userReturn function tests Optional fields tests Should handle undefined profilePictureUrl" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle null profilePictureUrl" name="UserController test: userReturn function tests Optional fields tests Should handle null profilePictureUrl" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle undefined roles" name="UserController test: userReturn function tests Optional fields tests Should handle undefined roles" time="0.004">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle undefined courses" name="UserController test: userReturn function tests Optional fields tests Should handle undefined courses" time="0.003">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle null courses" name="UserController test: userReturn function tests Optional fields tests Should handle null courses" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle undefined descriptions in courses" name="UserController test: userReturn function tests Optional fields tests Should handle undefined descriptions in courses" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle null descriptions in courses" name="UserController test: userReturn function tests Optional fields tests Should handle null descriptions in courses" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle undefined startDate in courses" name="UserController test: userReturn function tests Optional fields tests Should handle undefined startDate in courses" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle null startDate in courses" name="UserController test: userReturn function tests Optional fields tests Should handle null startDate in courses" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle undefined endDate in courses" name="UserController test: userReturn function tests Optional fields tests Should handle undefined endDate in courses" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: userReturn function tests Optional fields tests Should handle null endDate in courses" name="UserController test: userReturn function tests Optional fields tests Should handle null endDate in courses" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: courseReturn function tests Should correctly parse a Course entity to CourseReturn type" name="UserController test: courseReturn function tests Should correctly parse a Course entity to CourseReturn type" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: courseReturn function tests Optional fields tests Should handle undefined description" name="UserController test: courseReturn function tests Optional fields tests Should handle undefined description" time="0.001">
+    </testcase>
+    <testcase classname="UserController test: courseReturn function tests Optional fields tests Should handle null description" name="UserController test: courseReturn function tests Optional fields tests Should handle null description" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: courseReturn function tests Optional fields tests Should handle undefined endDate" name="UserController test: courseReturn function tests Optional fields tests Should handle undefined endDate" time="0.002">
+    </testcase>
+    <testcase classname="UserController test: courseReturn function tests Optional fields tests Should handle null endDate" name="UserController test: courseReturn function tests Optional fields tests Should handle null endDate" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="GradeController test:" errors="0" failures="0" skipped="8" timestamp="2025-11-18T23:52:33" time="6.235" tests="128">
+    <testcase classname="GradeController test: Get all grades Should implement getAllGrades method" name="GradeController test: Get all grades Should implement getAllGrades method" time="0.016">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades Should return an empty list if there are no grades" name="GradeController test: Get all grades Should return an empty list if there are no grades" time="0.019">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades Should return multiple grades" name="GradeController test: Get all grades Should return multiple grades" time="0.013">
+    </testcase>
+    <testcase classname="GradeController test: Get grade by ID Should implement getGrade method" name="GradeController test: Get grade by ID Should implement getGrade method" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get grade by ID Getting a grade with fails when gradeId is missing" name="GradeController test: Get grade by ID Getting a grade with fails when gradeId is missing" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Get grade by ID Getting a grade with fails when gradeId is a number" name="GradeController test: Get grade by ID Getting a grade with fails when gradeId is a number" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Get grade by ID Getting a grade with fails when gradeId is empty" name="GradeController test: Get grade by ID Getting a grade with fails when gradeId is empty" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Get grade by ID Getting a grade with fails when gradeId is an invalid format" name="GradeController test: Get grade by ID Getting a grade with fails when gradeId is an invalid format" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get grade by ID Getting a grade with fails when grade does not exist" name="GradeController test: Get grade by ID Getting a grade with fails when grade does not exist" time="0.009">
+    </testcase>
+    <testcase classname="GradeController test: Get grade by ID Getting a grade with succeeds when grade exists" name="GradeController test: Get grade by ID Getting a grade with succeeds when grade exists" time="0.011">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Should implement createGrade method" name="GradeController test: Create grade Should implement createGrade method" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when missing all values" name="GradeController test: Create grade Creating a grade fails when missing all values" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when missing userId" name="GradeController test: Create grade Creating a grade fails when missing userId" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when missing courseId" name="GradeController test: Create grade Creating a grade fails when missing courseId" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when missing minScore" name="GradeController test: Create grade Creating a grade fails when missing minScore" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when missing maxScore" name="GradeController test: Create grade Creating a grade fails when missing maxScore" time="0.009">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when missing weight" name="GradeController test: Create grade Creating a grade fails when missing weight" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when userId is a number" name="GradeController test: Create grade Creating a grade fails when userId is a number" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when userId is empty" name="GradeController test: Create grade Creating a grade fails when userId is empty" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when userId is not the right format" name="GradeController test: Create grade Creating a grade fails when userId is not the right format" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when courseId is a number" name="GradeController test: Create grade Creating a grade fails when courseId is a number" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when courseId is empty" name="GradeController test: Create grade Creating a grade fails when courseId is empty" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when courseId is not the right format" name="GradeController test: Create grade Creating a grade fails when courseId is not the right format" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when assignmentSubmissionId is a number" name="GradeController test: Create grade Creating a grade fails when assignmentSubmissionId is a number" time="0.009">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when assignmentSubmissionId is empty" name="GradeController test: Create grade Creating a grade fails when assignmentSubmissionId is empty" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when assignmentSubmissionId is not the right format" name="GradeController test: Create grade Creating a grade fails when assignmentSubmissionId is not the right format" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when minScore is invalid" name="GradeController test: Create grade Creating a grade fails when minScore is invalid" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when maxScore is invalid" name="GradeController test: Create grade Creating a grade fails when maxScore is invalid" time="0.01">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when achievedScore is invalid" name="GradeController test: Create grade Creating a grade fails when achievedScore is invalid" time="0.011">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when weight is invalid" name="GradeController test: Create grade Creating a grade fails when weight is invalid" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when user does not exist" name="GradeController test: Create grade Creating a grade fails when user does not exist" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when course does not exist" name="GradeController test: Create grade Creating a grade fails when course does not exist" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when assignment submission does not exist" name="GradeController test: Create grade Creating a grade fails when assignment submission does not exist" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when minScore is negative" name="GradeController test: Create grade Creating a grade fails when minScore is negative" time="0.012">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when maxScore is less than minScore" name="GradeController test: Create grade Creating a grade fails when maxScore is less than minScore" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when achievedScore is less than minScore" name="GradeController test: Create grade Creating a grade fails when achievedScore is less than minScore" time="0.009">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when achievedScore is greater than maxScore" name="GradeController test: Create grade Creating a grade fails when achievedScore is greater than maxScore" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade fails when weight is negative" name="GradeController test: Create grade Creating a grade fails when weight is negative" time="0.009">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade succeeds when assignmentSubmissionId is present" name="GradeController test: Create grade Creating a grade succeeds when assignmentSubmissionId is present" time="0.013">
+    </testcase>
+    <testcase classname="GradeController test: Create grade Creating a grade succeeds when assignmentSubmissionId is not present" name="GradeController test: Create grade Creating a grade succeeds when assignmentSubmissionId is not present" time="0.009">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Should implement updateGrade method" name="GradeController test: Update grade Should implement updateGrade method" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when no values are passed" name="GradeController test: Update grade Updating a grade fails when no values are passed" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when missing gradeId" name="GradeController test: Update grade Updating a grade fails when missing gradeId" time="0.003">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when gradeId is empty" name="GradeController test: Update grade Updating a grade fails when gradeId is empty" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when gradeId is a number" name="GradeController test: Update grade Updating a grade fails when gradeId is a number" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when gradeId is an invalid format" name="GradeController test: Update grade Updating a grade fails when gradeId is an invalid format" time="0.003">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when minScore is invalid" name="GradeController test: Update grade Updating a grade fails when minScore is invalid" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when maxScore is invalid" name="GradeController test: Update grade Updating a grade fails when maxScore is invalid" time="0.01">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when achievedScore is invalid" name="GradeController test: Update grade Updating a grade fails when achievedScore is invalid" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when weight is invalid type" name="GradeController test: Update grade Updating a grade fails when weight is invalid type" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when grade does not exist" name="GradeController test: Update grade Updating a grade fails when grade does not exist" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when weight is negative" name="GradeController test: Update grade Updating a grade fails when weight is negative" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when minScore is negative" name="GradeController test: Update grade Updating a grade fails when minScore is negative" time="0.009">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when maxScore is negative" name="GradeController test: Update grade Updating a grade fails when maxScore is negative" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when maxScore is less than minScore" name="GradeController test: Update grade Updating a grade fails when maxScore is less than minScore" time="0.01">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when achievedScore is less than minScore" name="GradeController test: Update grade Updating a grade fails when achievedScore is less than minScore" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when achievedScore is greater than maxScore" name="GradeController test: Update grade Updating a grade fails when achievedScore is greater than maxScore" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when updating maxScore below achievedScore" name="GradeController test: Update grade Updating a grade fails when updating maxScore below achievedScore" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when updating minScore above achievedScore" name="GradeController test: Update grade Updating a grade fails when updating minScore above achievedScore" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when updating minScore above maxScore" name="GradeController test: Update grade Updating a grade fails when updating minScore above maxScore" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when updating maxScore below minScore" name="GradeController test: Update grade Updating a grade fails when updating maxScore below minScore" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when updating achievedScore below minScore" name="GradeController test: Update grade Updating a grade fails when updating achievedScore below minScore" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade fails when updating achievedScore above maxScore" name="GradeController test: Update grade Updating a grade fails when updating achievedScore above maxScore" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade succeeds when updating minScore" name="GradeController test: Update grade Updating a grade succeeds when updating minScore" time="0.017">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade succeeds when updating maxScore" name="GradeController test: Update grade Updating a grade succeeds when updating maxScore" time="0.014">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade succeeds when updating achievedScore" name="GradeController test: Update grade Updating a grade succeeds when updating achievedScore" time="0.013">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade succeeds when updating weight" name="GradeController test: Update grade Updating a grade succeeds when updating weight" time="0.012">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade succeeds when updating all fields" name="GradeController test: Update grade Updating a grade succeeds when updating all fields" time="0.01">
+    </testcase>
+    <testcase classname="GradeController test: Update grade Updating a grade succeeds when no fields are updated" name="GradeController test: Update grade Updating a grade succeeds when no fields are updated" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Delete grade Should implement deleteGrade method" name="GradeController test: Delete grade Should implement deleteGrade method" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Delete grade Deleting a grade fails when missing gradeId" name="GradeController test: Delete grade Deleting a grade fails when missing gradeId" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Delete grade Deleting a grade fails when gradeId is a number" name="GradeController test: Delete grade Deleting a grade fails when gradeId is a number" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Delete grade Deleting a grade fails when gradeId is empty" name="GradeController test: Delete grade Deleting a grade fails when gradeId is empty" time="0.003">
+    </testcase>
+    <testcase classname="GradeController test: Delete grade Deleting a grade fails when gradeId is an invalid format" name="GradeController test: Delete grade Deleting a grade fails when gradeId is an invalid format" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Delete grade Deleting a grade fails when grade does not exist" name="GradeController test: Delete grade Deleting a grade fails when grade does not exist" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Delete grade Deleting a grade succeeds when grade exists" name="GradeController test: Delete grade Deleting a grade succeeds when grade exists" time="0.012">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Should implement getAllGradesForUser method" name="GradeController test: Get all grades for user Should implement getAllGradesForUser method" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Getting all grades for a user fails when missing userId" name="GradeController test: Get all grades for user Getting all grades for a user fails when missing userId" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Getting all grades for a user fails when userId is a number" name="GradeController test: Get all grades for user Getting all grades for a user fails when userId is a number" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Getting all grades for a user fails when userId is empty" name="GradeController test: Get all grades for user Getting all grades for a user fails when userId is empty" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Getting all grades for a user fails when userId is an invalid format" name="GradeController test: Get all grades for user Getting all grades for a user fails when userId is an invalid format" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Getting all grades for a user fails when user does not exist" name="GradeController test: Get all grades for user Getting all grades for a user fails when user does not exist" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Getting all grades for a user succeeds when user has no grades" name="GradeController test: Get all grades for user Getting all grades for a user succeeds when user has no grades" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for user Getting all grades for a user succeeds when user has multiple grades" name="GradeController test: Get all grades for user Getting all grades for a user succeeds when user has multiple grades" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Should implement getAllGradesForCourse method" name="GradeController test: Get all grades for course Should implement getAllGradesForCourse method" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Getting all grades for a course fails when missing courseId" name="GradeController test: Get all grades for course Getting all grades for a course fails when missing courseId" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Getting all grades for a course fails when courseId is a number" name="GradeController test: Get all grades for course Getting all grades for a course fails when courseId is a number" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Getting all grades for a course fails when courseId is empty" name="GradeController test: Get all grades for course Getting all grades for a course fails when courseId is empty" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Getting all grades for a course fails when courseId is an invalid format" name="GradeController test: Get all grades for course Getting all grades for a course fails when courseId is an invalid format" time="0.003">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Getting all grades for a course fails when course does not exist" name="GradeController test: Get all grades for course Getting all grades for a course fails when course does not exist" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Getting all grades for a course succeeds when course has no grades" name="GradeController test: Get all grades for course Getting all grades for a course succeeds when course has no grades" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for course Getting all grades for a course succeeds when course has multiple grades" name="GradeController test: Get all grades for course Getting all grades for a course succeeds when course has multiple grades" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Should implement getAllGradesForUserInCourse method" name="GradeController test: Get all grades for a user in a specific course Should implement getAllGradesForUserInCourse method" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when nothing is provided" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when nothing is provided" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when missing userId" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when missing userId" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when missing courseId" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when missing courseId" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when userId is a number" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when userId is a number" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when userId is empty" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when userId is empty" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when userId is an invalid format" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when userId is an invalid format" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when courseId is a number" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when courseId is a number" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when courseId is empty" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when courseId is empty" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when courseId is an invalid format" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when courseId is an invalid format" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when user does not exist" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when user does not exist" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when course does not exist" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course fails when course does not exist" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course succeeds when user has no grades in course" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course succeeds when user has no grades in course" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course succeeds when user has multiple grades in course" name="GradeController test: Get all grades for a user in a specific course Getting all grades for a user in a specific course succeeds when user has multiple grades in course" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Should implement getCalculatedGradeForUserInCourse method" name="GradeController test: Get the calculated grade for a user in a specific course Should implement getCalculatedGradeForUserInCourse method" time="0.003">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when missing userId" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when missing userId" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when missing courseId" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when missing courseId" time="0.003">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when userId is a number" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when userId is a number" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when userId is empty" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when userId is empty" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when userId is an invalid format" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when userId is an invalid format" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when courseId is a number" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when courseId is a number" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when courseId is empty" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when courseId is empty" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when courseId is an invalid format" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when courseId is an invalid format" time="0.006">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when user does not exist" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when user does not exist" time="0.004">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when course does not exist" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course fails when course does not exist" time="0.005">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course succeeds when user has no grades in course" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course succeeds when user has no grades in course" time="0.007">
+    </testcase>
+    <testcase classname="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course succeeds when user has multiple grades in course" name="GradeController test: Get the calculated grade for a user in a specific course Getting the calculated grade for a user in a specific course succeeds when user has multiple grades in course" time="0.008">
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Should implement getAverageGradeForCourse method" name="GradeController test: Get the average of the grades in a course Should implement getAverageGradeForCourse method" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when missing courseId" name="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when missing courseId" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when courseId is a number" name="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when courseId is a number" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when courseId is empty" name="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when courseId is empty" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when courseId is an invalid format" name="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when courseId is an invalid format" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when course does not exist" name="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course fails when course does not exist" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course succeeds when course has no grades" name="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course succeeds when course has no grades" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course succeeds when course has multiple grades" name="GradeController test: Get the average of the grades in a course Getting the average of the grades in a course succeeds when course has multiple grades" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="GradeController test: Check structure should return false for an extra property" name="GradeController test: Check structure should return false for an extra property" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="SubmissionController test:" errors="0" failures="3" skipped="0" timestamp="2025-11-18T23:52:33" time="7.598" tests="8">
+    <testcase classname="SubmissionController test: Get all submissions Should have implemented the method getAllSubmissions" name="SubmissionController test: Get all submissions Should have implemented the method getAllSubmissions" time="0.013">
+    </testcase>
+    <testcase classname="SubmissionController test: Get all submissions Should return an empty array when there are no submissions" name="SubmissionController test: Get all submissions Should return an empty array when there are no submissions" time="0.004">
+    </testcase>
+    <testcase classname="SubmissionController test: Get all submissions Should return a single submission when it exists" name="SubmissionController test: Get all submissions Should return a single submission when it exists" time="0.01">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+- Expected
++ Received
+
+- Array [
+-   Object {
+-     &quot;assignmentId&quot;: &quot;6863ce30-1d14-4264-bdb4-16f9e91792ae&quot;,
+-     &quot;comment&quot;: &quot;This is a test submission&quot;,
+-     &quot;submissionId&quot;: undefined,
+-     &quot;timeSubmitted&quot;: &quot;2025-11-18T23:52:40.581Z&quot;,
+-     &quot;userId&quot;: &quot;1c169d41-df0f-4132-a726-04a90e567827&quot;,
+-   },
+- ]
++ Array [],
+
+Number of calls: 1
+    at Object.&lt;anonymous&gt; (C:\Users\Rebecca\Documents\Rebecca\School\uni\3.1-SoftwareEng\PeerPort-Backend\src\Tests\submissionController.test.ts:97:30)</failure>
+    </testcase>
+    <testcase classname="SubmissionController test: Get all submissions Should return multiple submissions when they exist" name="SubmissionController test: Get all submissions Should return multiple submissions when they exist" time="0.005">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+- Expected
++ Received
+
+- Array [
+-   Object {
+-     &quot;assignmentId&quot;: &quot;6863ce30-1d14-4264-bdb4-16f9e91792ae&quot;,
+-     &quot;comment&quot;: &quot;This is the first test submission&quot;,
+-     &quot;submissionId&quot;: undefined,
+-     &quot;timeSubmitted&quot;: &quot;2025-11-18T23:52:40.602Z&quot;,
+-     &quot;userId&quot;: &quot;1c169d41-df0f-4132-a726-04a90e567827&quot;,
+-   },
+-   Object {
+-     &quot;assignmentId&quot;: &quot;6863ce30-1d14-4264-bdb4-16f9e91792ae&quot;,
+-     &quot;comment&quot;: &quot;This is the second test submission&quot;,
+-     &quot;submissionId&quot;: undefined,
+-     &quot;timeSubmitted&quot;: &quot;2025-11-18T23:52:40.602Z&quot;,
+-     &quot;userId&quot;: &quot;1c169d41-df0f-4132-a726-04a90e567827&quot;,
+-   },
+- ]
++ Array [],
+
+Number of calls: 1
+    at Object.&lt;anonymous&gt; (C:\Users\Rebecca\Documents\Rebecca\School\uni\3.1-SoftwareEng\PeerPort-Backend\src\Tests\submissionController.test.ts:126:30)</failure>
+    </testcase>
+    <testcase classname="SubmissionController test: Get a submission by ID Should have implemented the method getSubmission" name="SubmissionController test: Get a submission by ID Should have implemented the method getSubmission" time="0.003">
+    </testcase>
+    <testcase classname="SubmissionController test: Get a submission by ID Should not get a submission with an invalid ID" name="SubmissionController test: Get a submission by ID Should not get a submission with an invalid ID" time="0.002">
+    </testcase>
+    <testcase classname="SubmissionController test: Get a submission by ID Should not get a submission with a non-existent ID" name="SubmissionController test: Get a submission by ID Should not get a submission with a non-existent ID" time="0.005">
+    </testcase>
+    <testcase classname="SubmissionController test: Get a submission by ID Should get a submission with a valid ID" name="SubmissionController test: Get a submission by ID Should get a submission with a valid ID" time="0.002">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 200
+Received: 400
+
+Number of calls: 1
+    at Object.&lt;anonymous&gt; (C:\Users\Rebecca\Documents\Rebecca\School\uni\3.1-SoftwareEng\PeerPort-Backend\src\Tests\submissionController.test.ts:201:32)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
