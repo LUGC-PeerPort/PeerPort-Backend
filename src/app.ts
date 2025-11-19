@@ -18,7 +18,7 @@ import fs from "fs";
 import { GradeController } from "./Controllers/GradeController.js";
 import { ContentController } from "./Controllers/ContentController.js";
 
-console.warn("Starting PeerPort Backend...");
+console.log("Starting PeerPort Backend...");
 
 const app = express();
 app.use(express.json());
@@ -92,6 +92,7 @@ AppDataSource.initialize().then(() => {
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
     const gradeController = new GradeController(AppDataSource);
+    const contentController = new ContentController(AppDataSource);
 
     // Setup Google OAuth Strategy
     const ifAuthed = GoogleStrategySetup(app, AppDataSource);
@@ -184,7 +185,6 @@ AppDataSource.initialize().then(() => {
     app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
     
     // Content controller
-    const contentController = new ContentController(AppDataSource);
     app.get("/content", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
     app.get("/content/:contentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
     app.post("/content/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
