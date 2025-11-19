@@ -1561,7 +1561,7 @@ components:
               type: string
               format: uuid
               description: Unique identifier for the assignment
-            submissionId:
+            assignmentSubmissionId:
               type: string
               format: uuid
               description: Unique identifier for the submission
