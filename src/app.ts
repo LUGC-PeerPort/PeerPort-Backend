@@ -68,6 +68,7 @@ if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || 
     process.exit(1);
 }
 
+
 AppDataSource.initialize().then(() => {
 
     const roleRepository = AppDataSource.getRepository(Role);
@@ -90,7 +91,6 @@ AppDataSource.initialize().then(() => {
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
     const gradeController = new GradeController(AppDataSource);
-    const contentController = new ContentController(AppDataSource);
 
     // Setup Google OAuth Strategy
     const ifAuthed = GoogleStrategySetup(app, AppDataSource);
@@ -183,14 +183,14 @@ AppDataSource.initialize().then(() => {
     app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
     
     // Content controller
-    app.get("/content",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
-    app.get("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
-    app.post("/content/:courseId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
-    app.post("/content/:parentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
-    app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
-    app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
+    const contentController = new ContentController(AppDataSource);
+    app.get("/content", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
+    app.get("/content/:contentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
+    app.post("/content/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
+    app.post("/content/sub/:parentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
+    app.put("/content/:contentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
+    app.delete("/content/:contentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
 });
-
 
 // Error handler for multer
 app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {

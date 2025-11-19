@@ -478,7 +478,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  /content/{parentId}:
+  /content/sub/{parentId}:
     post:
       tags:
         - Content
