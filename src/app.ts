@@ -16,6 +16,7 @@ import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import { GradeController } from "./Controllers/GradeController.js";
+import { ContentController } from "./Controllers/ContentController.js";
 
 
 const app = express();
@@ -89,6 +90,7 @@ AppDataSource.initialize().then(() => {
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
     const gradeController = new GradeController(AppDataSource);
+    const contentController = new ContentController(AppDataSource);
 
     // Setup Google OAuth Strategy
     const ifAuthed = GoogleStrategySetup(app, AppDataSource);
@@ -180,6 +182,15 @@ AppDataSource.initialize().then(() => {
     app.get("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
     app.get("/grades/calculated/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
     app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
+
+    // Content controller
+    app.get("/content/",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
+    app.get("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
+    app.post("/content",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
+    app.post("/content/:parentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
+    app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
+    app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
+
 });
 
 
