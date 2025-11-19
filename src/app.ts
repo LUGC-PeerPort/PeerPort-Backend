@@ -177,7 +177,7 @@ AppDataSource.initialize().then(() => {
     app.post("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
     app.post("/grades/:userId/:courseId/:assignmentSubmissionId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
     app.get("/grades/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
-    app.get("/grades/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
+    app.get("/grades/course/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
     app.get("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
     app.get("/grades/calculated/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
     app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
@@ -210,7 +210,6 @@ app.use((err: unknown, req: express.Request, res: express.Response, next: expres
     // Go to next error handler
     return next(err);
 });
-
 
 // Start the server
 app.listen(3000, () => {

@@ -1252,7 +1252,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  /grades/{courseId}:
+  /grades/course/{courseId}:
     get:
       tags:
         - Grades
