@@ -61,7 +61,9 @@ export class AssignmentController {
         const assignments = await this.assignmentRepo.find({
             relations: ["course"],
         });
-        res.status(200).json(assignments);
+
+        const assignmentResponses = assignments.map(assignment => this.convertToAssignmentReturn(assignment, assignment.course.courseId));
+        res.status(200).json(assignmentResponses);
     }
 
     /**
