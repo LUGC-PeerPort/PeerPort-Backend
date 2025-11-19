@@ -16,7 +16,6 @@ export class SubmissionController {
      * Constructor for SubmissionController.
      * @param dataSource - The TypeORM DataSource.
      * */
-    
     constructor(dataSource: DataSource) {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
         this.userRepo = dataSource.getRepository(User);
@@ -43,6 +42,7 @@ export class SubmissionController {
             res.status(200).json(formattedSubmissions);
             return;
         } catch (error) {
+            console.error("Error fetching submissions:", error);
             res.status(500).json({ message: "Internal server error" });
         }   
     }
@@ -106,9 +106,9 @@ export class SubmissionController {
 
         // Check if the ID is a valid UUID
         if (
-        !RegExp(
-            /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
-        ).test(assSubID)
+            !RegExp(
+                /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
+            ).test(assSubID)
         )
             return;
 
