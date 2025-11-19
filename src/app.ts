@@ -16,7 +16,9 @@ import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import { GradeController } from "./Controllers/GradeController.js";
+import { ContentController } from "./Controllers/ContentController.js";
 
+console.log("Starting PeerPort Backend...");
 
 const app = express();
 app.use(express.json());
@@ -31,7 +33,7 @@ app.use(cors({
 // // Setting up swagger
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
+const swaggerDocument = YAML.load(path.resolve(__dirname, "../../oapi.yaml"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
@@ -67,6 +69,7 @@ if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || 
     process.exit(1);
 }
 
+
 AppDataSource.initialize().then(() => {
 
     const roleRepository = AppDataSource.getRepository(Role);
@@ -89,6 +92,7 @@ AppDataSource.initialize().then(() => {
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
     const gradeController = new GradeController(AppDataSource);
+    const contentController = new ContentController(AppDataSource);
 
     // Setup Google OAuth Strategy
     const ifAuthed = GoogleStrategySetup(app, AppDataSource);
@@ -158,7 +162,6 @@ AppDataSource.initialize().then(() => {
     app.post("/courses/:courseId/enroll/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res)));
     app.get("/courses/:courseId/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
 
-
     // Assignment controller
     app.get("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
     app.get("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
@@ -170,18 +173,25 @@ AppDataSource.initialize().then(() => {
 
     // Grade controller
     app.get("/grades", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGrades(req, res)));
-    app.get("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getGrade(req, res)));
-    app.put("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res)));
-    app.delete("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res)));
+    app.get("/grades/by-id/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getGrade(req, res)));
+    app.put("/grades/by-id/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res)));
+    app.delete("/grades/by-id/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res)));
     app.post("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
     app.post("/grades/:userId/:courseId/:assignmentSubmissionId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
-    app.get("/grades/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
-    app.get("/grades/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
+    app.get("/grades/by-user/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
+    app.get("/grades/by-course/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
     app.get("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
     app.get("/grades/calculated/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
     app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
+    
+    // Content controller
+    app.get("/content", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
+    app.get("/content/:contentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
+    app.post("/content/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
+    app.post("/content/sub/:parentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
+    app.put("/content/:contentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
+    app.delete("/content/:contentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
 });
-
 
 // Error handler for multer
 app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -201,7 +211,6 @@ app.use((err: unknown, req: express.Request, res: express.Response, next: expres
     // Go to next error handler
     return next(err);
 });
-
 
 // Start the server
 app.listen(3000, () => {

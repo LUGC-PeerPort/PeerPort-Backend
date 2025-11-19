@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Files } from "./Files.js";
 import { Course } from "./Course.js";
 
@@ -15,17 +15,12 @@ export class Content {
     	nullable: false,
     })
     	name!: string;
+	
     @Column({
     	type: "text",
-    	nullable: false,
+    	nullable: true,
     })
-    	Description!: string;
-    @Column({
-    	type: "date",
-    	nullable: false,
-        default: () => "CURRENT_DATE"
-    })
-    	DateCreated!: Date;
+    	description!: string;
     
     @Column({
     	type: "boolean",
@@ -33,6 +28,12 @@ export class Content {
     })
     	viewable!: boolean;
 	
+	@CreateDateColumn()
+    	dateCreated!: Date;
+
+	@UpdateDateColumn()
+    	dateUpdated!: Date;
+
     @OneToMany(() => Files, (files) => files.content)
     	files!: Files[];
 

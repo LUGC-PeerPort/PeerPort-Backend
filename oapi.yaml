@@ -319,6 +319,205 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
+
+  /content:
+    get:
+      tags:
+        - Content
+      summary: Retrieve a list of content items
+      responses:
+        '200':
+          description: A list of content
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentGet'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /content/{courseId}:
+    post:
+      tags:
+        - Content
+      summary: Create a new content item for a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentPost'
+            examples:
+              payload:
+                $ref: '#/components/examples/ContentPostExample'
+      responses:
+        '201':
+          description: Content created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentGet'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /content/{contentId}:
+    get:
+      tags:
+        - Content
+      summary: Retrieve a specific content item by ID
+      parameters:
+        - name: contentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A single content item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentGet'
+        '400':
+          description: Bad request - Invalid content ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Content not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    put:
+      tags:
+        - Content
+      summary: Update a specific content item by ID
+      parameters:
+        - name: contentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentPatch'
+            examples:
+              payload:
+                $ref: '#/components/examples/ContentPostExample'
+      responses:
+        '200':
+          description: Content updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentGet'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Content not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Content
+      summary: Delete a specific content item by ID
+      parameters:
+        - name: contentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Content deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Content deleted
+        '404':
+          description: Content not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid content ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /content/sub/{parentId}:
+    post:
+      tags:
+        - Content
+      summary: Create a sub-content item under a parent content item
+      parameters:
+        - name: parentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentPost'
+            examples:
+              payload:
+                $ref: '#/components/examples/ContentPostExample'
+      responses:
+        '201':
+          description: Sub-content created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentGet'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Parent content not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
     put:
       tags:
         - Courses
@@ -390,6 +589,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
+
   /courses/{courseId}/enroll/{userId}:
     post:
       tags:
@@ -784,7 +984,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GradeWithId'
-  /grades/{gradeId}:
+  /grades/by-id/{gradeId}:
     get:
       tags:
         - Grades
@@ -1018,7 +1218,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  /grades/user/{userId}:
+  /grades/by-user/{userId}:
     get:
       tags:
         - Grades
@@ -1052,7 +1252,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  /grades/{courseId}:
+  /grades/by-course/{courseId}:
     get:
       tags:
         - Grades
@@ -1495,9 +1695,142 @@ components:
           format: float
           description: Calculated grade as a percentage (0-100)
 
+    ContentBasic:
+      type: object
+      required:
+        - name
+        - viewable
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        viewable:
+          type: boolean
+        parentId:
+          type: string
+          description: Parent content ID (for sub-content)
+        courseId:
+          type: string
+          description: Course ID associated with the content
+
+    ContentPost:
+      allOf:
+        - $ref: '#/components/schemas/ContentBasic'
+        - type: object
+
+    ContentPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        viewable:
+          type: boolean
+        parentId:
+          type: string
+
+    ContentGet:
+      allOf:
+        - $ref: '#/components/schemas/ContentBasic'
+        - type: object
+          properties:
+            contentId:
+              type: string
+              format: uuid
+            dateCreated:
+              type: string
+              format: date-time
+            dateUpdated:
+              type: string
+              format: date-time
+
     BasicError:
       type: object
       properties:
         message:
           type: string
           description: Error message detailing what went wrong
+    
+  # Reusable examples and responses for Content API
+  # (Placed here under components so paths can reference them)
+  examples:
+    ContentGetExample:
+      summary: Example content item
+      value:
+        contentId: "11111111-2222-3333-4444-555555555555"
+        courseId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        parentId: null
+        name: "Lecture 1 — Introduction"
+        description: "Introductory lecture slides and readings."
+        viewable: true
+        dateCreated: "2025-11-18T12:00:00Z"
+        dateUpdated: "2025-11-18T12:00:00Z"
+    ContentListExample:
+      summary: Example array of content items
+      value:
+        - $ref: '#/components/examples/ContentGetExample/value'
+    ContentPostExample:
+      summary: Example content creation payload
+      value:
+        name: "Lecture 2 — Advanced Topics"
+        description: "Slides covering advanced concepts."
+        viewable: true
+    BasicErrorExample:
+      summary: Example error
+      value:
+        message: "An error occurred"
+
+  responses:
+    ContentListResponse:
+      description: A list of content
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContentGet'
+          examples:
+            contentList:
+              $ref: '#/components/examples/ContentListExample'
+
+    ContentGetResponse:
+      description: A single content item
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ContentGet'
+          examples:
+            contentItem:
+              $ref: '#/components/examples/ContentGetExample'
+
+    ContentCreatedResponse:
+      description: Content created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ContentGet'
+          examples:
+            created:
+              $ref: '#/components/examples/ContentGetExample'
+
+    ContentDeletedResponse:
+      description: Content deleted
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BasicError'
+          examples:
+            deleted:
+              $ref: '#/components/examples/BasicErrorExample'
+
+    BasicErrorResponse:
+      description: Basic error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BasicError'
+          examples:
+            basic:
+              $ref: '#/components/examples/BasicErrorExample'
