@@ -74,7 +74,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserWithId'
-
   /users/{userId}:
     get:
       tags:
@@ -171,13 +170,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-
   /users/{userId}/courses:
     get:
       tags:
         - Users
         - Courses
-      summary: Retrieve classes for a specific user
+      summary: Retrieve courses for a specific user
       parameters:
         - name: userId
           in: path
@@ -187,7 +185,7 @@ paths:
             format: uuid
       responses:
         '200':
-          description: A list of classes for the user
+          description: A list of courses for the user
           content:
             application/json:
               schema:
@@ -201,7 +199,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/BasicError'
         '404':
-          description: User not found | Classes not found
+          description: User not found | Courses not found
           content:
             application/json:
               schema:
@@ -258,7 +256,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CourseBasic'
+                  $ref: '#/components/schemas/CourseBasicWithId'
     post:
       tags:
         - Courses
@@ -269,13 +267,16 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CoursePost'
+            examples:
+              payload:
+                $ref: '#/components/examples/CoursePostExample'
       responses:
         '201':
           description: Course created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CourseBasic'
+                $ref: '#/components/schemas/CourseBasicWithId'
         '400':
           description: Bad request - Invalid input data
           content:
@@ -306,7 +307,129 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CourseBasic'
+                $ref: '#/components/schemas/CourseBasicWithId'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    put:
+      tags:
+        - Courses
+      summary: Update a specific course by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: The ID of the course to update
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseBasic'
+            examples:
+              payload:
+                $ref: '#/components/examples/CoursePostExample'
+      responses:
+        '200':
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseBasicWithId'
+        '400':
+          description: Bad request - Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /courses/{courseId}/enroll/{userId}:
+    post:
+      tags:
+        - Courses
+        - Users
+      summary: Enroll a user in a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: User enrolled in course successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User enrolled in course
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '409':
+          description: Conflict - User already enrolled in the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /courses/{courseId}/assignments:
+    get:
+      tags:
+        - Courses
+        - Assignments
+      summary: Retrieve assignments for a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of assignments for the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentBasicWithAssignmentId'
         '400':
           description: Bad request - Invalid course ID format
           content:
@@ -518,160 +641,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-    put:
-      tags:
-        - Courses
-      summary: Update a specific course by ID
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: The ID of the course to update
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseBasic'
-      responses:
-        '200':
-          description: Course updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseBasic'
-        '400':
-          description: Bad request - Invalid input data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-        '404':
-          description: Course not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-    delete:
-      tags:
-        - Courses
-      summary: Delete a specific course by ID
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Course deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Course deleted
-        '404':
-          description: Course not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-        '400':
-          description: Bad request - Invalid course ID format
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-
-  /courses/{courseId}/enroll/{userId}:
-    post:
-      tags:
-        - Courses
-        - Users
-      summary: Enroll a user in a specific course
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '201':
-          description: User enrolled in course successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User enrolled in course
-        '400':
-          description: Bad request - Invalid user ID or course ID format
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-        '404':
-          description: User or course not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-        '409':
-          description: Conflict - User already enrolled in the course
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-  /courses/{courseId}/assignments:
-    get:
-      tags:
-        - Courses
-        - Assignments
-      summary: Retrieve assignments for a specific course
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: A list of assignments for the course
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AssignmentBasicWithAssignmentId'
-        '400':
-          description: Bad request - Invalid course ID format
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-        '404':
-          description: Course not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
 
   /assignments:
     get:
@@ -697,6 +666,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AssignmentBasicWithCourseId'
+            examples:
+              payload:
+                $ref: '#/components/examples/AssignmentPostExample'
       responses:
         '201':
           description: Assignment created successfully
@@ -765,6 +737,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AssignmentBasic'
+            examples: 
+              payload:
+                $ref: '#/components/examples/AssignmentPostExample'
       responses:
         '200':
           description: Assignment updated successfully
@@ -870,6 +845,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SubmissionPost'
+            examples:
+              payload:
+                $ref: '#/components/examples/AssignmentSubmissionPostExample'
       responses:
         '201':
           description: Submission created successfully
@@ -931,40 +909,6 @@ paths:
                 $ref: '#/components/schemas/BasicError'
         '404':
           description: Submission not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-    delete:
-      tags:
-        - Submissions
-      summary: Delete a specific submission by ID
-      parameters:
-        - name: submissionId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Submission deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Submission deleted
-        '404':
-          description: Submission not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
-        '400':
-          description: Bad request - Invalid submission ID format
           content:
             application/json:
               schema:
@@ -1033,6 +977,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GradePatch'
+            examples:
+              payload:
+                $ref: '#/components/examples/GradesUpdateExample'
       responses:
         '200':
           description: Grade updated successfully
@@ -1150,6 +1097,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GradeBasic'
+            examples:
+              payload:
+                $ref: '#/components/examples/GradesPostExample'
       responses:
         '201':
           description: Grade created successfully
@@ -1199,6 +1149,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GradeBasic'
+            examples:
+              payload:
+                $ref: '#/components/examples/GradesPostExample'
       responses:
         '201':
           description: Grade created successfully
@@ -1452,10 +1405,6 @@ components:
         - startDate
       type: object
       properties:
-        classId:
-          type: string
-          format: uuid
-          description: Unique Course Identifier
         name:
           type: string
           description: Name of the course (e.g., Math 101)
@@ -1476,6 +1425,16 @@ components:
           type: string
           format: date
           description: End date of the course
+    CourseBasicWithId:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CourseBasic'
+        - type: object
+          properties:
+            courseId:
+              type: string
+              format: uuid
+              description: Unique identifier for the course
     CoursePost:
       type: object
       required:
@@ -1493,7 +1452,7 @@ components:
     CourseWithEnrolledDate:
       type: object
       allOf:
-        - $ref: '#/components/schemas/CourseBasic'
+        - $ref: '#/components/schemas/CourseBasicWithId'
         - type: object
           properties:
             enrolledOn:
@@ -1503,7 +1462,7 @@ components:
     CourseWithUsers:
       type: object
       allOf:
-        - $ref: '#/components/schemas/CourseBasic'
+        - $ref: '#/components/schemas/CourseBasicWithId'
         - type: object
           properties:
             users:
@@ -1614,10 +1573,6 @@ components:
           required:
             - userId
           properties:
-            assignmentId:
-              type: string
-              format: uuid
-              description: Unique identifier for the assignment
             userId:
               type: string
               format: uuid
@@ -1651,7 +1606,6 @@ components:
         weight:
           type: number
           description: Weight of this grade toward the course total
-
     GradeWithId:
       type: object
       allOf:
@@ -1674,7 +1628,6 @@ components:
               type: string
               format: uuid
               description: Optional assignment submission ID associated with the grade
-
     GradePatch:
       type: object
       properties:
@@ -1686,7 +1639,6 @@ components:
           type: number
         weight:
           type: number
-
     CalculatedGrade:
       type: object
       properties:
@@ -1713,12 +1665,10 @@ components:
         courseId:
           type: string
           description: Course ID associated with the content
-
     ContentPost:
       allOf:
         - $ref: '#/components/schemas/ContentBasic'
         - type: object
-
     ContentPatch:
       type: object
       properties:
@@ -1730,7 +1680,6 @@ components:
           type: boolean
         parentId:
           type: string
-
     ContentGet:
       allOf:
         - $ref: '#/components/schemas/ContentBasic'
@@ -1752,25 +1701,29 @@ components:
         message:
           type: string
           description: Error message detailing what went wrong
-    
-  # Reusable examples and responses for Content API
-  # (Placed here under components so paths can reference them)
+
+
   examples:
-    ContentGetExample:
-      summary: Example content item
+    CoursePostExample:
+      summary: Example course creation payload
       value:
-        contentId: "11111111-2222-3333-4444-555555555555"
-        courseId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-        parentId: null
-        name: "Lecture 1 — Introduction"
-        description: "Introductory lecture slides and readings."
-        viewable: true
-        dateCreated: "2025-11-18T12:00:00Z"
-        dateUpdated: "2025-11-18T12:00:00Z"
-    ContentListExample:
-      summary: Example array of content items
+        name: "Data Structures"
+        courseCode: "CS201"
+        isOpen: true
+        description: "An intermediate course on data structures."
+        startDate: "2025-09-01"
+        endDate: "2025-12-15"
+        userId: "11111111-2222-3333-4444-555555555555"
+    CourseUpdateExample:
+      summary: Example course update payload
       value:
-        - $ref: '#/components/examples/ContentGetExample/value'
+        name: "Data Structures and Algorithms"
+        courseCode: "CS201"
+        description: "An updated description for the course."
+        isOpen: false
+        startDate: "2025-09-01"
+        endDate: "2025-12-20"
+    
     ContentPostExample:
       summary: Example content creation payload
       value:
@@ -1781,56 +1734,41 @@ components:
       summary: Example error
       value:
         message: "An error occurred"
+    
+    AssignmentPostExample:
+      summary: Example assignment creation payload
+      value:
+        name: "Homework 1"
+        description: "First homework assignment."
+        dueDate: "2025-09-15T23:59:59Z"
+        courseId: "66666666-7777-8888-9999-000000000000"
+    AssignmentUpdateExample:
+      summary: Example assignment update payload
+      value:
+        name: "Homework 1 - Updated"
+        description: "Updated description for the first homework."
+        dueDate: "2025-09-20T23:59:59Z"
+    AssignmentSubmissionPostExample:
+      summary: Example assignment submission payload
+      value:
+        userId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        comment: "Please find my submission attached."
+        timeSubmitted: "2025-09-14T18:30:00Z"
+        files:
+          - "Base64EncodedFileDataHere"
+    
+    GradesUpdateExample:
+      summary: Example grade update payload
+      value:
+        minScore: 0
+        maxScore: 100
+        achievedScore: 85
+        weight: 0.2
+    GradesPostExample:
+      summary: Example grade creation payload
+      value:
+        minScore: 0
+        maxScore: 100
+        achievedScore: 90
+        weight: 0.3
 
-  responses:
-    ContentListResponse:
-      description: A list of content
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/ContentGet'
-          examples:
-            contentList:
-              $ref: '#/components/examples/ContentListExample'
-
-    ContentGetResponse:
-      description: A single content item
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ContentGet'
-          examples:
-            contentItem:
-              $ref: '#/components/examples/ContentGetExample'
-
-    ContentCreatedResponse:
-      description: Content created successfully
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ContentGet'
-          examples:
-            created:
-              $ref: '#/components/examples/ContentGetExample'
-
-    ContentDeletedResponse:
-      description: Content deleted
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/BasicError'
-          examples:
-            deleted:
-              $ref: '#/components/examples/BasicErrorExample'
-
-    BasicErrorResponse:
-      description: Basic error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/BasicError'
-          examples:
-            basic:
-              $ref: '#/components/examples/BasicErrorExample'
