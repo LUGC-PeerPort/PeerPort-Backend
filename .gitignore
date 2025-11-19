@@ -22,4 +22,6 @@ npm-debug.log*
 
 # Testing report
 ctrf-report.json
+src/Tests/*.json
+src/Tests/*.xml
 tests/coverage
