@@ -340,7 +340,7 @@ paths:
               $ref: '#/components/schemas/CourseBasic'
             examples:
               payload:
-                $ref: '#/components/examples/CoursePostExample'
+                $ref: '#/components/examples/CourseUpdateExample'
       responses:
         '200':
           description: Course updated successfully
