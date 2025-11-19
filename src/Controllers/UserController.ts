@@ -133,7 +133,7 @@ export class UserController {
      * @param res - The Response object
      */
     async getProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.id);
+        const userID = this.checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -164,7 +164,7 @@ export class UserController {
      * @param res - The Response object
      */
     async updateProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.id);
+        const userID = this.checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -205,7 +205,7 @@ export class UserController {
      * @param res - The Response object
      */
     async deleteProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.id);
+        const userID = this.checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -224,7 +224,7 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourses(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.id);
+        const userID = this.checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -257,7 +257,7 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.id);
+        const userID = this.checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;

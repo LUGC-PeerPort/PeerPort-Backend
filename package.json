@@ -13,7 +13,7 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "dist/app.js",
+  "main": "dist/src/app.js",
   "scripts": {
     "test": "npx tsc && echo Built project && echo Starting tests... && jest",
     "build": "tsc",
