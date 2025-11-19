@@ -52,7 +52,7 @@ describe("SubmissionController test:", () => {
     beforeEach(async () => {
         // Clear assignments before each test
         await TestDataSource.getRepository("AssignmentSubmissions").clear();
-        await TestDataSource.getRepository("Assignments").clear();
+        // await TestDataSource.getRepository("Assignments").clear();
 
     });
 
