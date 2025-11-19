@@ -52,10 +52,57 @@ describe("ContentController test:", () => {
 
     describe("Getting content", () => {
         test("Getting all content should get an empty list when no content saved", async () => {
+            await TestDataSource.getRepository(Content).clear();
+
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+
+            await controller.getAllContent(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([]);
 
         });
 
         test("Getting all content should get multiple content items", async () => {
+            // Create multiple content items
+            const content2 = await TestDataSource.getRepository(Content).create({
+                name: "Test Content 2",
+                description: "This is another test content",
+                viewable: false,
+                course: course
+            });
+            await TestDataSource.getRepository(Content).save(content2);
+
+            const req: any = {};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+
+            await controller.getAllContent(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith([{
+                contentId: content.contentId,
+                name: content.name,
+                description: content.description,
+                viewable: content.viewable,
+                dateCreated: expect.anything(),
+                dateUpdated: expect.anything(),
+                parentId: undefined,
+                courseId: course.courseId
+            }, {
+                contentId: content2.contentId,
+                name: content2.name,
+                description: content2.description,
+                viewable: content2.viewable,
+                dateCreated: expect.anything(),
+                dateUpdated: expect.anything(),
+                parentId: undefined,
+                courseId: course.courseId
+            }]);
         });
 
         const contentId = (): string => content.contentId;
@@ -70,9 +117,11 @@ describe("ContentController test:", () => {
             { name: "fails when content Id is not a valid UUID",    data: { params: { contentId: "123-33333" } },                               expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
             { name: "fails when content Id does not exist",         data: { params: { contentId: "123e4567-e89b-12d3-a456-426614174000" } },    expectedStatus: 404, expectedData: { message: "Content not found" } },
 
-            { name: "succeeds when content Id is valid",            data: { params: { contentId: contentId } },                                 expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: name, description: description, viewable: viewable } },
+            { name: "succeeds when content Id is valid",            data: { params: { contentId: contentId } },                                 expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: name, description: description, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything } },
         ])("Getting specific content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
-            const req: any = data;
+            const { fixedValue, fixedExpectedResult } = generateParameters(data, expectedData);
+
+            const req: any = fixedValue ?? {};
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
             res.json = jest.fn().mockReturnValue(res);
@@ -80,18 +129,18 @@ describe("ContentController test:", () => {
             await controller.getContentById(req, res);
 
             expect(res.status).toHaveBeenCalledWith(expectedStatus);
-            expect(res.json).toHaveBeenCalledWith(expectedData);
+            expect(res.json).toHaveBeenCalledWith(fixedExpectedResult);
         });
     });
 
     describe("Creating content", () => {
         const courseId = (): string => course.courseId;
         test.each([
-            { name: "fails when course Id is not given",            data: { },                                                                                                      expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
-            { name: "fails when course Id is undefined",            data: { params: { courseId: undefined } },                                                                      expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
-            { name: "fails when course Id is a number",             data: { params: { courseId: 123 } },                                                                            expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
-            { name: "fails when course Id is not a valid UUID",     data: { params: { courseId: "123-3333" } },                                                                     expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
-            { name: "fails when course Id does not exist",          data: { params: { courseId: "123e4567-e89b-12d3-a456-426614174000" } },                                         expectedStatus: 404, expectedData: { message: "Content not found" } },
+            { name: "fails when course Id is not given",            data: { },                                                                                                      expectedStatus: 400, expectedData: { message: "Invalid course ID" } },
+            { name: "fails when course Id is undefined",            data: { params: { courseId: undefined } },                                                                      expectedStatus: 400, expectedData: { message: "Invalid course ID" } },
+            { name: "fails when course Id is a number",             data: { params: { courseId: 123 } },                                                                            expectedStatus: 400, expectedData: { message: "Invalid course ID" } },
+            { name: "fails when course Id is not a valid UUID",     data: { params: { courseId: "123-3333" } },                                                                     expectedStatus: 400, expectedData: { message: "Invalid course ID" } },
+            { name: "fails when course Id does not exist",          data: { params: { courseId: "123e4567-e89b-12d3-a456-426614174000" } },                                         expectedStatus: 404, expectedData: { message: "Course not found" } },
 
             { name: "fails when name is missing",                   data: { body: {  }, params: { courseId: courseId } },                                                           expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when name is empty",                     data: { body: { name: "  " }, params: { courseId: courseId } },                                                 expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
@@ -101,8 +150,8 @@ describe("ContentController test:", () => {
             { name: "fails when viewable is missing",               data: { body: { description: "test", name: "tester"}, params: { courseId: courseId } },                         expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when viewable is undefined",             data: { body: { viewable: undefined, description: "test", name: "tester"}, params: { courseId: courseId } },    expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
 
-            { name: "succeeds when all data is valid",              data: { body: { viewable: false, name: "tester", description: "test" }, params: { courseId: courseId } },       expectedStatus: 200, expectedData: () => expect.objectContaining({ name: "tester", description: "test", courseId: course.courseId, viewable: false }) },
-            { name: "succeeds without description present",         data: { body: { viewable: false, name: "tester" }, params: { courseId: courseId } },                            expectedStatus: 200, expectedData: () => expect.objectContaining({ name: "tester", viewable: false }) }
+            { name: "succeeds when all data is valid",              data: { body: { viewable: false, name: "tester", description: "test" }, params: { courseId: courseId } },       expectedStatus: 201, expectedData: () => expect.objectContaining({ name: "tester", description: "test", courseId: course.courseId, viewable: false }) },
+            { name: "succeeds without description present",         data: { body: { viewable: false, name: "tester" }, params: { courseId: courseId } },                            expectedStatus: 201, expectedData: () => expect.objectContaining({ name: "tester", viewable: false }) }
         ])("Creating content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(data, expectedData);
             
@@ -133,8 +182,8 @@ describe("ContentController test:", () => {
             { name: "fails when viewable is missing",               data: { body: { description: "test", name: "tester"}, params: { parentId: parentId } },                         expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when viewable is undefined",             data: { body: { viewable: undefined, description: "test", name: "tester"}, params: { parentId: parentId } },    expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             
-            { name: "succeeds when all values are valid",           data: { body: { viewable: false, name: "tester", description: "test" }, params: { parentId: parentId } },       expectedStatus: 200, expectedData: () => expect.objectContaining({ viewable: false, name: "tester", description: "test", parentId: parentId() }) },
-            { name: "succeeds without description present",         data: { body: { viewable: false, name: "tester" }, params: { parentId: parentId } },                            expectedStatus: 200, expectedData: () => expect.objectContaining({ viewable: false, name: "tester", parentId: parentId() }) }
+            { name: "succeeds when all values are valid",           data: { body: { viewable: false, name: "tester", description: "test" }, params: { parentId: parentId } },       expectedStatus: 201, expectedData: () => expect.objectContaining({ viewable: false, name: "tester", description: "test", parentId: parentId() }) },
+            { name: "succeeds without description present",         data: { body: { viewable: false, name: "tester" }, params: { parentId: parentId } },                            expectedStatus: 201, expectedData: () => expect.objectContaining({ viewable: false, name: "tester", parentId: parentId() }) }
         ])("Creating sub-content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(data, expectedData);
 
@@ -155,6 +204,7 @@ describe("ContentController test:", () => {
         const name = (): string => content.name;
         const description = (): string => content.description;
         const courseId = (): string => course.courseId;
+        const viewable = (): boolean => content.viewable;
         test.each([
             { name: "fails when content Id is not given",           data: {  },                                                                                                     expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
             { name: "fails when content Id is undefined",           data: { params: { contentId: undefined } },                                                                     expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
@@ -166,14 +216,13 @@ describe("ContentController test:", () => {
             { name: "fails when name is a number",                  data: { params: { contentId: contentId }, body: { name: 23 } },                                                 expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when description is empty",              data: { params: { contentId: contentId }, body: { description: "  " } },                                        expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when description is a number",           data: { params: { contentId: contentId }, body: { description: 23 } },                                          expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
-            { name: "fails when viewable is missing",               data: { params: { contentId: contentId }, body: { description: "test", name: "tester"} },                       expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
-            { name: "fails when viewable is undefined",             data: { params: { contentId: contentId }, body: { viewable: undefined, description: "test", name: "tester"} },  expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
+            { name: "fails when viewable is a string",              data: { params: { contentId: contentId }, body: { viewable: "damn", description: "test", name: "tester"} },     expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
 
-            { name: "succeeds when all data is valid",              data: { params: { contentId: contentId }, body: { name: "new name", description: "new description" } },         expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: "new name", description: "new description" } },
-            { name: "succeeds without description present",         data: { params: { contentId: contentId }, body: { name: "new name" } },                                         expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: "new name", description: description } },
-            { name: "succeeds when only description is present",    data: { params: { contentId: contentId }, body: { description: "new description" } },                           expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: name, description: "new description" } },
-            { name: "succeeds when no values updated",              data: { params: { contentId: contentId }, body: { } },                                                          expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: name, description: description } },
-        ])("Updateing content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
+            { name: "succeeds when all data is valid",              data: { params: { contentId: contentId }, body: { name: "new name", description: "new description" } },         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, name: "new name", description: "new description" } },
+            { name: "succeeds without description present",         data: { params: { contentId: contentId }, body: { name: "new name" } },                                         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, name: "new name", description: description } },
+            { name: "succeeds when only description is present",    data: { params: { contentId: contentId }, body: { description: "new description" } },                           expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, name: name, description: "new description" } },
+            { name: "succeeds when no values updated",              data: { params: { contentId: contentId }, body: { } },                                                          expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, name: name, description: description } },
+        ])("Updating content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(data, expectedData);
             
             const req: any = fixedValue ?? {};
