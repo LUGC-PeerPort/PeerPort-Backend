@@ -25,7 +25,7 @@ export class ContentController {
 
 
     /**
-     * Constructor for SubmissionController.
+     * Constructor for ContentController.
      * @param dataSource - The TypeORM DataSource.
      */
     constructor(dataSource: DataSource) {
