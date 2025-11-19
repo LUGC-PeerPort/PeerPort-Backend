@@ -18,6 +18,7 @@ import fs from "fs";
 import { GradeController } from "./Controllers/GradeController.js";
 import { ContentController } from "./Controllers/ContentController.js";
 
+console.warn("Starting PeerPort Backend...");
 
 const app = express();
 app.use(express.json());
@@ -32,7 +33,7 @@ app.use(cors({
 // // Setting up swagger
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const swaggerDocument = YAML.load(path.resolve(__dirname, "../oapi.yaml"));
+const swaggerDocument = YAML.load(path.resolve(__dirname, "../../oapi.yaml"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
@@ -171,13 +172,13 @@ AppDataSource.initialize().then(() => {
 
     // Grade controller
     app.get("/grades", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGrades(req, res)));
-    app.get("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getGrade(req, res)));
-    app.put("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res)));
-    app.delete("/grades/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res)));
+    app.get("/grades/by-id/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getGrade(req, res)));
+    app.put("/grades/by-id/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res)));
+    app.delete("/grades/by-id/:gradeId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res)));
     app.post("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
     app.post("/grades/:userId/:courseId/:assignmentSubmissionId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
-    app.get("/grades/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
-    app.get("/grades/course/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
+    app.get("/grades/by-user/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
+    app.get("/grades/by-course/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
     app.get("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
     app.get("/grades/calculated/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
     app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
