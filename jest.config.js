@@ -1,7 +1,7 @@
 export default {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    testMatch: ["**/src/**/*.test.ts"],
+    testMatch: ["**/tests/**/*.test.ts"],
     moduleFileExtensions: ["ts", "js", "json", "node"],
     transform: {
         "^.+\\.(t|j)sx?$": ["ts-jest", { useESM: true }],
@@ -14,19 +14,19 @@ export default {
     // Coverage configuration
     collectCoverage: true,
     coverageReporters: ["json-summary", "text"],
-    coverageDirectory: "src/Tests/coverage",
+    coverageDirectory: "tests/coverage",
     reporters: [
         "default",
         [
             "jest-ctrf-json-reporter", {
                 outputFile: "ctrf-report.json",
-                outputDir: "src/Tests",
+                outputDir: "tests",
                 appName: "PeerPort",
                 appVersion: "1.0.0",
             }
         ],
         ["github-actions", {silent: false}],
-        ["jest-junit", {outputDirectory: "src/Tests/coverage", outputName: "junit.xml"}]
+        ["jest-junit", {outputDirectory: "tests/coverage", outputName: "junit.xml"}]
     ],
 
     modulePathIgnorePatterns: [
