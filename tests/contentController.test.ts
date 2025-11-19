@@ -59,13 +59,12 @@ describe("ContentController test:", () => {
 
         test("Getting all content should get multiple content items", async () => {
             // Create multiple content items
-            const content2 = await TestDataSource.getRepository(Content).create({
+            const content2 = await TestDataSource.getRepository(Content).save({
                 name: "Test Content 2",
                 description: "This is another test content",
                 viewable: false,
                 course: course
             });
-            await TestDataSource.getRepository(Content).save(content2);
 
             const req: any = {};
             const res: any = {};
