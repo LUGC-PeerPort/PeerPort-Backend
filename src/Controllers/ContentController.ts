@@ -125,7 +125,7 @@ export class ContentController {
         }
 
         const parentId = parentIdUnknown as string;
-        const parent = await this.contentRepo.findOne({ where: { contentId: parentId } });
+        const parent = await this.contentRepo.findOne({ where: { contentId: parentId }, relations: ["course"] });
         if (!parent) {
             res.status(404).json({ message: "Content not found" });
             return;
