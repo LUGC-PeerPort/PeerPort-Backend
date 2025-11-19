@@ -31,19 +31,19 @@ export class SubmissionController {
     async getAllSubmissions(req: Request, res: Response): Promise<void> {
         try {
             const submissions = await this.submissionRepo.find({
-            relations: ["user", "assignment"],
-        });
-        const formattedSubmissions = submissions.map((s) => ({
-            comment: s.comment,
-            timeSubmitted: s.timeSubmitted,
-            userId: s.user.userId,
-            assignmentId: s.assignment.assignmentId,
-            submissionId: s.assignmentSubmissionId,
-        }));
-        res.status(200).json(formattedSubmissions);
-        return;
+                relations: ["user", "assignment"],
+            });
+            const formattedSubmissions = submissions.map((s) => ({
+                comment: s.comment,
+                timeSubmitted: s.timeSubmitted,
+                userId: s.user.userId,
+                assignmentId: s.assignment.assignmentId,
+                submissionId: s.assignmentSubmissionId,
+            }));
+            res.status(200).json(formattedSubmissions);
+            return;
         } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+            res.status(500).json({ message: "Internal server error" });
         }   
     }
 
