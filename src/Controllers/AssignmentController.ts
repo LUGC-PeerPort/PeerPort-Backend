@@ -299,10 +299,11 @@ export class AssignmentController {
 
         const files = (req.files as Express.Multer.File[]) || [];
         for (const file of files) {
-            await this.fileRepo.create({
+            const fileEntry = this.fileRepo.create({
                 fileName: file.originalname,
                 location: file.path,
             });
+            await this.fileRepo.save(fileEntry); //save files to db
         }
 
         // Save submission
@@ -391,7 +392,7 @@ export class AssignmentController {
     private isValidAssSubmissionBody(submission: unknown): boolean {
         if (typeof submission !== "object" || submission === null) return false;
 
-        const allowedFields = ["comment", "timeSubmitted", "userId"];
+        const allowedFields = ["comment", "timeSubmitted", "userId", "assignmentId", "assignmentSubmissionId"];
         for (const key of Object.keys(submission)) {
             if (!allowedFields.includes(key)) {
                 return false;
