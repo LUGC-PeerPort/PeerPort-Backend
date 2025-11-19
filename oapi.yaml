@@ -984,7 +984,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GradeWithId'
-  /grades/{gradeId}:
+  /grades/by-id/{gradeId}:
     get:
       tags:
         - Grades
@@ -1218,7 +1218,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  /grades/user/{userId}:
+  /grades/by-user/{userId}:
     get:
       tags:
         - Grades
@@ -1252,7 +1252,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  /grades/course/{courseId}:
+  /grades/by-course/{courseId}:
     get:
       tags:
         - Grades
