@@ -22,15 +22,6 @@ describe("ContentController test:", () => {
             endDate: "2025-12-31",
         };
         course = await TestDataSource.getRepository(Course).save(courseData) as any;
-
-        // Create a content item for testing
-        content = await TestDataSource.getRepository(Content).create({
-            name: "Test Content",
-            description: "This is a test content",
-            viewable: true,
-            course: course
-        });
-        await TestDataSource.getRepository(Content).save(content);
     });
 
     beforeEach(async () => {
