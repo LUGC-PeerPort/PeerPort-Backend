@@ -160,7 +160,6 @@ AppDataSource.initialize().then(() => {
     app.post("/courses/:courseId/enroll/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res)));
     app.get("/courses/:courseId/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
 
-
     // Assignment controller
     app.get("/assignments/:assignmentId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
     app.get("/assignments", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
@@ -182,15 +181,14 @@ AppDataSource.initialize().then(() => {
     app.get("/grades/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
     app.get("/grades/calculated/:userId/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
     app.get("/grades/average/:courseId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
-
+    
     // Content controller
-    app.get("/content/",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
+    app.get("/content",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
     app.get("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
-    app.post("/content",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
+    app.post("/content/:courseId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
     app.post("/content/:parentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
-
 });
 
 
