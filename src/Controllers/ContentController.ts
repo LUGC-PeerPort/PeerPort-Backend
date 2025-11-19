@@ -17,7 +17,7 @@ export interface ContentReturn {
 
 
 /**
- * Used to manage assignment submissions.
+ * Used to manage content.
  */
 export class ContentController {
     private contentRepo: Repository<Content>;
@@ -25,7 +25,7 @@ export class ContentController {
 
 
     /**
-     * Constructor for SubmissionController.
+     * Constructor for ContentController.
      * @param dataSource - The TypeORM DataSource.
      */
     constructor(dataSource: DataSource) {
@@ -254,7 +254,7 @@ export class ContentController {
         const userID = id.trim();
 
         // Check if the ID has content
-        if (userID == "") return;
+        if (userID === "") return;
         
         // Check if the ID is a valid UUID
         if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(userID)) return;
@@ -266,8 +266,8 @@ export class ContentController {
     /**
      * Check if the content structure is valid
      * @param content - The content to check
-     * @param _updating - Wether we are updating or creating
-     * @returns Wether the structure is valid or not
+     * @param _updating - Whether we are updating or creating
+     * @returns Whether the structure is valid or not
      */
     private checkContentStructure(content: unknown, _updating: boolean): boolean {
         if (typeof content !== "object" || content === null) return false;

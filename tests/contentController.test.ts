@@ -22,15 +22,6 @@ describe("ContentController test:", () => {
             endDate: "2025-12-31",
         };
         course = await TestDataSource.getRepository(Course).save(courseData) as any;
-
-        // Create a content item for testing
-        content = await TestDataSource.getRepository(Content).create({
-            name: "Test Content",
-            description: "This is a test content",
-            viewable: true,
-            course: course
-        });
-        await TestDataSource.getRepository(Content).save(content);
     });
 
     beforeEach(async () => {
@@ -178,7 +169,7 @@ describe("ContentController test:", () => {
             { name: "fails when name is empty",                     data: { body: { name: "  " }, params: { parentId: parentId } },                                                 expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when name is a number",                  data: { body: { name: 123 }, params: { parentId: parentId } },                                                  expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when description is empty",              data: { body: { description: "  ", name: "tester"}, params: { parentId: parentId } },                           expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
-            { name: "fails when description is a number",           data: { body: {description: 123, name: "tester"}, params: { parentId: parentId } },                             expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
+            { name: "fails when description is a number",           data: { body: { description: 123, name: "tester" }, params: { parentId: parentId } },                             expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when viewable is missing",               data: { body: { description: "test", name: "tester"}, params: { parentId: parentId } },                         expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when viewable is undefined",             data: { body: { viewable: undefined, description: "test", name: "tester"}, params: { parentId: parentId } },    expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             
@@ -216,7 +207,7 @@ describe("ContentController test:", () => {
             { name: "fails when name is a number",                  data: { params: { contentId: contentId }, body: { name: 23 } },                                                 expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when description is empty",              data: { params: { contentId: contentId }, body: { description: "  " } },                                        expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when description is a number",           data: { params: { contentId: contentId }, body: { description: 23 } },                                          expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
-            { name: "fails when viewable is a string",              data: { params: { contentId: contentId }, body: { viewable: "damn", description: "test", name: "tester"} },     expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
+            { name: "fails when viewable is a string",              data: { params: { contentId: contentId }, body: { viewable: "damn", description: "test", name: "tester" } },     expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
 
             { name: "succeeds when all data is valid",              data: { params: { contentId: contentId }, body: { name: "new name", description: "new description" } },         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, name: "new name", description: "new description" } },
             { name: "succeeds without description present",         data: { params: { contentId: contentId }, body: { name: "new name" } },                                         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, name: "new name", description: description } },
