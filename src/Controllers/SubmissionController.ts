@@ -92,7 +92,7 @@ export class SubmissionController {
     }
     /**
      * Checks if the UUID is valid
-     * @param id - The  UUID
+     * @param id - The UUID
      * @returns The UUID if valid, undefined otherwise
      */
     //copied from the AssignmentController checkUUID function
