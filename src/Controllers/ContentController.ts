@@ -1,7 +1,7 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
-import { Content } from "../Database/entities/Content";
-import { Course } from "../Database/entities/Course";
+import { Content } from "../Database/entities/Content.js";
+import { Course } from "../Database/entities/Course.js";
 
 
 export interface ContentReturn {
