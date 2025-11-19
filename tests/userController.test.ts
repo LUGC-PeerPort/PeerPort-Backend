@@ -261,7 +261,7 @@ describe("UserController test:", () => {
         it("Should not get a user with an invalid ID", async () => {
             const req: any = {
                 params: {
-                    id: "invalid-uuid"
+                    userId: "invalid-uuid"
                 }
             };
 
@@ -277,7 +277,7 @@ describe("UserController test:", () => {
         it("Should not get a user that does not exist", async () => {
             const req: any = {
                 params: {
-                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
 
@@ -305,7 +305,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 }
             };
 
@@ -358,7 +358,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 }
             };
 
@@ -395,7 +395,7 @@ describe("UserController test:", () => {
         it("Should not update a user with an invalid ID", async () => {
             const req: any = {
                 params: {
-                    id: "invalid-uuid"
+                    userId: "invalid-uuid"
                 },
                 body: {
                     name: "Updated User"
@@ -414,7 +414,7 @@ describe("UserController test:", () => {
         it("Should not update a user that does not exist", async () => {
             const req: any = {
                 params: {
-                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 },
                 body: {
                     name: "Updated User"
@@ -441,7 +441,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 },
                 body: {
                     namee: "Updated User"
@@ -468,7 +468,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 },
                 body: {}
             };
@@ -492,7 +492,7 @@ describe("UserController test:", () => {
             });
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 },
                 body: {
                     profilePictureUrl: "smth/smth"
@@ -522,7 +522,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 },
                 body: {
                     name: "Updated User",
@@ -563,7 +563,7 @@ describe("UserController test:", () => {
         it("Should not delete a user with an invalid ID", async () => {
             const req: any = {
                 params: {
-                    id: "invalid-uuid"
+                    userId: "invalid-uuid"
                 }
             };
 
@@ -587,7 +587,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 }
             };
 
@@ -609,7 +609,7 @@ describe("UserController test:", () => {
         it("Should not get courses for a user with an invalid ID", async () => {
             const req: any = {
                 params: {
-                    id: "invalid-uuid"
+                    userId: "invalid-uuid"
                 }
             };
 
@@ -625,7 +625,7 @@ describe("UserController test:", () => {
         it("Should not get courses for a user that does not exist", async () => {
             const req: any = {
                 params: {
-                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
 
@@ -663,7 +663,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 }
             };
 
@@ -686,7 +686,7 @@ describe("UserController test:", () => {
             });
             const req: any = {
                 params: {
-                    id: user.userId
+                    userId: user.userId
                 }
             };
             const res: any = {};
@@ -703,7 +703,7 @@ describe("UserController test:", () => {
         it("Should not get a course for a user with an invalid user ID", async () => {
             const req: any = {
                 params: {
-                    id: "invalid-uuid",
+                    userId: "invalid-uuid",
                     courseId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
@@ -720,7 +720,7 @@ describe("UserController test:", () => {
         it("Should not get a course for a user that does not exist", async () => {
             const req: any = {
                 params: {
-                    id: "123e4567-e89b-12d3-a456-426614174000",
+                    userId: "123e4567-e89b-12d3-a456-426614174000",
                     courseId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
@@ -744,7 +744,7 @@ describe("UserController test:", () => {
             });
             const req: any = {
                 params: {
-                    id: user.userId,
+                    userId: user.userId,
                     courseId: "invalid-uuid"
                 }
             };
@@ -778,7 +778,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId,
+                    userId: user.userId,
                     courseId: course.courseId
                 }
             };
@@ -818,7 +818,7 @@ describe("UserController test:", () => {
 
             const req: any = {
                 params: {
-                    id: user.userId,
+                    userId: user.userId,
                     courseId: course.courseId
                 }
             };
