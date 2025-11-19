@@ -17,7 +17,7 @@ export interface ContentReturn {
 
 
 /**
- * Used to manage assignment submissions.
+ * Used to manage content.
  */
 export class ContentController {
     private contentRepo: Repository<Content>;
