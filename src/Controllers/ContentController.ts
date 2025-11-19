@@ -266,8 +266,8 @@ export class ContentController {
     /**
      * Check if the content structure is valid
      * @param content - The content to check
-     * @param _updating - Wether we are updating or creating
-     * @returns Wether the structure is valid or not
+     * @param _updating - Whether we are updating or creating
+     * @returns Whether the structure is valid or not
      */
     private checkContentStructure(content: unknown, _updating: boolean): boolean {
         if (typeof content !== "object" || content === null) return false;
