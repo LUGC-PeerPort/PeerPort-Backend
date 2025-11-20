@@ -62,6 +62,13 @@ export class UserController {
             return;
         }
 
+        // Check if the user exists
+        const user = await this.userRepo.findOneBy({ userId: userID });
+        if (!user) {
+            res.status(401).json({message: "Unauthorized"});
+            return;
+        }
+
         res.status(200).json({userId: userID});
     }
 

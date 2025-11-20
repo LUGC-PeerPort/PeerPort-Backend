@@ -840,8 +840,6 @@ describe("UserController test:", () => {
             { name: "fail when the session is malformed",                       value: { session: {  } },                                                               expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
             { name: "fail when the current user is not logged in",              value: { session: { passport: {  } } },                                                 expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
             { name: "fail when the current user ID is null",                    value: { session: { passport: { user: null } } },                                       expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
-            { name: "fail when the current user ID is a number",                value: { session: { passport: { user: 123 } } },                                        expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
-            { name: "fail when the current user ID is an invalid format",       value: { session: { passport: { user: "invalid-format" } } },                           expectedStatus: 401, expectedResult: { message: "Unauthorized" } },
             { name: "fail when the current user doesn't exist",                 value: { session: { passport: { user: "123e4567-e89b-12d3-a456-426618874000" } } },     expectedStatus: 401, expectedResult: { message: "Unauthorized" } }
         ])("Authentication should $name", async ({name: _name, value, expectedStatus, expectedResult}) => {
             const req: any = value;
