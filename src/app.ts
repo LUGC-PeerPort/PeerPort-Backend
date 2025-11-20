@@ -148,7 +148,7 @@ AppDataSource.initialize().then(() => {
     // User controller
     app.get("/auth/currentUser",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, async () => { userController.getCurrentUser(req, res);}));
     app.get("/users",                           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.getAllUsers(req, res)));
-    app.post("/users",                          (req, res) =>ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.create(req, res)));
+    app.post("/users",                          (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.create(req, res)));
     app.get("/users/:userId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getProfile(req, res)));
     app.put("/users/:userId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.updateProfile(req, res)));
     app.delete("/users/:userId",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.deleteProfile(req, res)));
