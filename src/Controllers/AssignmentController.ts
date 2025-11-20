@@ -394,7 +394,7 @@ export class AssignmentController {
     private isValidAssSubmissionBody(submission: unknown): boolean {
         if (typeof submission !== "object" || submission === null) return false;
 
-        const allowedFields = ["comment", "timeSubmitted", "userId", "assignmentId", "assignmentSubmissionId"];
+        const allowedFields = ["comment", "timeSubmitted", "userId"];
         for (const key of Object.keys(submission)) {
             if (!allowedFields.includes(key)) {
                 return false;
