@@ -221,7 +221,7 @@ app.use((err: unknown, req: express.Request, res: express.Response, next: expres
 // Start the server
 app.listen(3000, () => {
     console.log("Server is running on port 3000 at http://localhost:3000/");
-    console.log("API documentation available at http://localhost:3000/api-docs"); //link to api so that I don't need to find the link every time
+    console.log("API documentation available at http://localhost:3000/api-docs"); // link to api so that I don't need to find the link every time
 });
 
 export default app;
