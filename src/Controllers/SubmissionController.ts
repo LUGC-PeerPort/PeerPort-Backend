@@ -1,16 +1,12 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { User } from "../Database/entities/User.js";
-import { Course } from "../Database/entities/Course.js";
 
 /**
  * Used to manage assignment submissions.
  */
 export class SubmissionController {
     private submissionRepo: Repository<AssignmentSubmissions>;
-    private userRepo: Repository<User>;
-    private courseRepo: Repository<Course>;
     
     /**
      * Constructor for SubmissionController.
@@ -18,8 +14,6 @@ export class SubmissionController {
      * */
     constructor(dataSource: DataSource) {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
-        this.userRepo = dataSource.getRepository(User);
-        this.courseRepo = dataSource.getRepository(Course);
     }
 
     /**
