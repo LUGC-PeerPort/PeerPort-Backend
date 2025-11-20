@@ -84,7 +84,13 @@ describe("AssignmentController test:", () => {
             await controller.getAllAssignments(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith([assignment]);
+            expect(res.json).toHaveBeenCalledWith([{
+                assignmentId: assignment.assignmentId,
+                name: assignment.name,
+                description: assignment.description,
+                dueDate: assignment.dueDate,
+                courseId: course.courseId,
+            }]);
         });
 
         it("Should return multiple assignments when there are multiple assignments", async () => {
@@ -108,7 +114,19 @@ describe("AssignmentController test:", () => {
             await controller.getAllAssignments(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith([assignment1, assignment2]);
+            expect(res.json).toHaveBeenCalledWith([{
+                assignmentId: assignment1.assignmentId,
+                name: assignment1.name,
+                description: assignment1.description,
+                dueDate: assignment1.dueDate,
+                courseId: course.courseId,
+            }, {
+                assignmentId: assignment2.assignmentId,
+                name: assignment2.name,
+                description: assignment2.description,
+                dueDate: assignment2.dueDate,
+                courseId: course.courseId,
+            }]);
         });
     });
 

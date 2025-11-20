@@ -298,17 +298,20 @@ export class AssignmentController {
             assignment: assignment,
             user: user,
         });
+        await this.assignmentSubmissionsRepo.save(submission);
 
+        // Handle file uploads
         const files = (req.files as Express.Multer.File[]) || [];
         for (const file of files) {
-            await this.fileRepo.create({
+            const fileEntry = this.fileRepo.create({
                 fileName: file.originalname,
                 location: file.path,
+                submission: submission,
             });
+            await this.fileRepo.save(fileEntry); //save files to db
         }
 
         // Save submission
-        await this.assignmentSubmissionsRepo.save(submission);
         const submissionResponse = this.convertToAssignmentSubmissionReturn(submission);
         res.status(201).json(submissionResponse);
     }

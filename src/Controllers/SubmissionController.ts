@@ -1,16 +1,12 @@
 import type { DataSource, Repository } from "typeorm";
-import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions";
 import type { Request, Response } from "express";
-import { User } from "../Database/entities/User";
-import { Course } from "../Database/entities/Course";
+import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
 
 /**
  * Used to manage assignment submissions.
  */
 export class SubmissionController {
     private submissionRepo: Repository<AssignmentSubmissions>;
-    private userRepo: Repository<User>;
-    private courseRepo: Repository<Course>;
     
     /**
      * Constructor for SubmissionController.
@@ -18,8 +14,6 @@ export class SubmissionController {
      * */
     constructor(dataSource: DataSource) {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
-        this.userRepo = dataSource.getRepository(User);
-        this.courseRepo = dataSource.getRepository(Course);
     }
 
     /**
@@ -80,16 +74,6 @@ export class SubmissionController {
         }
     }
 
-    /**
-    * Used to delete a submission by ID.
-    * @param req - The request object
-    * @param res - The response object
-    */
-    async deleteSubmission(req: Request, res: Response): Promise<void> {
-        //Students should not be able to delete a submission. Leaving the function here in case we need it later.
-        //as well as there will be errors if it is removed now. which I will not be able to fix until I pull from main
-        res.status(501).json({ message: "Not implemented" });
-    }
     /**
      * Checks if the UUID is valid
      * @param id - The UUID

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from "typeorm";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 import { Assignments } from "./Assignments.js";
 import { Content } from "./Content.js";
@@ -21,13 +21,9 @@ export class Files {
         type: "text",
         nullable: false,
     })
-    	location!: string; //check if this is correct type
+    	location!: string;
 
-    @Column({
-        type: "date",
-        nullable: false,
-        default: () => "CURRENT_DATE"
-    })
+    @CreateDateColumn()
         uploadedOn!: string;
 
     @ManyToOne(() => AssignmentSubmissions, (submission) => submission.files)

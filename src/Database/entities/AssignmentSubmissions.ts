@@ -12,14 +12,6 @@ export class AssignmentSubmissions {
     @PrimaryGeneratedColumn("uuid")
     	assignmentSubmissionId!: string;
 
-    /*
-    //To be done when grading is implemented
-    @Column({
-    	type: "number",
-    	nullable: false,
-    })
-    	gradeId!: GradeId;
-        */
     @Column({
     	type: "text",
     	nullable: true,
