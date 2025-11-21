@@ -19,7 +19,7 @@ import { SubmissionController } from "./Controllers/SubmissionController.js";
 import fs from "fs";
 import multer from "multer";
 
-console.log("Starting PeerPort Backend...");
+console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
 const app = express();
 app.use(express.json());
@@ -208,12 +208,14 @@ AppDataSource.initialize().then(() => {
     app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
+
+    // Start the server
+    app.listen(3000, () => {
+        console.log("\n\x1b[34m[INFO] Server is running on port 3000 at http://localhost:3000/\x1b[0m");
+        console.log("\x1b[34m[INFO] API documentation available at http://localhost:3000/api-docs\x1b[0m"); // link to api so that I don't need to find the link every time
+    });
 });
 
-// Start the server
-app.listen(3000, () => {
-    console.log("Server is running on port 3000 at http://localhost:3000/");
-    console.log("API documentation available at http://localhost:3000/api-docs"); // link to api so that I don't need to find the link every time
-});
+
 
 export default app;
