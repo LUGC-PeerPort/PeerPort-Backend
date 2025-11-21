@@ -322,7 +322,12 @@ export class AssignmentController {
             return;
         }
 
-        const submissionTyped = submissionUnknown as AssignmentSubmissions & { userId: string, files?: object[] };
+        if (typeof req.files == "undefined" && typeof req.body.content === "undefined") {
+            res.status(400).json({ message: "Invalid submission structure" });
+            return;
+        }
+
+        const submissionTyped = submissionUnknown as AssignmentSubmissions;
 
         // Get userId
         const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
@@ -449,7 +454,7 @@ export class AssignmentController {
     private isValidAssSubmissionBody(submission: unknown): boolean {
         if (typeof submission !== "object" || submission === null) return false;
 
-        const allowedFields = ["comment", "userId", "files"];
+        const allowedFields = ["comment"];
         for (const key of Object.keys(submission)) {
             if (!allowedFields.includes(key)) {
                 return false;
