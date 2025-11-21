@@ -204,7 +204,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
 
                 // Assign role and save
                 await AppDataSource.getRepository(User).save(user);
-                console.log("\x1b[32m[WARNING] Created default 'user' role in database.\x1b[0m");
+                console.log("\x1b[32m[INFO] Created default 'user' role in database.\x1b[0m");
             }
         }
 
