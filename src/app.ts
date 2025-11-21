@@ -13,11 +13,11 @@ import {User} from "./Database/entities/User.js";
 import {Role} from "./Database/entities/Role.js";
 import {GoogleStrategySetup} from "./Auth/GoogleStrategy.js";
 import cors from "cors";
-import multer from "multer";
-import fs from "fs";
 import { GradeController } from "./Controllers/GradeController.js";
 import { ContentController } from "./Controllers/ContentController.js";
 import { SubmissionController } from "./Controllers/SubmissionController.js";
+import fs from "fs";
+import multer from "multer";
 
 console.log("Starting PeerPort Backend...");
 
@@ -38,6 +38,11 @@ const swaggerDocument = YAML.load(path.resolve(__dirname, "../../oapi.yaml"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
+// Check if the environment variables are set
+if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
+    console.error("Database environment variables are not set.");
+    process.exit(1);
+}
 
 // Initialize file upload middleware
 let uploadDir: string;
@@ -59,16 +64,10 @@ const storage = multer.diskStorage({
         cb(null, safeFileName);
     }
 });
-const uploader = multer({
+export const uploader = multer({
     storage,
-    // Removed limit temproaraly limits: {fileSize: 1e+7} // 10MB file size limit
+    limits: {fileSize: 1e+7}, // 10MB file size limit
 });
-
-// Check if the environment variables are set
-if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
-    console.error("Database environment variables are not set.");
-    process.exit(1);
-}
 
 
 AppDataSource.initialize().then(() => {
@@ -92,6 +91,7 @@ AppDataSource.initialize().then(() => {
 
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
+    const assignmentController = new AssignmentController(AppDataSource);
     const gradeController = new GradeController(AppDataSource);
     const contentController = new ContentController(AppDataSource);
     const submissionController = new SubmissionController(AppDataSource);
@@ -140,7 +140,6 @@ AppDataSource.initialize().then(() => {
     app.get("/auth/testAuth/admin", (req, res) => ifAuthed(["admin"], req, res, () => {
         return res.json({message: "User has 'admin' role access."});
     }));
-    const assignmentController = new AssignmentController(AppDataSource);
 
     // Define routes
     app.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }));
@@ -166,13 +165,13 @@ AppDataSource.initialize().then(() => {
     app.get("/courses/:courseId/content",           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseContentForACourse(req, res)));
 
     // Assignment controller
-    app.get("/assignments/:assignmentId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
-    app.get("/assignments",                                             (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
-    app.post("/assignments",                                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
-    app.put("/assignments/:assignmentId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
-    app.delete("/assignments/:assignmentId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
-    app.post("/assignments/:assignmentId/submissions", uploader.any(),  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
-    app.get("/assignments/:assignmentId/submissions",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
+    app.get("/assignments/:assignmentId",               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
+    app.get("/assignments",                             (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
+    app.post("/assignments",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
+    app.put("/assignments/:assignmentId",               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
+    app.delete("/assignments/:assignmentId",            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
+    app.post("/assignments/:assignmentId/submissions",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
+    app.get("/assignments/:assignmentId/submissions",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
 
     // Submission controller
     app.get("/submissions",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => submissionController.getAllSubmissions(req, res)));
@@ -198,25 +197,6 @@ AppDataSource.initialize().then(() => {
     app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
-});
-
-// Error handler for multer
-app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    // Check if the error is a Multer error
-    if (err && typeof err === "object" && "code" in err) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const e = err as any;
-
-        // Handle specific Multer errors
-        if (e.code === "LIMIT_FILE_SIZE") {
-            return res.status(413).json({ message: "One or more files exceed the 10MB limit." });
-        }
-        if (e instanceof multer.MulterError) {
-            return res.status(400).json({ message: e.message });
-        }
-    }
-    // Go to next error handler
-    return next(err);
 });
 
 // Start the server
