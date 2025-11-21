@@ -540,7 +540,7 @@ describe("GradeController test:", () => {
 
             // Valid cases
             { name: "succeeds when user has no grades in course",           value: { params: { userId: () => user2.userId, courseId: () => course2.courseId } },                        expectedStatus: 200, expectedResult: { grade: 0 } },
-            { name: "succeeds when user has multiple grades in course",     value: { params: { userId: () => user.userId, courseId: () => course.courseId } },                          expectedStatus: 200, expectedResult: () => { return { grade: generalGrade.achievedScore }; } },
+            { name: "succeeds when user has multiple grades in course",     value: { params: { userId: () => user.userId, courseId: () => course.courseId } },                          expectedStatus: 200, expectedResult: () => { return { grade: generalGrade.achievedScore - generalGrade.minScore }; } },
         ])("Getting the calculated grade for a user in a specific course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 
@@ -556,7 +556,7 @@ describe("GradeController test:", () => {
         });
     });
 
-    describe.skip("Get the average of the grades in a course", () => {
+    describe("Get the average of the grades in a course", () => {
         it("Should implement getAverageGradeForCourse method", async () => {
             expect(controller.getAverageGradeForCourse).toBeDefined();
             expect(typeof controller.getAverageGradeForCourse).toBe("function");
@@ -567,16 +567,16 @@ describe("GradeController test:", () => {
             { name: "fails when missing courseId",                  value: {  },                                                                    expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
 
             // Invalid values
-            { name: "fails when courseId is a number",              value: { params: { courseId: 123 } },                                           expectedStatus: 400, expectedResult: { message: "Invalid courseId format" } },
-            { name: "fails when courseId is empty",                 value: { params: { courseId: "  " } },                                          expectedStatus: 400, expectedResult: { message: "courseId is required" } },
-            { name: "fails when courseId is an invalid format",     value: { params: { courseId: "invalid-format" } },                              expectedStatus: 400, expectedResult: { message: "Invalid courseId format" } },
+            { name: "fails when courseId is a number",              value: { params: { courseId: 123 } },                                           expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
+            { name: "fails when courseId is empty",                 value: { params: { courseId: "  " } },                                          expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
+            { name: "fails when courseId is an invalid format",     value: { params: { courseId: "invalid-format" } },                              expectedStatus: 400, expectedResult: { message: "Invalid course ID" } },
 
             // Logical errors
             { name: "fails when course does not exist",             value: { params: { courseId: "123e4567-e89b-12d3-a456-426614174000" } },        expectedStatus: 404, expectedResult: { message: "Course not found" } },
 
             // Valid cases
-            { name: "succeeds when course has no grades",           value: { params: { courseId: () => course2.courseId } },                        expectedStatus: 200, expectedResult: 0 },
-            { name: "succeeds when course has multiple grades",     value: { params: { courseId: () => course.courseId } },                         expectedStatus: 200, expectedResult: () => generalGrade.achievedScore },
+            { name: "succeeds when course has no grades",           value: { params: { courseId: () => course2.courseId } },                        expectedStatus: 200, expectedResult: { grade: 0 } },
+            { name: "succeeds when course has multiple grades",     value: { params: { courseId: () => course.courseId } },                         expectedStatus: 200, expectedResult: () => { return { grade: Math.round((generalGrade.achievedScore - generalGrade.minScore) / (generalGrade.maxScore - generalGrade.minScore) * 10000) / 100 }; } },
         ])("Getting the average of the grades in a course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 

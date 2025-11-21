@@ -1,6 +1,7 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
+import { checkUUID } from "./Tools.js";
 
 /**
  * Used to manage assignment submissions.
@@ -47,7 +48,7 @@ export class SubmissionController {
     * @param res - The response object.
     */
     async getSubmission(req: Request, res: Response): Promise<void> {
-        const submissionId = this.checkUUID(req.params.submissionId);
+        const submissionId = checkUUID(req.params.submissionId);
         if (!submissionId) {
             res.status(400).json({ message: "Invalid submission ID" });
             return;
@@ -72,31 +73,5 @@ export class SubmissionController {
             console.error("Error fetching submission:", error);
             res.status(500).json({ message: "Internal server error" });
         }
-    }
-
-    /**
-     * Checks if the UUID is valid
-     * @param id - The UUID
-     * @returns The UUID if valid, undefined otherwise
-     */
-    //copied from the AssignmentController checkUUID function
-    private checkUUID(id: unknown): string | void {
-        if (typeof id !== "string") return;
-        // Trim the string
-        const assSubID = id.trim();
-
-        // Check if the ID has content
-        if (assSubID === "") return;
-
-        // Check if the ID is a valid UUID
-        if (
-            !RegExp(
-                /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
-            ).test(assSubID)
-        )
-            return;
-
-        // Return the ID
-        return assSubID;
     }
 }

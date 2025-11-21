@@ -4,6 +4,7 @@ import { Grade } from "../Database/entities/Grade.js";
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
+import { checkUUID } from "./Tools.js";
 
 /**
  * Used to manage grades.
@@ -49,7 +50,7 @@ export class GradeController {
     async getGrade(req: Request, res: Response): Promise<void> {
         // Check the grade ID
         const gradeId = req.params?.gradeId as unknown;
-        if (!this.checkUUID(gradeId)) {
+        if (!checkUUID(gradeId)) {
             res.status(400).json({ message: "Invalid grade ID" });
             return;
         }
@@ -82,7 +83,7 @@ export class GradeController {
         const assignmentSubmissionIdUnknown = req?.params?.assignmentSubmissionId as unknown;
 
         // Validate the userId
-        if (!this.checkUUID(userIdUnknown)) {
+        if (!checkUUID(userIdUnknown)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
@@ -95,7 +96,7 @@ export class GradeController {
         }
 
         // Validate the courseId
-        if (!this.checkUUID(courseIdUnknown)) {
+        if (!checkUUID(courseIdUnknown)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
@@ -110,7 +111,7 @@ export class GradeController {
         // Validate the assignmentSubmissionId if provided
         let assignmentSubmission = undefined;
         if (typeof assignmentSubmissionIdUnknown !== "undefined") {
-            if (!this.checkUUID(assignmentSubmissionIdUnknown)) {
+            if (!checkUUID(assignmentSubmissionIdUnknown)) {
                 res.status(400).json({ message: "Invalid assignment submission ID" });
                 return;
             }
@@ -190,7 +191,7 @@ export class GradeController {
     async updateGrade(req: Request, res: Response): Promise<void> {
         // Check the grade ID
         const gradeId = req?.params?.gradeId as unknown;
-        if (!this.checkUUID(gradeId)) {
+        if (!checkUUID(gradeId)) {
             res.status(400).json({ message: "Invalid grade ID" });
             return;
         }
@@ -285,7 +286,7 @@ export class GradeController {
     async deleteGrade(req: Request, res: Response): Promise<void> {
         // Check the grade ID
         const gradeId = req.params?.gradeId as unknown;
-        if (!this.checkUUID(gradeId)) {
+        if (!checkUUID(gradeId)) {
             res.status(400).json({ message: "Invalid grade ID" });
             return;
         }
@@ -316,7 +317,7 @@ export class GradeController {
     async getAllGradesForUser(req: Request, res: Response): Promise<void> {
         // Check the user ID
         const userId = req.params?.userId as unknown;
-        if (!this.checkUUID(userId)) {
+        if (!checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
@@ -347,7 +348,7 @@ export class GradeController {
     async getAllGradesForCourse(req: Request, res: Response): Promise<void> {
         // Check the course ID
         const courseId = req.params?.courseId as unknown;
-        if (!this.checkUUID(courseId)) {
+        if (!checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
@@ -378,7 +379,7 @@ export class GradeController {
     async getAllGradesForUserInCourse(req: Request, res: Response): Promise<void> {
         // Check the user ID
         const userId = req.params?.userId as unknown;
-        if (!this.checkUUID(userId)) {
+        if (!checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
@@ -392,7 +393,7 @@ export class GradeController {
 
         // Check the course ID
         const courseId = req.params?.courseId as unknown;
-        if (!this.checkUUID(courseId)) {
+        if (!checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
@@ -423,7 +424,7 @@ export class GradeController {
     async getCalculatedGradeForUserInCourse(req: Request, res: Response): Promise<void> {
         // Check the user ID
         const userId = req.params?.userId as unknown;
-        if (!this.checkUUID(userId)) {
+        if (!checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
@@ -437,7 +438,7 @@ export class GradeController {
 
         // Check the course ID
         const courseId = req.params?.courseId as unknown;
-        if (!this.checkUUID(courseId)) {
+        if (!checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
@@ -461,13 +462,14 @@ export class GradeController {
         let weightedScoreSum = 0;
         for (const grade of userGrades) {
             const weight = grade.weight;
-            const score = grade.achievedScore / (grade.maxScore - grade.minScore);
+            const score = (grade.achievedScore - grade.minScore) / (grade.maxScore - grade.minScore);
             weightedScoreSum += score * weight;
             totalWeight += weight;
         }
 
         // Get the final calculated grade (rounded to 2 decimal places)
-        const calculatedGrade = totalWeight > 0 ? parseFloat(((weightedScoreSum / totalWeight) * 100).toFixed(2)) : 0;
+        const rawPercent = totalWeight > 0 ? (weightedScoreSum / totalWeight) * 100 : 0;
+        const calculatedGrade = Math.round(rawPercent * 100) / 100;
 
         // Return the grades
         res.status(200).json({ grade: calculatedGrade });
@@ -480,7 +482,37 @@ export class GradeController {
      * @param res - The response object
      */
     async getAverageGradeForCourse(req: Request, res: Response): Promise<void> {
-        res.status(501).json({ message: "Not implemented" });
+        // Check if the course ID is valid
+        const courseIdUnknown = req.params?.courseId as unknown;
+        if (!checkUUID(courseIdUnknown)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Check if the course exists
+        const courseId = courseIdUnknown as string;
+        const course = await this.courseRepo.findOne({ where: { courseId: courseId } });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Get all grades for the course
+        const grades = await this.gradeRepo.find({ where: { course: course } });
+
+        // Calculate the average grade
+        let totalAchievedScore = 0;
+        let totalMaxScore = 0;  
+        for (const grade of grades) {
+            totalAchievedScore += grade.achievedScore - grade.minScore;
+            totalMaxScore += grade.maxScore - grade.minScore;
+        }
+
+        const rawPercent = totalMaxScore > 0 ? (totalAchievedScore / totalMaxScore) * 100 : 0;
+        const averageGrade = Math.round(rawPercent * 100) / 100;
+
+        // Return the average grade
+        res.status(200).json({ grade: averageGrade });
     }
 
 
@@ -513,27 +545,6 @@ export class GradeController {
     /**
      * ------------------------ Tools ------------------------
      */
-
-    /**
-     * Checks if the UUID is valid
-     * @param id - The  UUID
-     * @returns The UUID if valid, undefined otherwise
-     */
-    private checkUUID(id: unknown): string | void {
-        if (typeof id !== "string") return;
-
-        // Trim the string
-        const assSubID = id.trim();
-
-        // Check if the ID has content
-        if (assSubID == "") return;
-        
-        // Check if the ID is a valid UUID
-        if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(assSubID)) return;
-        
-        // Return the ID
-        return assSubID;
-    }
 
     /**
      * Checks if the grade structure is valid
@@ -582,7 +593,7 @@ export class GradeController {
         // Check if any test failed
         if (failedFlag) return false;
 
-        // Check if any updates occourred
+        // Check if any updates occurred
         if (!updated && _updating) return true;
 
         // Passes all checks

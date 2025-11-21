@@ -1011,29 +1011,6 @@ describe("UserController test:", () => {
         });
     });
 
-    describe("checkUUID function tests", () => {
-        it("Should return nothing for an undefined UUID", () => {
-            const result = (controller as any).checkUUID(undefined);
-            expect(result).toBeUndefined();
-        });
-
-        it("Should return nothing if the UUID is an empty string", () => {
-            const result = (controller as any).checkUUID("   ");
-            expect(result).toBeUndefined();
-        });
-
-        it("Should return nothing for an invalid UUID structure", () => {
-            const result = (controller as any).checkUUID("invalid-uuid-string");
-            expect(result).toBeUndefined();
-        });
-
-        it("Should return the UUID if it is valid", () => {
-            const validUUID = "123e4567-e89b-12d3-a456-426614174000";
-            const result = (controller as any).checkUUID(validUUID);
-            expect(result).toBe(validUUID);
-        });
-    });
-
     describe("userReturn function tests", () => {
         it("Should correctly parse a User entity to UserReturn type", () => {
             const result = (controller as any).userReturn({
