@@ -5,6 +5,7 @@ import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmission
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 import { Files } from "../Database/entities/Files.js";
+import { checkUUID } from "./Tools.js";
 
 export interface AssignmentReturnWithoutCourseId {
     assignmentId: string;
@@ -84,7 +85,7 @@ export class AssignmentController {
         const assignmentStructure = assignmentUnknown as Assignments;
         
         // Check courseId
-        if (!this.checkUUID(courseId)) {
+        if (!checkUUID(courseId)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
@@ -117,7 +118,7 @@ export class AssignmentController {
      */
     async getAssignment(req: Request, res: Response): Promise<void> {
         const assignmentId: unknown = req.params?.assignmentId;
-        if(!this.checkUUID(assignmentId)) {
+        if(!checkUUID(assignmentId)) {
             res.status(400).json({message: "Invalid assignment ID"});
             return;
         }
@@ -146,7 +147,7 @@ export class AssignmentController {
     
         // Validate assignment ID
         const assignmentId: unknown = req.params?.assignmentId;
-        if (!this.checkUUID(req.params?.assignmentId)) {
+        if (!checkUUID(req.params?.assignmentId)) {
             res.status(400).json({message: "Invalid assignment ID"});
             return;
         }
@@ -197,7 +198,7 @@ export class AssignmentController {
     async deleteAssignment(req: Request, res: Response): Promise<void> {
         // Get the assignment ID
         const assignmentId: unknown = req.params?.assignmentId;
-        if (!this.checkUUID(assignmentId)) {
+        if (!checkUUID(assignmentId)) {
             res.status(400).json({message: "Invalid assignment ID"});
             return;
         }
@@ -226,7 +227,7 @@ export class AssignmentController {
     async getSubmissionsForAssignment(req: Request, res: Response): Promise<void> {
         // Get the assignment ID
         const assignmentId: unknown = req.params?.assignmentId;
-        if (!this.checkUUID(assignmentId)) {
+        if (!checkUUID(assignmentId)) {
             res.status(400).json({ message: "Invalid assignment ID" });
             return;
         }
@@ -259,7 +260,7 @@ export class AssignmentController {
     async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
         // Get assignmentId
         const assignmentId: unknown = req.params?.assignmentId;
-        if (!this.checkUUID(assignmentId)) {
+        if (!checkUUID(assignmentId)) {
             res.status(400).json({ message: "Invalid assignment ID" });
             return;
         }
@@ -281,7 +282,7 @@ export class AssignmentController {
 
         // Get userId
         const userId = (req.body as { userId?: unknown }).userId;
-        if (!this.checkUUID(userId)) {
+        if (!checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
@@ -321,27 +322,6 @@ export class AssignmentController {
     /**
      * -------- TOOLS --------
      */
-
-    /**
-     * Checks if the UUID is valid
-     * @param id - The  UUID
-     * @returns The UUID if valid, undefined otherwise
-     */
-    private checkUUID(id: unknown): string | void {
-        if (typeof id !== "string") return;
-
-        // Trim the string
-        const assSubID = id.trim();
-
-        // Check if the ID has content
-        if (assSubID == "") return;
-        
-        // Check if the ID is a valid UUID
-        if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(assSubID)) return;
-        
-        // Return the ID
-        return assSubID;
-    }
 
     /**
      * Helper for assignment request body validation

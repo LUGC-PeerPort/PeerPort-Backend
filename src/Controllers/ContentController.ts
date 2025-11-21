@@ -2,6 +2,7 @@ import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
 import { Content } from "../Database/entities/Content.js";
 import { Course } from "../Database/entities/Course.js";
+import { checkUUID } from "./Tools.js";
 
 
 export interface ContentReturn {
@@ -52,7 +53,7 @@ export class ContentController {
     async getContentById(req: Request, res: Response): Promise<void> {
         // Check the content ID
         const contentIdUnknown = req.params?.contentId as unknown;
-        if (!this.checkUUID(contentIdUnknown)) {
+        if (!checkUUID(contentIdUnknown)) {
             res.status(400).json({ message: "Invalid content ID" });
             return;
         }
@@ -76,7 +77,7 @@ export class ContentController {
     async createContent(req: Request, res: Response): Promise<void> {
         // Check the course ID
         const courseIdUnknown = req.params?.courseId as unknown;
-        if (!this.checkUUID(courseIdUnknown)) {
+        if (!checkUUID(courseIdUnknown)) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
@@ -119,7 +120,7 @@ export class ContentController {
     async createSubContent(req: Request, res: Response): Promise<void> {
         // Check the parent content ID
         const parentIdUnknown = req.params?.parentId as unknown;
-        if (!this.checkUUID(parentIdUnknown)) {
+        if (!checkUUID(parentIdUnknown)) {
             res.status(400).json({ message: "Invalid content ID" });
             return;
         }
@@ -164,7 +165,7 @@ export class ContentController {
     async updateContent(req: Request, res: Response): Promise<void> {
         // Check the content ID
         const contentIdUnknown = req.params?.contentId as unknown;
-        if (!this.checkUUID(contentIdUnknown)) {
+        if (!checkUUID(contentIdUnknown)) {
             res.status(400).json({ message: "Invalid content ID" });
             return;
         }
@@ -202,7 +203,7 @@ export class ContentController {
     async deleteContent(req: Request, res: Response): Promise<void> {
         // Check the content ID
         const contentIdUnknown = req.params?.contentId as unknown;
-        if (!this.checkUUID(contentIdUnknown)) {
+        if (!checkUUID(contentIdUnknown)) {
             res.status(400).json({ message: "Invalid content ID" });
             return;
         }
@@ -240,27 +241,6 @@ export class ContentController {
             dateCreated: content.dateCreated,
             dateUpdated: content.dateUpdated,
         };
-    }
-
-    /**
-     * Checks if the UUID is valid
-     * @param id - The  UUID
-     * @returns The UUID if valid, undefined otherwise
-     */
-    private checkUUID(id: unknown): string | void {
-        if (typeof id !== "string") return;
-
-        // Trim the string
-        const userID = id.trim();
-
-        // Check if the ID has content
-        if (userID === "") return;
-        
-        // Check if the ID is a valid UUID
-        if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(userID)) return;
-        
-        // Return the ID
-        return userID;
     }
 
     /**

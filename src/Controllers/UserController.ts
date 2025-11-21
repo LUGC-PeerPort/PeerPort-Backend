@@ -6,6 +6,7 @@ import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Role } from "../Database/entities/Role.js";
+import { checkUUID } from "./Tools.js";
 
 export interface UserReturn {
     userId: string | undefined;
@@ -140,7 +141,7 @@ export class UserController {
      * @param res - The Response object
      */
     async getProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.userId);
+        const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -171,7 +172,7 @@ export class UserController {
      * @param res - The Response object
      */
     async updateProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.userId);
+        const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -212,7 +213,7 @@ export class UserController {
      * @param res - The Response object
      */
     async deleteProfile(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.userId);
+        const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -231,7 +232,7 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourses(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.userId);
+        const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -264,7 +265,7 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
-        const userID = this.checkUUID(req.params.userId);
+        const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
@@ -276,7 +277,7 @@ export class UserController {
             return;
         }
 
-        const courseID = this.checkUUID(req.params.courseId);
+        const courseID = checkUUID(req.params.courseId);
         if (courseID == undefined) {
             res.status(400).json({ message: "Invalid course ID" });
             return;
@@ -359,28 +360,6 @@ export class UserController {
         else if (updating && !updated) return false;
         else return true;
     }
-
-    /**
-     * Checks if the UUID is valid
-     * @param id - The  UUID
-     * @returns The UUID if valid, undefined otherwise
-     */
-    private checkUUID(id: string): string | void {
-        if (id == undefined) return;
-
-        // Trim the string
-        const userID = id.trim();
-
-        // Check if the ID has content
-        if (userID == "") return;
-
-        // Check if the ID is a valid UUID
-        if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(userID)) return;
-
-        // Return the ID
-        return userID;
-    }
-
 
     /**
      * Parses the user data and make it an acceptable return value
