@@ -2,16 +2,46 @@ import passport from "passport";
 // @ts-expect-error Needed as there are no types available for this package
 import GoogleStrategy from "passport-google-oidc";
 import type express from "express";
+import type { Request } from "express";
 import {Role} from "../Database/entities/Role.js";
 import {User} from "../Database/entities/User.js";
 import type {DataSource} from "typeorm";
 import session from "express-session";
+import type { Session } from "express-session";
 
 export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSource) => {
+    // Required environment variables
+    const REQUIRED_VARS = [
+        ["AUTH_SECRET", process.env.AUTH_SECRET],
+        ["AUTH_GOOGLE_ID", process.env.AUTH_GOOGLE_ID],
+        ["AUTH_GOOGLE_SECRET", process.env.AUTH_GOOGLE_SECRET],
+        ["AUTH_GOOGLE_CALLBACK", process.env.AUTH_GOOGLE_CALLBACK]
+    ];
+    let fail = false;
+    for (const [varName, varValue] of REQUIRED_VARS) {
+        if (varValue === undefined) {
+            console.error(`\x1b[31m[ERROR] ${varName} is not defined in environment variables.\x1b[0m`);
+            fail = true;
+        }
+    }
+    if (fail) process.exit(1);
+
+    // Optional environment variables
+    const OPTIONAL_VARS = [
+        ["SESSION_SECRET", process.env.SESSION_SECRET, "dev-secret"],
+        ["SERVER_URL", process.env.SERVER_URL, "http://localhost:3000"],
+        ["CLIENT_URL", process.env.CLIENT_URL, "http://localhost:4200"]
+    ];
+    for (const [varName, varValue, defaultValue] of OPTIONAL_VARS) {
+        if (varValue === undefined) {
+            process.env[varName!] = defaultValue;
+            console.warn(`\x1b[33m[WARNING] ${varName} is not defined. Using default: '${defaultValue}'\x1b[0m`);
+        }
+    }
 
     // session must be registered before passport.session()
     app.use(session({
-        secret: process.env.SESSION_SECRET || "dev-secret",
+        secret: process.env.SESSION_SECRET!,
         resave: false,
         saveUninitialized: false,
         cookie: {
@@ -88,30 +118,58 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             res.redirect(process.env.CLIENT_URL + "/home");
         });
 
-     
-    return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:() => void) => {
 
+    return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:() => void) => {
+        const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+
+        // Check if we're in development mode
         if(process.env.IS_PRODUCTION === "false") {
-            // In non-production environments, skip auth for easier testing
+            // If we are developing and no user has been assigned set to a default admin user
+            if (!session?.passport?.user) {
+                // Get the default user or create it if it doesn't exist
+                let defaultUser = await AppDataSource.getRepository(User).findOneBy({email: "default@example.com"});
+                if (defaultUser) {
+                    session.passport = { user: defaultUser.userId };
+                } else {
+                    let adminRole = await AppDataSource.getRepository(Role).findOneBy({name: "admin"});
+                    if (!adminRole) {
+                        adminRole = await AppDataSource.getRepository(Role).save({name: "admin"});
+                    }
+                    defaultUser = await AppDataSource.getRepository(User).save({
+                        name: "Default User",
+                        email: "default@example.com",
+                        idNumber: "000000",
+                        role: adminRole
+                    });
+                }
+
+                // Set the session user to the default user
+                session.passport = { user: defaultUser.userId };
+            }
+
+            // Go to the endpoint logic
             return cb();
         }
 
-        // @ts-expect-error Needed as request session types are ... weird
-        const userId = (req.session as unknown).passport.user;
+        // Get the redirect link for login
+        const redirectLink = (process.env.SERVER_URL ?? "http://localhost:3000") + "/login/google";
 
-        if(!userId) {
-            res.redirect("/login");
-            console.log("WTF");
+        // Get the user ID from the session
+        if (!session || session.passport === undefined || session.passport.user === undefined) {
+            res.location(redirectLink);
             return;
         }
+        const userId = session.passport.user;
 
+        // Check if the user exists
         const user = await AppDataSource.getRepository(User).findOneBy({userId: userId});
         if(user == null){
-            res.redirect("/login");
+            res.location(redirectLink);
             console.log("TWF");
             return;
         }
 
+        // Get the user's role
         let userRole = user?.role;
         if(!userRole){
             const roleUser = await AppDataSource.getRepository(Role).findOneBy({name: "user"});
@@ -124,6 +182,8 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
                 res.json({error: "User Role not found"}).status(500);
             }
         }
+
+        // Check if the user is allowed to access the resource
         if(authorizedRoles.includes(userRole?.name)){
             return cb();
         } else {
