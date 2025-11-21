@@ -26,7 +26,10 @@ if (!checkIfUpdateAvailable()) {
     console.error("Update check failed or updates are available. Exiting...");
     process.exit(1);
 }
+// Give a message to say checks are complete
+console.log("\x1b[32m[SUCCESS] Checks complete...\x1b[0m");
 
+// Start of the PeerPort Backend
 console.log("\nStarting PeerPort Backend...");
 
 const app = express();

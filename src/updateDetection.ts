@@ -74,6 +74,7 @@ export function checkIfUpdateAvailable(): boolean {
 
     // Check if we're ahead or behind
     if (isAheadOrBehind()) return false;
+    console.log("");
     if (isAheadOrBehind(true)) return false;
 
     // No updates available
