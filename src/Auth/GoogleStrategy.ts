@@ -158,7 +158,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         function login(): void {
             const redirectLink = (process.env.SERVER_URL ?? "http://localhost:3000") + "/login/google";
 
-            // Check if the referer is the swagger UI
+            // Check if the referrer (HTTP Referer header) is the swagger UI
             if(req.headers.referer && req.headers.referer.includes("api-docs")){
                 res.status(401).json({
                     message: "Unauthorized: log in. (This message is only visible on the Swagger UI in other cases you would be redirected)", 
@@ -204,7 +204,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
 
                 // Assign role and save
                 await AppDataSource.getRepository(User).save(user);
-                console.log("\x1b[32m[WARNING] Created default 'user' role in database.\x1b[0m");
+                console.log("\x1b[32m[INFO] Created default 'user' role in database.\x1b[0m");
             }
         }
 
