@@ -442,6 +442,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
+  /courses/{courseId}/content:
+    get:
+      tags:
+        - Courses
+        - Content
+      summary: Retrieve content for a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of content for the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentGet'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
 
   /content:
     get:

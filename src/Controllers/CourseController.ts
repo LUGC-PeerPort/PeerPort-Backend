@@ -6,6 +6,8 @@ import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
 import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
 import { checkUUID } from "./Tools.js";
+import { Content } from "../Database/entities/Content.js";
+import type { ContentReturn } from "./ContentController.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -27,6 +29,7 @@ export class CourseController {
     private userRepo: Repository<User>;
     private usersToCoursesRepo: Repository<UsersToCourses>;
     private assignmentsRepo: Repository<Assignments>;
+    private contentRepo: Repository<Content>;
 
     /**
      * Create an instance of the CourseController
@@ -37,6 +40,7 @@ export class CourseController {
         this.userRepo = appDataSource.getRepository(User);
         this.usersToCoursesRepo = appDataSource.getRepository(UsersToCourses);
         this.assignmentsRepo = appDataSource.getRepository(Assignments);
+        this.contentRepo = appDataSource.getRepository(Content);
     }
 
     /**
@@ -287,6 +291,37 @@ export class CourseController {
         res.status(200).json(assignmentReturns);
     }
 
+    // /api/v1/courses/:courseId/content
+    /**
+     * Gets all the content for a specific course
+     * @param req - The request object
+     * @param res - The response object
+     * @returns The content for the course
+     */
+    async getCourseContentForACourse(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseIdUnknown = req.params?.courseId as unknown;
+        if (!checkUUID(courseIdUnknown)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        const courseId = courseIdUnknown as string;
+
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Get content
+        const contentItems = await this.contentRepo.find({where: { course: { courseId: courseId } } });
+
+        // Parse content
+        const contentReturns = contentItems.map(content => this.contentReturn(content));
+        res.status(200).json(contentReturns);
+    }
 
     // ----- TOOLS -----
     
@@ -402,6 +437,24 @@ export class CourseController {
             name: assignmentData.name,
             description: assignmentData.description,
             dueDate: assignmentData.dueDate,
+        };
+    }
+
+    /**
+     * Formats content for return
+     * @param content - The content to format
+     * @returns The formatted content
+     */
+    private contentReturn(content: Content): ContentReturn {
+        return {
+            contentId: content.contentId,
+            courseId: content.course?.courseId,
+            parentId: content.parent?.contentId,
+            name: content.name,
+            description: content.description,
+            viewable: content.viewable,
+            dateCreated: content.dateCreated,
+            dateUpdated: content.dateUpdated,
         };
     }
 }
