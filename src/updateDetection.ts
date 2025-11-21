@@ -41,7 +41,7 @@ function getCommits(): [string, string] | false {
 
 /**
  * Checks if the local branch is ahead or behind the remote branch
- * @returns True if behind, false if ahead or equal
+ * @returns Returns true if behind, false if ahead or equal
  */
 function isAheadOrBehind(): boolean {
     const isAhead = run("git rev-list --left-only --count HEAD...@{u}");
