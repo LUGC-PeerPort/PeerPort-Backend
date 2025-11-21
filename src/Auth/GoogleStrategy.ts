@@ -156,7 +156,8 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
 
         // Get the user ID from the session
         if (!session || session.passport === undefined || session.passport.user === undefined) {
-            res.location(redirectLink);
+
+            res.redirect(redirectLink);
             return;
         }
         const userId = session.passport.user;
@@ -164,7 +165,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         // Check if the user exists
         const user = await AppDataSource.getRepository(User).findOneBy({userId: userId});
         if(user == null){
-            res.location(redirectLink);
+            res.redirect(redirectLink);
             return;
         }
 
