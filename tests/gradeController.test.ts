@@ -576,7 +576,7 @@ describe("GradeController test:", () => {
 
             // Valid cases
             { name: "succeeds when course has no grades",           value: { params: { courseId: () => course2.courseId } },                        expectedStatus: 200, expectedResult: { grade: 0 } },
-            { name: "succeeds when course has multiple grades",     value: { params: { courseId: () => course.courseId } },                         expectedStatus: 200, expectedResult: () =>{ return { grade: Math.round((generalGrade.achievedScore - generalGrade.minScore) / (generalGrade.maxScore - generalGrade.minScore) * 10000) / 100 }; } },
+            { name: "succeeds when course has multiple grades",     value: { params: { courseId: () => course.courseId } },                         expectedStatus: 200, expectedResult: () => { return { grade: Math.round((generalGrade.achievedScore - generalGrade.minScore) / (generalGrade.maxScore - generalGrade.minScore) * 10000) / 100 }; } },
         ])("Getting the average of the grades in a course $name", async ({ name: _name, value, expectedStatus, expectedResult }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(value, expectedResult);
 
