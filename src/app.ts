@@ -21,9 +21,28 @@ import multer from "multer";
 
 console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
+// Check if the environment variables are set
+const VARS = [
+    ["DB_HOST", process.env.DB_HOST], 
+    ["DB_USER", process.env.DB_USER], 
+    ["DB_PASSWORD", process.env.DB_PASSWORD], 
+    ["DB_NAME", process.env.DB_NAME],
+    ["CLIENT_URL", process.env.CLIENT_URL]
+];
+let fail = false;
+for (const [name, data] of VARS) {
+    if (data === undefined) {
+        console.error(`\x1b[31m[ERROR] Environment variable ${name} is not set.\x1b[0m`);
+        fail = true;
+    }
+}
+if (fail) process.exit(1);
+
+// Initialize Express app
 const app = express();
 app.use(express.json());
 
+// Setup CORS
 app.use(cors({
     origin: process.env.CLIENT_URL,
     methods: "GET,POST,PUT,DELETE,HEAD,OPTIONS",
@@ -31,28 +50,12 @@ app.use(cors({
     allowedHeaders: "Content-Type,Authorization"
 }));
 
+
 // Setting up swagger
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const swaggerDocument = YAML.load(path.resolve(__dirname, "../../oapi.yaml"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-
-// Check if the environment variables are set
-const DB_VARS = [
-    ["DB_HOST", process.env.DB_HOST], 
-    ["DB_USER", process.env.DB_USER], 
-    ["DB_PASSWORD", process.env.DB_PASSWORD], 
-    ["DB_NAME", process.env.DB_NAME]
-];
-let fail = false;
-for (const [name, data] of DB_VARS) {
-    if (data === undefined) {
-        console.error(`\x1b[31m[ERROR] Environment variable ${name} is not set.\x1b[0m`);
-        fail = true;
-    }
-}
-if (fail) process.exit(1);
 
 
 // Initialize file upload middleware
