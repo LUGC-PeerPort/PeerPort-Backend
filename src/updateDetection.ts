@@ -15,7 +15,7 @@ function run(cmd: string): string {
 
 /**
  * Checks if we are in a git repository
- * @returns Weather we are in a git repo or not
+ * @returns Wether we are in a git repo or not
  */
 function isGitRepository(): boolean {
     const result = run("git rev-parse --is-inside-work-tree");
@@ -60,14 +60,14 @@ function isAheadOrBehind(main: boolean=false): boolean {
 
 /**
  * Used to check if an update is available
- * @param {disable } disable - Whether to disable update checks
- * @returns Weather an update is available or not
+ * @param {boolean} disable - Whether to disable update checks
+ * @returns Wether an update is available or not
  */
 export function checkIfUpdateAvailable({disable}: {disable: boolean}): boolean { 
     // The ability to disable updates checks allows 
     // for development to continue if dev deems it fit
     if (disable) {
-        console.log("\x1b[33m[NOTICE] UPDATE CHECKS ARE DISABLED ENABLE BEFORE YOU PUSH.\x1b[0m");
+        console.log("\x1b[33m[NOTICE] UPDATE CHECKS ARE DISABLED, ENABLE BEFORE YOU PUSH.\x1b[0m");
         return true;
     }
 
