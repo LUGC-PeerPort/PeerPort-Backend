@@ -1520,15 +1520,8 @@ components:
       required:
         - name
         - courseCode
-        - userId
       allOf:
         - $ref: '#/components/schemas/CourseBasic'
-        - type: object
-          properties:
-            userId:
-              type: string
-              format: uuid
-              description: ID of the instructor creating the course
     CourseWithEnrolledDate:
       type: object
       allOf:
