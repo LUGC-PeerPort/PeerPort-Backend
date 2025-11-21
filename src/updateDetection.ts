@@ -32,15 +32,15 @@ function isAheadOrBehind(main: boolean=false): boolean {
     const aheadCmd = `git rev-list --left-only --count HEAD...${targetRef}`;
     const behindCmd = `git rev-list --right-only --count HEAD...${targetRef}`;
 
-    const name = run(`git rev-parse --abbrev-ref ${targetRef}`);
-    console.log(`\x1b[34m[INFO] Comparing local branch to ${name}...\x1b[0m`);
+    const branchName = run("git rev-parse --abbrev-ref @{u}");
+    console.log(`\x1b[34m[INFO] Comparing local branch to ${main ? "origin/main" : branchName}...\x1b[0m`);
 
     const isAhead = Number(run(aheadCmd)) || 0;
     const isBehind = Number(run(behindCmd)) || 0;
     const refLabel = main ? "remote main (origin/main)" : "upstream";
 
     if (isBehind > 0 && isAhead > 0) {
-        console.warn(`\x1b[33m[SEVERE WARNING] Your local and ${refLabel} have diverged. ${isAhead} ahead, ${isBehind} behind.\x1b[0m`);
+        console.warn(`\x1b[33m[SEVERE WARNING] Local(${branchName}) is ${isAhead} commit(s) ahead of '${main ? "origin/main" : branchName}' which is behind by ${isBehind} commit(s).\x1b[0m`);
         if (main) console.warn("\x1b[33m[FIX] Run `git pull origin main` then re-run.\x1b[0m");
         else console.warn("\x1b[33m[FIX] Run `git pull` then re-run.\x1b[0m");
         return false;
