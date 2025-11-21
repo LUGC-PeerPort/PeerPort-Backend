@@ -876,12 +876,32 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SubmissionPost'
+              type: object
+              required:
+                - userId
+              properties:
+                comment:
+                  type: string
+                  description: Comment or feedback for the submission
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                    description: Binary file upload(s)
+            encoding:
+              files:
+                contentType: application/octet-stream
             examples:
               payload:
-                $ref: '#/components/examples/AssignmentSubmissionPostExample'
+                summary: Example multipart submission
+                value:
+                  comment: "Please find my submission attached."
+                  files:
+                    - "file1.pdf"
+                    - "screenshot.png"
       responses:
         '201':
           description: Submission created successfully
@@ -1563,27 +1583,6 @@ components:
               type: string
               format: uuid
               description: Unique identifier for the submission
-    SubmissionPost:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/SubmissionBasic'
-        - type: object
-          required:
-            - userId
-          properties:
-            userId:
-              type: string
-              format: uuid
-              description: Unique identifier for the user making the submission
-            files:
-              type: array
-              items:
-                type: string
-                format: byte
-                description: File data
-            comment:
-              type: string
-              description: Comment or feedback for the submission
 
     GradeBasic:
       type: object
@@ -1749,9 +1748,7 @@ components:
     AssignmentSubmissionPostExample:
       summary: Example assignment submission payload
       value:
-        userId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
         comment: "Please find my submission attached."
-        timeSubmitted: "2025-09-14T18:30:00Z"
         files:
           - "Base64EncodedFileDataHere"
     
