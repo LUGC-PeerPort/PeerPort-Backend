@@ -10,7 +10,7 @@ export function checkUUID(id: unknown): string | void {
     const newId = id.trim();
 
     // Check if the ID has content
-    if (newId == "") return;
+    if (newId === "") return;
     
     // Check if the ID is a valid UUID
     if (!RegExp(/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/).test(newId)) return;
