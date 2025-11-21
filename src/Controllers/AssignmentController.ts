@@ -105,7 +105,10 @@ export class AssignmentController {
         }
 
         // Create and save the assignment
-        const newAssignment = this.assignmentRepo.create(assignmentStructure);
+        const newAssignment = this.assignmentRepo.create({
+            ...assignmentStructure,
+            course: course,
+        });
         const savedAssignment = await this.assignmentRepo.save(newAssignment);
 
         res.status(201).json(this.convertToAssignmentReturn(savedAssignment, courseId));
