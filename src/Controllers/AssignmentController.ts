@@ -331,7 +331,7 @@ export class AssignmentController {
 
         // Get userId
         const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
-        if (session.passport === undefined || session.passport.user === undefined) {
+        if (!session || session.passport === undefined || session.passport.user === undefined) {
             res.status(401).json({ message: "Unauthorized: User not logged in." });
             this.removeFiles(req);
             return;
