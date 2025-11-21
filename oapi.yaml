@@ -23,7 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserId'
+                $ref: '#/components/schemas/CurrentUser'
         '401':
           description: Unauthorized - No valid authentication token provided
           content:
@@ -1369,13 +1369,17 @@ paths:
 
 components:
   schemas:
-    UserId:
+    CurrentUser:
       type: object
       properties:
         userId:
           type: string
           format: uuid
           description: Unique identifier for the user
+        roleId:
+          type: string
+          format: uuid
+          description: Unique identifier for the user's role
     UserBasic:
       type: object
       required:
