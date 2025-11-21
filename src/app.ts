@@ -20,12 +20,12 @@ import { ContentController } from "./Controllers/ContentController.js";
 import { SubmissionController } from "./Controllers/SubmissionController.js";
 import { checkIfUpdateAvailable } from "./updateDetection.js";
 
+// Update check
 console.log("Checking for updates...");
 if (!checkIfUpdateAvailable()) {
     console.error("Update check failed or updates are available. Exiting...");
     process.exit(1);
 }
-
 
 console.log("\nStarting PeerPort Backend...");
 
@@ -39,7 +39,7 @@ app.use(cors({
     allowedHeaders: "Content-Type,Authorization"
 }));
 
-// // Setting up swagger
+// Setting up swagger
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const swaggerDocument = YAML.load(path.resolve(__dirname, "../../oapi.yaml"));
