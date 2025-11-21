@@ -336,7 +336,7 @@ export class AssignmentController {
             this.removeFiles(req);
             return;
         }
-        const userId = session.passport.user ;
+        const userId = session.passport.user;
         if (!checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
             this.removeFiles(req);
