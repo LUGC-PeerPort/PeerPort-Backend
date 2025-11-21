@@ -28,14 +28,14 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
     if (fail) process.exit(1);
 
     // Optional environment variables
-    const OPTIONAL_VARS = [
+    const OPTIONAL_VARS: [string, string | undefined, string][] = [
         ["SESSION_SECRET", process.env.SESSION_SECRET, "dev-secret"],
         ["SERVER_URL", process.env.SERVER_URL, "http://localhost:3000"],
         ["CLIENT_URL", process.env.CLIENT_URL, "http://localhost:4200"]
     ];
     for (const [varName, varValue, defaultValue] of OPTIONAL_VARS) {
         if (varValue === undefined) {
-            process.env[varName!] = defaultValue;
+            process.env[varName] = defaultValue;
             console.warn(`\x1b[33m[WARNING] ${varName} is not defined. Using default: '${defaultValue}'\x1b[0m`);
         }
     }
