@@ -125,6 +125,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         if(process.env.IS_PRODUCTION === "false") {
             // If we are developing and no user has been assigned set to a default admin user
             if (!session?.passport?.user) {
+                console.log("\x1b[33m[WARNING] No user in session, assigning default admin user for development.\x1b[0m");
                 // Get the default user or create it if it doesn't exist
                 let defaultUser = await AppDataSource.getRepository(User).findOneBy({email: "default@example.com"});
                 if (defaultUser) {
