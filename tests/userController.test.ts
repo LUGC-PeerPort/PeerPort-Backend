@@ -853,12 +853,17 @@ describe("UserController test:", () => {
         });
 
         it("Should get the current logged in user", async () => {
+            const role = await TestDataSource.getRepository("Role").save({
+                name: "tester"
+            });
+
             const user = await TestDataSource.getRepository("User").save({
                 name: "Test User",
                 email: "testuser@example.com",
                 password: "securepassword",
                 profilePictureUrl: undefined,
                 idNumber: "123456789smth",
+                role: role,
             });
 
             const req: any = {
@@ -876,6 +881,7 @@ describe("UserController test:", () => {
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({
                 userId: user.userId,
+                roleId: user.role.roleId
             });
         });
     });
