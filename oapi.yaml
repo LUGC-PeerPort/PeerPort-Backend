@@ -1520,15 +1520,8 @@ components:
       required:
         - name
         - courseCode
-        - userId
       allOf:
         - $ref: '#/components/schemas/CourseBasic'
-        - type: object
-          properties:
-            userId:
-              type: string
-              format: uuid
-              description: ID of the instructor creating the course
     CourseWithEnrolledDate:
       type: object
       allOf:
@@ -1750,7 +1743,6 @@ components:
         description: "An intermediate course on data structures."
         startDate: "2025-09-01"
         endDate: "2025-12-15"
-        userId: "11111111-2222-3333-4444-555555555555"
     CourseUpdateExample:
       summary: Example course update payload
       value:

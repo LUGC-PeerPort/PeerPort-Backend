@@ -8,6 +8,7 @@ import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js"
 import { checkUUID } from "./Tools.js";
 import { Content } from "../Database/entities/Content.js";
 import { formatContentListToTree } from "./ContentController.js";
+import type { Session } from "express-session";
 
 export interface CourseReturn {
     courseId: string;
@@ -68,7 +69,12 @@ export class CourseController {
         }
 
         // Convert to Course type
-        const userId = (courseUnknown as Course & { userId: string }).userId;
+        const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+        if (!session || session.passport === undefined || session.passport.user === undefined) {
+            res.status(401).json({ message: "Unauthorized: User not logged in." });
+            return;
+        }
+        const userId = session.passport.user;
         const courseStructure = courseUnknown as Course;
 
         // Check dates
@@ -346,7 +352,7 @@ export class CourseController {
         // Check if the course has any extra keys
         const courseKeys = ["name", "courseCode", "isOpen", "description", "startDate", "endDate"];
         for (const key of Object.keys(course)) {
-            if (!courseKeys.includes(key) && !(key === "userId" && _creation)) return false;
+            if (!courseKeys.includes(key)) return false;
         }
 
         // Make a Course object that is partial (all fields optional)
