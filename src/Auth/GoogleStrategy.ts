@@ -9,7 +9,6 @@ import type {DataSource} from "typeorm";
 import session from "express-session";
 import type { Session } from "express-session";
 
-// eslint-disable-next-line max-lines-per-function 
 export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSource) => {
     // Required environment variables
     const REQUIRED_VARS = [
