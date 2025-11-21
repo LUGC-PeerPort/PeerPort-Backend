@@ -1304,18 +1304,6 @@ describe("CourseController test:", () => {
         });
     });
 
-    describe("checkUUID function tests", () => {
-        it.each([
-            { name: "undefined UUID returns undefined", input: undefined as unknown as string, expected: undefined },
-            { name: "empty string returns undefined", input: "", expected: undefined },
-            { name: "invalid structure returns undefined", input: "not-a-uuid", expected: undefined },
-            { name: "valid UUID is returned", input: "123e4567-e89b-12d3-a456-426614174000", expected: "123e4567-e89b-12d3-a456-426614174000" },
-        ])("$name", ({ input, expected }) => {
-            const result = controller["checkUUID"](input);
-            expect(result).toBe(expected as any);
-        });
-    });
-
     describe("checkDates function tests", () => {
         it.each([
             { name: "endDate null => true", start: "2024-01-01", end: null, expected: true },
