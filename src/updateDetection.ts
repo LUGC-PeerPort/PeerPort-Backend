@@ -23,68 +23,56 @@ function isGitRepository(): boolean {
 }
 
 /**
- * Gets the local and remote commit hashes
- * @returns The hashes or if there was an error
- */
-function getCommits(): [string, string] | false {
-    const localHash = run("git rev-parse HEAD");
-    const remoteHash = run("git rev-parse @{u}");
-
-    // Check if the remote branch exists
-    if (!remoteHash) {
-        console.error("\x1b[31m[ERROR] Could not find upstream branch. Is it set?\x1b[0m");
-        return false;
-    }
-
-    return [localHash, remoteHash];
-}
-
-/**
  * Checks if the local branch is ahead or behind the remote branch
+ * @param main - Whether to check against the main branch or not
  * @returns Returns true if behind, false if ahead or equal
  */
-function isAheadOrBehind(): boolean {
-    const isAhead = run("git rev-list --left-only --count HEAD...@{u}");
-    const isBehind = run("git rev-list --right-only --count HEAD...@{u}");
+function isAheadOrBehind(main: boolean=false): boolean {
+    const targetRef = main ? "origin/main" : "@{u}";
+    const aheadCmd = `git rev-list --left-only --count HEAD...${targetRef}`;
+    const behindCmd = `git rev-list --right-only --count HEAD...${targetRef}`;
 
-    if (Number(isBehind) > 0) {
-        console.warn(`\x1b[33m[WARNING] Your local branch is behind by ${isBehind} commits.\x1b[0m`);
+    const name = run(`git rev-parse --abbrev-ref ${targetRef}`);
+    console.log(`\x1b[34m[INFO] Comparing local branch to ${name}...\x1b[0m`);
+
+    const isAhead = Number(run(aheadCmd)) || 0;
+    const isBehind = Number(run(behindCmd)) || 0;
+    const refLabel = main ? "remote main (origin/main)" : "upstream";
+
+    if (isBehind > 0 && isAhead > 0) {
+        console.warn(`\x1b[33m[SEVERE WARNING] Your local and ${refLabel} have diverged. ${isAhead} ahead, ${isBehind} behind.\x1b[0m`);
+        return false;
+    } else if (isBehind > 0) {
+        console.warn(`\x1b[33m[WARNING] Your local branch is behind ${refLabel} by ${isBehind} commits.\x1b[0m`);
         return true;
-    } else if (Number(isAhead) > 0) {
-        console.warn(`\x1b[33m[WARNING] Your local branch is ahead by ${isAhead} commits.\x1b[0m`);
+    } else if (isAhead > 0) {
+        console.warn(`\x1b[33m[WARNING] Your local branch is ahead of ${refLabel} by ${isAhead} commits.\x1b[0m`);
+        return false;
+    } else {
+        console.log("\x1b[32m[NOTICE] Your local branch is up to date with the remote.\x1b[0m");
         return false;
     }
-
-    return false;
 }
 
 /**
  * Used to check if an update is available
  * @returns Weather an update is available or not
  */
-export function checkIfUpdateAvailable(): boolean {
+export function checkIfUpdateAvailable(): boolean {    
     // Check if we are in a git repo
     if (!isGitRepository()) {
         console.error("\x1b[31m[ERROR] Not a git repository. Cannot check for updates.\x1b[0m");
         return false;
     }
 
-    // Get the metadata of the repo
-    const _metadata = run("git fetch");
+    // Get the updated metadata of the repo
+    run("git fetch");
 
-    // Identify local and remote commits
-    const commits = getCommits();
-    if (commits == false) return false;
+    // Check if we're ahead or behind
+    if (isAheadOrBehind()) return false;
+    if (isAheadOrBehind(true)) return false;
 
-    const [localHash, remoteHash] = commits;
-
-    if (localHash !== remoteHash) {
-        // Check if we're ahead or behind
-        if (isAheadOrBehind()) return false;
-        return true;
-    } else {
-        // No updates available
-        console.log("\x1b[32m[NOTICE] No updates available.\x1b[0m");
-        return true;
-    }
+    // No updates available
+    console.log("\x1b[32m[NOTICE] No updates available.\x1b[0m");
+    return true;
 }
