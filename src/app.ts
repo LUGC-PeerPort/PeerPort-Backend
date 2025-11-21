@@ -22,7 +22,7 @@ import { checkIfUpdateAvailable } from "./updateDetection.js";
 
 // Update check
 console.log("Checking for updates...");
-if (!checkIfUpdateAvailable()) {
+if (!checkIfUpdateAvailable({disable: false})) { // Set to 'true' to disable update checks. Enable before you push.
     console.error("Update check failed or updates are available. Exiting...");
     process.exit(1);
 }

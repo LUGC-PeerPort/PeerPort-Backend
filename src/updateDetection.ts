@@ -60,9 +60,17 @@ function isAheadOrBehind(main: boolean=false): boolean {
 
 /**
  * Used to check if an update is available
+ * @param {disable } disable - Whether to disable update checks
  * @returns Weather an update is available or not
  */
-export function checkIfUpdateAvailable(): boolean {    
+export function checkIfUpdateAvailable({disable}: {disable: boolean}): boolean { 
+    // The ability to disable updates checks allows 
+    // for development to continue if dev deems it fit
+    if (disable) {
+        console.log("\x1b[33m[NOTICE] UPDATE CHECKS ARE DISABLED ENABLE BEFORE YOU PUSH.\x1b[0m");
+        return true;
+    }
+
     // Check if we are in a git repo
     if (!isGitRepository()) {
         console.error("\x1b[31m[ERROR] Not a git repository. Cannot check for updates.\x1b[0m");
