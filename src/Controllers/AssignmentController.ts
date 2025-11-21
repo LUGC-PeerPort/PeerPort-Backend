@@ -230,7 +230,7 @@ export class AssignmentController {
 
         // Delete the associated submissions and their files
         for (const submission of assignment.assignmentSubmissions) {
-            const submissionFiles = await this.fileRepo.find({ where: { submission: { assignmentSubmissionId: submission.assignmentSubmissionId } }, relations: ["files"] });
+            const submissionFiles = await this.fileRepo.find({ where: { submission: { assignmentSubmissionId: submission.assignmentSubmissionId } } });
             for (const file of submissionFiles) {
                 try {
                     await fs.promises.unlink(file.location);
