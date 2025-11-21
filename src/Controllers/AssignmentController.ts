@@ -218,29 +218,29 @@ export class AssignmentController {
         }
 
         // Delete associated files
-        assignment.files.forEach(async (file) => {
-            fs.unlink(file.location, (err) => {
-                if (err) {
-                    console.error(`\x1b[31m[ERROR] Removing file ${file.location} failed: ${err}\x1b[0m`);
-                }
-            });
+        for (const file of assignment.files) {
+            try {
+                await fs.promises.unlink(file.location);
+            } catch (err) {
+                console.error(`\x1b[31m[ERROR] Removing file ${file.location} failed: ${err}\x1b[0m`);
+            }
 
             await this.fileRepo.remove(file);
-        });
+        }
 
         // Delete the associated submissions and their files
-        assignment.assignmentSubmissions.forEach(async (submission) => {
+        for (const submission of assignment.assignmentSubmissions) {
             const submissionFiles = await this.fileRepo.find({ where: { submission: { assignmentSubmissionId: submission.assignmentSubmissionId } }, relations: ["files"] });
-            submissionFiles.forEach(async (file) => {
-                fs.unlink(file.location, (err) => {
-                    if (err) {
-                        console.error(`\x1b[31m[ERROR] Removing file ${file.location} failed: ${err}\x1b[0m`);
-                    }
-                });
+            for (const file of submissionFiles) {
+                try {
+                    await fs.promises.unlink(file.location);
+                } catch (err) {
+                    console.error(`\x1b[31m[ERROR] Removing file ${file.location} failed: ${err}\x1b[0m`);
+                }
 
                 await this.fileRepo.remove(file);
-            });
-        });
+            }
+        }
 
         // Delete the assignment
         await this.assignmentRepo.remove(assignment);
