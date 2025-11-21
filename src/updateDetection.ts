@@ -32,7 +32,7 @@ function getCommits(): [string, string] | false {
 
     // Check if the remote branch exists
     if (!remoteHash) {
-        console.error("[ERROR] Could not find upstream branch. Is it set?");
+        console.error("\x1b[31m[ERROR] Could not find upstream branch. Is it set?\x1b[0m");
         return false;
     }
 
@@ -41,16 +41,21 @@ function getCommits(): [string, string] | false {
 
 /**
  * Checks if the local branch is ahead or behind the remote branch
+ * @returns True if behind, false if ahead or equal
  */
-function isAheadOrBehind(): void {
-    const status = run("git rev-list --left-right --count HEAD").split("\t");
-    const [isAhead, isBehind] = status;
+function isAheadOrBehind(): boolean {
+    const isAhead = run("git rev-list --left-only --count HEAD...@{u}");
+    const isBehind = run("git rev-list --right-only --count HEAD...@{u}");
 
     if (Number(isBehind) > 0) {
-        console.warn(`[WARNING] Your local branch is behind by ${isBehind} commits.`);
+        console.warn(`\x1b[33m[WARNING] Your local branch is behind by ${isBehind} commits.\x1b[0m`);
+        return true;
     } else if (Number(isAhead) > 0) {
-        console.warn(`[WARNING] Your local branch is ahead by ${isAhead} commits.`);
+        console.warn(`\x1b[33m[WARNING] Your local branch is ahead by ${isAhead} commits.\x1b[0m`);
+        return false;
     }
+
+    return false;
 }
 
 /**
@@ -60,7 +65,7 @@ function isAheadOrBehind(): void {
 export function checkIfUpdateAvailable(): boolean {
     // Check if we are in a git repo
     if (!isGitRepository()) {
-        console.error("[ERROR] Not a git repository. Cannot check for updates.");
+        console.error("\x1b[31m[ERROR] Not a git repository. Cannot check for updates.\x1b[0m");
         return false;
     }
 
@@ -73,14 +78,13 @@ export function checkIfUpdateAvailable(): boolean {
 
     const [localHash, remoteHash] = commits;
 
-    if (localHash === remoteHash) {
-        console.log("[NOTICE] No updates available.");
+    if (localHash !== remoteHash) {
+        // Check if we're ahead or behind
+        if (isAheadOrBehind()) return false;
+        return true;
+    } else {
+        // No updates available
+        console.log("\x1b[32m[NOTICE] No updates available.\x1b[0m");
         return true;
     }
-    
-    // Check if we're ahead or behind
-    isAheadOrBehind();
-
-    console.log("Updates are available.");
-    return false;
 }
