@@ -14,6 +14,7 @@ export interface ContentReturn {
     viewable: boolean;
     dateCreated: Date;
     dateUpdated: Date;
+    subContent: ContentReturn[];
 }
 
 
@@ -42,7 +43,7 @@ export class ContentController {
     async getAllContent(req: Request, res: Response): Promise<void> {
         const allContent = await this.contentRepo.find({ relations: ["course"] });
 
-        res.status(200).json(allContent.map((content) => this.contentReturn(content)));
+        res.status(200).json(allContent.map((content) => contentReturn(content)));
     }
 
     /**
@@ -66,7 +67,7 @@ export class ContentController {
         }
 
         // Return the content
-        res.status(200).json(this.contentReturn(content));
+        res.status(200).json(contentReturn(content));
     }
 
     /**
@@ -109,7 +110,7 @@ export class ContentController {
         await this.contentRepo.save(content);
 
         // Return the created content
-        res.status(201).json(this.contentReturn(content));
+        res.status(201).json(contentReturn(content));
     }
 
     /**
@@ -154,7 +155,7 @@ export class ContentController {
         await this.contentRepo.save(subContent);
 
         // Return the created sub-content
-        res.status(201).json(this.contentReturn(subContent));
+        res.status(201).json(contentReturn(subContent));
     }
 
     /**
@@ -192,7 +193,7 @@ export class ContentController {
         await this.contentRepo.save(content);
 
         // Return the updated content
-        res.status(200).json(this.contentReturn(content));
+        res.status(200).json(contentReturn(content));
     }
 
     /**
@@ -224,25 +225,6 @@ export class ContentController {
 
 
     // ---- TOOLS ----
-
-    /**
-     * Formats content for return
-     * @param content - The content to format
-     * @returns The formatted content
-     */
-    private contentReturn(content: Content): ContentReturn {
-        return {
-            contentId: content.contentId,
-            courseId: content.course?.courseId,
-            parentId: content.parent?.contentId,
-            name: content.name,
-            description: content.description,
-            viewable: content.viewable,
-            dateCreated: content.dateCreated,
-            dateUpdated: content.dateUpdated,
-        };
-    }
-
     /**
      * Check if the content structure is valid
      * @param content - The content to check
@@ -280,4 +262,23 @@ export class ContentController {
         // All checks passed
         return true;
     }
+}
+
+/**
+ * Formats content for return
+ * @param content - The content to format
+ * @returns The formatted content
+ */
+export function contentReturn(content: Content): ContentReturn {
+    return {
+        contentId: content.contentId,
+        courseId: content.course?.courseId,
+        parentId: content.parent?.contentId,
+        name: content.name,
+        description: content.description,
+        viewable: content.viewable,
+        dateCreated: content.dateCreated,
+        dateUpdated: content.dateUpdated,
+        subContent: [],
+    };
 }
