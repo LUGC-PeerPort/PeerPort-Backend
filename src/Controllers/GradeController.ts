@@ -504,10 +504,8 @@ export class GradeController {
         let totalAchievedScore = 0;
         let totalMaxScore = 0;  
         for (const grade of grades) {
-            if (typeof grade.achievedScore === "number") {
-                totalAchievedScore += grade.achievedScore - grade.minScore;
-                totalMaxScore += grade.maxScore - grade.minScore;
-            }
+            totalAchievedScore += grade.achievedScore - grade.minScore;
+            totalMaxScore += grade.maxScore - grade.minScore;
         }
 
         const rawPercent = totalMaxScore > 0 ? (totalAchievedScore / totalMaxScore) * 100 : 0;
