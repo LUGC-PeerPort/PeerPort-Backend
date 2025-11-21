@@ -119,7 +119,6 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
                 userRole = roleUser;
                 user.role = roleUser;
                 await AppDataSource.getRepository(User).save(user);
-                console.log(user);
             } else {
                 console.error("User not found");
                 res.json({error: "User Role not found"}).status(500);
