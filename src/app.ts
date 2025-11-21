@@ -18,6 +18,13 @@ import fs from "fs";
 import { GradeController } from "./Controllers/GradeController.js";
 import { ContentController } from "./Controllers/ContentController.js";
 import { SubmissionController } from "./Controllers/SubmissionController.js";
+import { checkIfUpdateAvailable } from "./updateDetection.js";
+
+console.log("Checking for updates...");
+if (!checkIfUpdateAvailable()) {
+    console.error("Update check failed or updates are available. Exiting...");
+    process.exit(1);
+}
 
 console.log("Starting PeerPort Backend...");
 
