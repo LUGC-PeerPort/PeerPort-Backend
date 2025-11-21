@@ -9,6 +9,7 @@ import type {DataSource} from "typeorm";
 import session from "express-session";
 import type { Session } from "express-session";
 
+// eslint-disable-next-line max-lines-per-function 
 export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSource) => {
     // Required environment variables
     const REQUIRED_VARS = [
@@ -151,13 +152,28 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             return cb();
         }
 
-        // Get the redirect link for login
-        const redirectLink = (process.env.SERVER_URL ?? "http://localhost:3000") + "/login/google";
+        /**
+         * Redirect the user to the Google login page
+         */
+        function login(): void {
+            const redirectLink = (process.env.SERVER_URL ?? "http://localhost:3000") + "/login/google";
+
+            // Check if the referer is the swagger UI
+            if(req.headers.referer && req.headers.referer.includes("api-docs")){
+                res.status(401).json({
+                    message: "Unauthorized: log in. (This message is only visible on the Swagger UI in other cases you would be redirected)", 
+                    loginUrl: redirectLink
+                });
+                return;
+            }
+
+            // Typical redirect to login
+            res.redirect(redirectLink);
+        }
 
         // Get the user ID from the session
         if (!session || session.passport === undefined || session.passport.user === undefined) {
-
-            res.redirect(redirectLink);
+            login();
             return;
         }
         const userId = session.passport.user;
@@ -165,7 +181,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         // Check if the user exists
         const user = await AppDataSource.getRepository(User).findOneBy({userId: userId});
         if(user == null){
-            res.redirect(redirectLink);
+            login();
             return;
         }
 
