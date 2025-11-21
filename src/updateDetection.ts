@@ -40,7 +40,7 @@ function isAheadOrBehind(main: boolean=false): boolean {
     const refLabel = main ? "remote main (origin/main)" : "upstream";
 
     if (isBehind > 0 && isAhead > 0) {
-        console.warn(`\x1b[33m[SEVERE WARNING] Local(${branchName}) is ${isAhead} commit(s) ahead of '${main ? "origin/main" : branchName}' which is behind by ${isBehind} commit(s).\x1b[0m`);
+        console.warn(`\x1b[33m[SEVERE WARNING] Local branch '${branchName}' is ${isAhead} commit(s) ahead of ${refLabel} and behind by ${isBehind} commit(s).\x1b[0m`);
         if (main) console.warn("\x1b[33m[FIX] Run `git pull origin main` then re-run.\x1b[0m");
         else console.warn("\x1b[33m[FIX] Run `git pull` then re-run.\x1b[0m");
         return false;
