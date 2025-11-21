@@ -26,7 +26,7 @@ if (!checkIfUpdateAvailable()) {
     process.exit(1);
 }
 
-console.log("Starting PeerPort Backend...");
+console.log("\nStarting PeerPort Backend...");
 
 const app = express();
 app.use(express.json());
