@@ -1692,6 +1692,10 @@ components:
             dateUpdated:
               type: string
               format: date-time
+            subContent:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContentGet'
 
     BasicError:
       type: object

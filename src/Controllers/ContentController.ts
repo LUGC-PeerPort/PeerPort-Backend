@@ -41,9 +41,9 @@ export class ContentController {
      * @param res - The response object.
      */
     async getAllContent(req: Request, res: Response): Promise<void> {
-        const allContent = await this.contentRepo.find({ relations: ["course"] });
+        const allContent = await this.contentRepo.find({ relations: ["course", "parent"] });
 
-        res.status(200).json(allContent.map((content) => contentReturn(content)));
+        res.status(200).json(formatContentListToTree(allContent));
     }
 
     /**
@@ -60,7 +60,7 @@ export class ContentController {
         }
 
         const contentId = contentIdUnknown as string;
-        const content = await this.contentRepo.findOne({ where: { contentId: contentId }, relations: ["course"] });
+        const content = await this.contentRepo.findOne({ where: { contentId: contentId }, relations: ["course", "parent"] });
         if (!content) {
             res.status(404).json({ message: "Content not found" });
             return;
@@ -127,7 +127,7 @@ export class ContentController {
         }
 
         const parentId = parentIdUnknown as string;
-        const parent = await this.contentRepo.findOne({ where: { contentId: parentId }, relations: ["course"] });
+        const parent = await this.contentRepo.findOne({ where: { contentId: parentId }, relations: ["course", "parent"] });
         if (!parent) {
             res.status(404).json({ message: "Content not found" });
             return;
@@ -172,7 +172,7 @@ export class ContentController {
         }
 
         const contentId = contentIdUnknown as string;
-        const content = await this.contentRepo.findOne({ where: { contentId: contentId }, relations: ["course"] });
+        const content = await this.contentRepo.findOne({ where: { contentId: contentId }, relations: ["course", "parent"] });
         if (!content) {
             res.status(404).json({ message: "Content not found" });
             return;
@@ -281,4 +281,37 @@ export function contentReturn(content: Content): ContentReturn {
         dateUpdated: content.dateUpdated,
         subContent: [],
     };
+}
+
+/**
+ * Formats a list of content into a tree structure based on parent-child relationships
+ * @param contentList - The flat list of content items
+ * @returns The tree-structured list of content items
+ */
+export function formatContentListToTree(contentList: Content[]): ContentReturn[] {
+    const contentMap: { [key: string]: ContentReturn } = {};
+    const tree: ContentReturn[] = [];
+
+    // First, map all content items by their ID
+    for (const content of contentList) {
+        contentMap[content.contentId] = contentReturn(content);
+    }
+
+    // Then, build the tree structure
+    for (const content of contentList) {
+        const contentId = content.contentId;
+        const parentId = content.parent?.contentId;
+        if (parentId && contentMap[parentId]) {
+            // If the content has a parent, add it to the parent's subContent
+            if (!contentMap[parentId].subContent) {
+                contentMap[parentId].subContent = [];
+            }
+            contentMap[parentId].subContent!.push(contentMap[contentId]);
+        } else {
+            // If no parent, it's a root content item
+            tree.push(contentMap[contentId]);
+        }
+    }
+
+    return tree;
 }

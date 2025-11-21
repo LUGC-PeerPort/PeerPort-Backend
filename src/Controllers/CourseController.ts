@@ -7,8 +7,7 @@ import { Assignments } from "../Database/entities/Assignments.js";
 import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
 import { checkUUID } from "./Tools.js";
 import { Content } from "../Database/entities/Content.js";
-import type { ContentReturn } from "./ContentController.js";
-import { contentReturn } from "./ContentController.js";
+import { formatContentListToTree } from "./ContentController.js";
 
 export interface CourseReturn {
     courseId: string;
@@ -317,35 +316,17 @@ export class CourseController {
         }
 
         // Get content
-        const contentItems = await this.contentRepo.find({where: { course: { courseId: courseId } }, relations: ["parent"] });
+        const contentItems = await this.contentRepo.find({where: { course: { courseId: courseId } }, relations: ["parent", "course"] });
 
         // Make any content that has a parentId, into a subContent of that content
-        let contentItemsList: ContentReturn[] = contentItems.map(content => contentReturn(content));
-        for (const content of contentItems) {
-            if (content.parent) {
-                // Convert to ContentReturn
-                const properContent = contentReturn(content);
-
-                // Find the parent in the list
-                const parentIndex = contentItemsList.findIndex(item => item.contentId === content.parent?.contentId);
-                if (parentIndex !== -1) {
-                    // Add to the parent's children
-                    if (!contentItemsList[parentIndex].subContent) {
-                        contentItemsList[parentIndex].subContent = [];
-                    }
-                    contentItemsList[parentIndex].subContent.push(properContent);
-                    
-                    // Remove from the main list
-                    contentItemsList = contentItemsList.filter(item => item.contentId !== content.contentId);
-                }
-            }
-        }
+        const contentItemsList = formatContentListToTree(contentItems);
 
         // Return content
         res.status(200).json(contentItemsList);
     }
 
     // ----- TOOLS -----
+
     
     /**
      * Checks if the course structure is valid or not
