@@ -96,8 +96,8 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             return cb();
         }
 
-        // @ts-expect-error Needed as request session types are ... weird
-        const userId = (req.session as unknown).passport.user;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const userId = (req.session as any).passport.user;
 
         if(!userId) {
             res.redirect("/login");
@@ -105,7 +105,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
             return;
         }
 
-        const user = await AppDataSource.getRepository(User).findOneBy({userId: userId});
+        const user = await AppDataSource.getRepository(User).findOne({ where : {userId: userId}, relations: ["role"]});
         if(user == null){
             res.redirect("/login");
             console.log("TWF");
