@@ -8,7 +8,7 @@ import { execSync } from "child_process";
 function run(cmd: string): string {
     try {
         return execSync(cmd, { encoding: "utf-8" }).trim();
-    } catch (_) {
+    } catch {
         return "";
     }
 }
