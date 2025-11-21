@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne, CreateDateColumn } from "typeorm";
 import { Assignments } from "./Assignments.js";
 import { User } from "./User.js";
 import { Files } from "./Files.js";
@@ -17,12 +17,9 @@ export class AssignmentSubmissions {
     	nullable: true,
     })
     	comment!: string;
-    @Column({
-    	type: "text",
-    	nullable: false,
-    })
-    	timeSubmitted!: string;
-        
+
+    @CreateDateColumn()
+    	timeSubmitted!: Date;
         
     @ManyToOne(() => User, (user) => user.courses)
     	user!: User;
