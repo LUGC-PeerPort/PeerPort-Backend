@@ -464,12 +464,16 @@ export class GradeController {
             for (const grade of userGrades) {
                 const weight = grade.weight;
                 const score = (grade.achievedScore - grade.minScore) / (grade.maxScore - grade.minScore);
+                
+                if (isNaN(score) || !isFinite(score)) throw new Error(`Invalid score calculation for grade ID ${grade.gradeId}`);
+
                 weightedScoreSum += score * weight;
                 totalWeight += weight;
             }
 
             // Get the final calculated grade (rounded to 2 decimal places)
             const rawPercent = totalWeight > 0 ? (weightedScoreSum / totalWeight) * 100 : 0;
+            if (isNaN(rawPercent) || !isFinite(rawPercent)) throw new Error(`Invalid final grade calculation ${weightedScoreSum} / ${totalWeight}`);
             const calculatedGrade = Math.round(rawPercent * 100) / 100;
 
             // Return the grades
@@ -516,6 +520,7 @@ export class GradeController {
             }
 
             const rawPercent = totalMaxScore > 0 ? (totalAchievedScore / totalMaxScore) * 100 : 0;
+            if (isNaN(rawPercent) || !isFinite(rawPercent)) throw new Error(`Invalid average grade calculation ${totalAchievedScore} / ${totalMaxScore}`);
             const averageGrade = Math.round(rawPercent * 100) / 100;
 
             // Return the average grade
