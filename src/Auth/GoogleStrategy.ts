@@ -20,7 +20,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
     let fail = false;
     for (const [varName, varValue] of REQUIRED_VARS) {
         if (varValue === undefined) {
-            console.error(`\x1b[31m[ERROR] ${varName} is not defined in environment variables.\x1b[0m`);
+            console.error(`\x1b[31m[ERROR] Environment variable ${varName} is not set.\x1b[0m`);
             fail = true;
         }
     }
@@ -110,7 +110,6 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
     });
 
 
-
     app.get("/auth/callback/google",
         passport.authenticate("google", { failureRedirect: "/login" }),
         (req, res) => {
@@ -165,28 +164,37 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         const user = await AppDataSource.getRepository(User).findOneBy({userId: userId});
         if(user == null){
             res.location(redirectLink);
-            console.log("TWF");
             return;
         }
 
         // Get the user's role
         let userRole = user?.role;
+
+        // If the user has no role, assign the 'user' role
         if(!userRole){
             const roleUser = await AppDataSource.getRepository(Role).findOneBy({name: "user"});
             if(roleUser){
                 userRole = roleUser;
                 user.role = roleUser;
                 await AppDataSource.getRepository(User).save(user);
+            
+            // Could not find 'user' role, create it
             } else {
-                console.error("User not found");
-                res.json({error: "User Role not found"}).status(500);
+                console.error("\x1b[31m[ERROR] Default 'user' role not found in database.\x1b[0m");
+                userRole = await AppDataSource.getRepository(Role).save({name: "user"});
+                user.role = userRole;
+
+                // Assign role and save
+                await AppDataSource.getRepository(User).save(user);
+                console.log("\x1b[32m[WARNING] Created default 'user' role in database.\x1b[0m");
             }
         }
 
         // Check if the user is allowed to access the resource
-        if(authorizedRoles.includes(userRole?.name)){
+        if(authorizedRoles.includes(userRole.name)){
             return cb();
         } else {
+            console.warn(`\x1b[33m[WARNING] User ${user.email} with role ${userRole.name} attempted to access a restricted resource.\x1b[0m`);
             res.status(403).json({message: "Forbidden: You don't have permission to access this resource."});
             return;
         }
