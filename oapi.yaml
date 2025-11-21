@@ -247,10 +247,10 @@ paths:
     get:
       tags:
         - Courses
-      summary: Retrieve a list of classes
+      summary: Retrieve a list of courses
       responses:
         '200':
-          description: A list of classes
+          description: A list of courses
           content:
             application/json:
               schema:
@@ -1363,7 +1363,7 @@ components:
               description: Unique identifier for the user
             role:
               $ref: '#/components/schemas/RoleBasic'
-            classes:
+            courses:
               type: array
               items:
                 $ref: '#/components/schemas/CourseWithEnrolledDate'
@@ -1386,16 +1386,6 @@ components:
         name:
           type: string
           description: Name of the role (e.g., Student, Instructor, Admin)
-    RoleWithId:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/RoleBasic'
-        - type: object
-          properties:
-            roleId:
-              type: string
-              format: uuid
-              description: Unique Role identifier
 
     CourseBasic:
       required:
@@ -1459,32 +1449,6 @@ components:
               type: string
               format: date
               description: Date when the User started the course
-    CourseWithUsers:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/CourseBasicWithId'
-        - type: object
-          properties:
-            users:
-              type: array
-              items:
-                $ref: '#/components/schemas/UserBasic'
-
-    UserToCourses:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the user-course relationship
-        enrolledOn:
-          type: string
-          format: date
-          description: Date when the user enrolled in the course
-        user:
-          $ref: '#/components/schemas/UserBasic'
-        classEntity:
-          $ref: '#/components/schemas/CourseBasic'
 
     AssignmentBasic:
       type: object
@@ -1730,10 +1694,6 @@ components:
         name: "Lecture 2 — Advanced Topics"
         description: "Slides covering advanced concepts."
         viewable: true
-    BasicErrorExample:
-      summary: Example error
-      value:
-        message: "An error occurred"
     
     AssignmentPostExample:
       summary: Example assignment creation payload
