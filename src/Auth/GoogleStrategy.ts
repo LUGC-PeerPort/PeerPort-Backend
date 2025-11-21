@@ -90,6 +90,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
 
      
     return async (authorizedRoles: string[], req: express.Request, res: express.Response, cb:() => void) => {
+        console.log("REQ", req.session);
 
         if(process.env.IS_PRODUCTION === "false") {
             // In non-production environments, skip auth for easier testing
