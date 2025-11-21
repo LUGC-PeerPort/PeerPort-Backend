@@ -41,9 +41,13 @@ function isAheadOrBehind(main: boolean=false): boolean {
 
     if (isBehind > 0 && isAhead > 0) {
         console.warn(`\x1b[33m[SEVERE WARNING] Your local and ${refLabel} have diverged. ${isAhead} ahead, ${isBehind} behind.\x1b[0m`);
+        if (main) console.warn("\x1b[33m[FIX] Run `git pull origin main` then re-run.\x1b[0m");
+        else console.warn("\x1b[33m[FIX] Run `git pull` then re-run.\x1b[0m");
         return false;
     } else if (isBehind > 0) {
         console.warn(`\x1b[33m[WARNING] Your local branch is behind ${refLabel} by ${isBehind} commits.\x1b[0m`);
+        if (main) console.warn("\x1b[33m[FIX] Run `git pull origin main` then re-run.\x1b[0m");
+        else console.warn("\x1b[33m[FIX] Run `git pull` then re-run.\x1b[0m");
         return true;
     } else if (isAhead > 0) {
         console.warn(`\x1b[33m[WARNING] Your local branch is ahead of ${refLabel} by ${isAhead} commits.\x1b[0m`);
