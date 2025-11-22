@@ -149,10 +149,12 @@ export class ContentController {
             return;
         }
 
-        const course = parent.course;
+        const course = parent.course!;
 
         // Check if the user is related to the course
-        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, parent)) {
+        const tempReq = req;
+        tempReq.params = { courseId: course.courseId };
+        if (!await checkIfUserRelatedToCourse(tempReq, res, this.userRepo, this.userToCourseRepo)) {
             return;
         }
 
@@ -236,7 +238,7 @@ export class ContentController {
         }
         
         const contentId = contentIdUnknown as string;
-        const content = await this.contentRepo.findOne({ where: { contentId: contentId } });
+        const content = await this.contentRepo.findOne({ where: { contentId: contentId }, relations: ["course"] });
         if (!content) {
             res.status(404).json({ message: "Content not found" });
             return;
