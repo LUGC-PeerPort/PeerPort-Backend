@@ -104,15 +104,17 @@ export class AssignmentController {
             return;
         }
 
-        // Check if the user is related to the course
-        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.userToCourseRepo)) {
-            return;
-        }
-
         // Check dates
         const dueDateParsed = Date.parse(assignmentStructure.dueDate);
         if(dueDateParsed < Date.now()) {
             res.status(400).json({ message: "Invalid due date" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        const tempReq = req;
+        req.params = { courseId: courseId };
+        if (!await checkIfUserRelatedToCourse(tempReq, res, this.userRepo, this.userToCourseRepo)) {
             return;
         }
 
