@@ -18,6 +18,7 @@ import { ContentController } from "./Controllers/ContentController.js";
 import { SubmissionController } from "./Controllers/SubmissionController.js";
 import fs from "fs";
 import multer from "multer";
+import type { Request, Response } from "express";
 
 console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
@@ -211,6 +212,50 @@ AppDataSource.initialize().then(() => {
     app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
+
+    // Custom error handler
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    app.use((err: any, req: Request, res: Response, _next: any) => {
+        // Get the status code from the error, default to 500
+        const statusCode = err.statusCode || 500;
+
+        // Get the message from the error, default to 'Internal Server Error'
+        const message = err.message || "Internal Server Error";
+
+        // Get the api call path
+        const path = req.originalUrl || req.url;
+
+        // Get the source path if available
+        const source = req.headers?.referer || req.headers?.host || "unknown source";
+
+        // Get the method used
+        const method = req.method;
+
+        // Safe stringify function to avoid errors with circular references
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const safeStringify = (obj: any): string => {
+            try {
+                return JSON.stringify(obj);
+            } catch {
+                return "[Unable to stringify]";
+            }
+        };
+
+        // Get the body if available
+        const body = req.body ? safeStringify(req.body) : "no body";
+
+        // Get the session if available
+        const session = req.session ? safeStringify(req.session) : "no session";
+        
+        // Make the message
+        const errorMessage = `[ERROR] ${statusCode} on ${method} ${path} from '${source}': ${message}\n\tBody: ${body}\n\tSession: ${session}\n${err.stack || ""}`;
+        
+        // Log the error to the console
+        console.error(`\x1b[31m${errorMessage}\x1b[0m`);
+
+        // Send the error response
+        res.status(statusCode).json({ message: message });
+    });
 
     // Start the server
     app.listen(3000, () => {
