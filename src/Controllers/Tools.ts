@@ -96,7 +96,7 @@ export async function checkIfUserRelatedToUser(req: Request, res: Response, user
     if (userId !== req.params.userId) {
         // Check if the user is an admin
         if (!isAdmin(user)) {
-            res.status(403).json({ message: "Forbidden: Cannot access other user's profile" });
+            res.status(403).json({ message: "Forbidden: Cannot access other user's details." });
             return false;
         }
     }
