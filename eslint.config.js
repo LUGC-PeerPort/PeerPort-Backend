@@ -65,7 +65,7 @@ export default defineConfig([
 
 			/* --- Code Style --- */
 			// Enforce consistent indentation (configured globally as 1 tab = 4 spaces)
-			"indent": ["error", "space"],
+			"indent": "error",
 
 			// Require semicolons at the end of statements
 			"semi": ["error", "always"],
