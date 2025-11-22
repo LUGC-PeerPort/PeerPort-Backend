@@ -67,6 +67,13 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
 }
 
 
+/**
+ * Checks if the user is allowed to edit/get from the user profile
+ * @param req - The Request object
+ * @param res - The Response object
+ * @param userRepo - The user DB
+ * @returns Whether the user is allowed to edit the user profile
+ */
 export async function checkIfUserEditUser(req: Request, res: Response, userRepo: Repository<User>): Promise<boolean> {
     // Check if the user is editing their own profile
     const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
