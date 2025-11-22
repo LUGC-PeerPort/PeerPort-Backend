@@ -113,7 +113,7 @@ export class AssignmentController {
 
         // Check if the user is related to the course
         const tempReq = req;
-        req.params = { courseId: courseId };
+        tempReq.params = { courseId: courseId };
         /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(tempReq, res, this.userRepo, this.userToCourseRepo)) {
             return;
