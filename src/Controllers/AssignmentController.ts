@@ -211,17 +211,13 @@ export class AssignmentController {
         }
 
         // Find the assignment
-        const assignment = await this.assignmentRepo.findOneBy({ assignmentId: assignmentId as string });
+        const assignment = await this.assignmentRepo.findOne({ where: { assignmentId: assignmentId as string }, relations: ["course", "assignmentSubmissions", "files"] });
         if (!assignment) {
             res.status(404).json({ message: "Assignment not found" });
             return;
         }
 
-        // TODO: Delete the assignment and its links - Future us problem lol
-        // await this.assignmentToFilesRepo.delete({ assignment: { assignmentId: assignmentId as string } });
-        // await this.assignmentSubmissionsRepo.delete({ assignment: { assignmentId: assignmentId as string } });
-        // await this.assignmentRepo.delete({ assignmentId: assignmentId as string });
-
+        // Delete the assignment
         await this.assignmentRepo.remove(assignment);
         res.status(200).json({ message: "Assignment deleted" });
     }
@@ -279,7 +275,7 @@ export class AssignmentController {
                             }
                         }
                         // Multer error occurred
-                        console.error("Multer error:", err);
+                        console.error(`\x1b[31m[ERROR] Multer error: ${err}\x1b[0m`);
                         return reject(err);
                     }
                     resolve();
@@ -287,12 +283,13 @@ export class AssignmentController {
             });
         } catch (err) {
             if (err === "file size limit exceeded") {
+                console.error("\x1b[33m[WARNING] A file exceeded the size limit of 10MB.\x1b[0m");
                 // Files already handled in the multer error case
                 this.removeFiles(req);
                 return;
             } else {
                 // Unexpected upload error
-                console.error("Upload failed:", err);
+                console.error(`\x1b[31m[ERROR] Upload failed: ${err}\x1b[0m`);
                 res.status(500).json({ message: "File upload failed." });
                 this.removeFiles(req);
                 return;
@@ -358,8 +355,6 @@ export class AssignmentController {
         });
         await this.assignmentSubmissionsRepo.save(submission);
 
-        // Get the files parsed by multer
-
         // Handle the files
         const files = (req.files as Express.Multer.File[]) || [];
         for (const file of files) {
@@ -394,7 +389,7 @@ export class AssignmentController {
             for (const file of files) {
                 fs.unlink(file.path, (err) => {
                     if (err) {
-                        console.error(`Error deleting file ${file.path}:`, err);
+                        console.error(`\x1b[31m[ERROR] Removing file ${file.path} failed: ${err}\x1b[0m`);
                     }
                 });
             }

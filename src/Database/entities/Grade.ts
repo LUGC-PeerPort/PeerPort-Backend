@@ -41,13 +41,13 @@ export class Grade {
     @UpdateDateColumn()
         dateUpdated!: Date;
 
-    @ManyToOne(() => Course, (course) => course.grades)
+    @ManyToOne(() => Course, (course) => course.grades, { onDelete: "CASCADE" })
         course!: Course;
 
-    @ManyToOne(() => User, (user) => user.grades)
+    @ManyToOne(() => User, (user) => user.grades, { onDelete: "CASCADE" })
         user!: User;
 
-    @OneToOne(() => AssignmentSubmissions, { nullable: true })
+    @OneToOne(() => AssignmentSubmissions, { nullable: true, onDelete: "CASCADE" })
     @JoinColumn({ name: "assignmentSubmissionId" })
         assignmentSubmission?: AssignmentSubmissions | null;
 }

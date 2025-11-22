@@ -458,21 +458,31 @@ export class GradeController {
         // score = achievedScore / (maxScore - minScore)
         // weightedSum = weight1 * score1 + weight2 * score2 + ...
         // calculatedGrade = (weightedSum / totalWeight) * 100
-        let totalWeight = 0;
-        let weightedScoreSum = 0;
-        for (const grade of userGrades) {
-            const weight = grade.weight;
-            const score = (grade.achievedScore - grade.minScore) / (grade.maxScore - grade.minScore);
-            weightedScoreSum += score * weight;
-            totalWeight += weight;
+        try {
+            let totalWeight = 0;
+            let weightedScoreSum = 0;
+            for (const grade of userGrades) {
+                const weight = grade.weight;
+                const score = (grade.achievedScore - grade.minScore) / (grade.maxScore - grade.minScore);
+                
+                if (isNaN(score) || !isFinite(score)) throw new Error(`Invalid score calculation for grade ID ${grade.gradeId}`);
+
+                weightedScoreSum += score * weight;
+                totalWeight += weight;
+            }
+
+            // Get the final calculated grade (rounded to 2 decimal places)
+            const rawPercent = totalWeight > 0 ? (weightedScoreSum / totalWeight) * 100 : 0;
+            if (isNaN(rawPercent) || !isFinite(rawPercent)) throw new Error(`Invalid final grade calculation ${weightedScoreSum} / ${totalWeight}`);
+            const calculatedGrade = Math.round(rawPercent * 100) / 100;
+
+            // Return the grades
+            res.status(200).json({ grade: calculatedGrade });
+        } catch (error) {
+            console.error(`\x1b[31m[FATAL] Error calculating grade for user ${userId} in course ${courseId}: ${error}\x1b[0m`);
+            res.status(500).json({ message: "Error calculating grade" });
+            return;
         }
-
-        // Get the final calculated grade (rounded to 2 decimal places)
-        const rawPercent = totalWeight > 0 ? (weightedScoreSum / totalWeight) * 100 : 0;
-        const calculatedGrade = Math.round(rawPercent * 100) / 100;
-
-        // Return the grades
-        res.status(200).json({ grade: calculatedGrade });
     }
 
     // /api/grades/average/course/:courseId
@@ -501,18 +511,25 @@ export class GradeController {
         const grades = await this.gradeRepo.find({ where: { course: course } });
 
         // Calculate the average grade
-        let totalAchievedScore = 0;
-        let totalMaxScore = 0;  
-        for (const grade of grades) {
-            totalAchievedScore += grade.achievedScore - grade.minScore;
-            totalMaxScore += grade.maxScore - grade.minScore;
+        try {
+            let totalAchievedScore = 0;
+            let totalMaxScore = 0;  
+            for (const grade of grades) {
+                totalAchievedScore += grade.achievedScore - grade.minScore;
+                totalMaxScore += grade.maxScore - grade.minScore;
+            }
+
+            const rawPercent = totalMaxScore > 0 ? (totalAchievedScore / totalMaxScore) * 100 : 0;
+            if (isNaN(rawPercent) || !isFinite(rawPercent)) throw new Error(`Invalid average grade calculation ${totalAchievedScore} / ${totalMaxScore}`);
+            const averageGrade = Math.round(rawPercent * 100) / 100;
+
+            // Return the average grade
+            res.status(200).json({ grade: averageGrade });
+        } catch (error) {
+            console.error(`\x1b[31m[FATAL] Error calculating average grade for course ${courseId}: ${error}\x1b[0m`);
+            res.status(500).json({ message: "Error calculating average grade" });
+            return;
         }
-
-        const rawPercent = totalMaxScore > 0 ? (totalAchievedScore / totalMaxScore) * 100 : 0;
-        const averageGrade = Math.round(rawPercent * 100) / 100;
-
-        // Return the average grade
-        res.status(200).json({ grade: averageGrade });
     }
 
 
