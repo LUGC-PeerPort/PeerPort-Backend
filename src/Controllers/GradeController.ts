@@ -584,9 +584,9 @@ export class GradeController {
         }
 
         // Calculate the average grade
-        // averageGrade = (achievedScore1 + achievedScore2 + ...) / (maxScore1 + maxScore2 + ...) * 100
-        // averageWeightedGrade = averageGrade / number of grades
-        // percent = averageWeightedGrade * 100
+        // For each grade: normalize the score (achievedScore - minScore) / (maxScore - minScore), multiply by weight
+        // Average = sum of (normalized_score * weight) for all grades / number of grades
+        // Result is expressed as a percentage (0-100)
         try {
             let gradeTotal = 0;
             for (const grade of grades) {

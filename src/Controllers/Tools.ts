@@ -71,11 +71,11 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
 
 
 /**
- * Checks if the user is allowed to edit/get from the user profile
+ * Checks if the logged-in user is accessing their own user profile or is an admin.
  * @param req - The Request object
  * @param res - The Response object
  * @param userRepo - The user DB
- * @returns Whether the user is allowed to edit the user profile
+ * @returns Whether the user is allowed to access the user profile
  */
 export async function checkIfUserRelatedToUser(req: Request, res: Response, userRepo: Repository<User>): Promise<boolean> {
     // Check if the user is editing their own profile

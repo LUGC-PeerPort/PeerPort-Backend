@@ -1181,7 +1181,7 @@ describe("CourseController test:", () => {
             { name: "fail when courseId is empty",          courseId: "  ",                                     status: 400, returnValue: { message: "Invalid course ID" } },
             { name: "fail when courseId is a number",       courseId: 123,                                      status: 400, returnValue: { message: "Invalid course ID" } },
             { name: "fail when courseId is invalid",        courseId: "invalid-id",                             status: 400, returnValue: { message: "Invalid course ID" } },
-            { name: "fail when courseId is doesn't exist",  courseId: "123e4567-e89b-12d3-a456-426614174999",   status: 404, returnValue: { message: "Course not found" } },
+            { name: "fail when courseId doesn't exist",  courseId: "123e4567-e89b-12d3-a456-426614174999",   status: 404, returnValue: { message: "Course not found" } },
 
             { name: "pass when courseId is valid",          courseId: async (): Promise<string> => {
                 const course = await TestDataSource.getRepository("Course").save({
