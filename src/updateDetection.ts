@@ -15,7 +15,7 @@ function run(cmd: string): string {
 
 /**
  * Checks if we are in a git repository
- * @returns Wether we are in a git repo or not
+ * @returns Whether we are in a git repo or not
  */
 function isGitRepository(): boolean {
     const result = run("git rev-parse --is-inside-work-tree");
