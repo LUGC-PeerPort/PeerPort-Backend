@@ -71,7 +71,7 @@ export class SubmissionController {
                 return;
             }
 
-            // Check that the user is apart of the course
+            // Check that the user is a part of the course
             const tempReq = req;
             tempReq.params = { userId: submission.user.userId };
             /* istanbul ignore next */
