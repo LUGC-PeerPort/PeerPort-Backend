@@ -229,11 +229,20 @@ AppDataSource.initialize().then(() => {
         // Get the method used
         const method = req.method;
 
+        // Safe stringify function to avoid errors with circular references
+        const safeStringify = (obj: any) => {
+            try {
+                return JSON.stringify(obj);
+            } catch (e) {
+                return "[Unable to stringify]";
+            }
+        };
+
         // Get the body if available
-        const body = req.body ? JSON.stringify(req.body) : "no body";
+        const body = req.body ? safeStringify(req.body) : "no body";
 
         // Get the session if available
-        const session = req.session ? JSON.stringify(req.session) : "no session";
+        const session = req.session ? safeStringify(req.session) : "no session";
         
         // Make the message
         const errorMessage = `[ERROR] ${statusCode} on ${method} ${path} from '${source}': ${message}\n\tBody: ${body}\n\tSession: ${session}\n${err.stack || ""}`;
