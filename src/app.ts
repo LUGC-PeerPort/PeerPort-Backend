@@ -18,6 +18,7 @@ import { ContentController } from "./Controllers/ContentController.js";
 import { SubmissionController } from "./Controllers/SubmissionController.js";
 import fs from "fs";
 import multer from "multer";
+import type { Request, Response } from "express";
 
 console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
@@ -213,7 +214,8 @@ AppDataSource.initialize().then(() => {
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
 
     // Custom error handler
-    app.use((err: any, req: any, res: any, _next: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    app.use((err: any, req: Request, res: Response, _next: any) => {
         // Get the status code from the error, default to 500
         const statusCode = err.statusCode || 500;
 
@@ -224,16 +226,17 @@ AppDataSource.initialize().then(() => {
         const path = req.originalUrl || req.url;
 
         // Get the source path if available
-        const source = req.referrer || req.host || "unknown source";
+        const source = req.headers?.referer || req.headers?.host || "unknown source";
 
         // Get the method used
         const method = req.method;
 
         // Safe stringify function to avoid errors with circular references
-        const safeStringify = (obj: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const safeStringify = (obj: any): string => {
             try {
                 return JSON.stringify(obj);
-            } catch (e) {
+            } catch {
                 return "[Unable to stringify]";
             }
         };
