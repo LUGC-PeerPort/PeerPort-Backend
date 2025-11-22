@@ -177,7 +177,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
 
         // Check if the user exists
         const user = await AppDataSource.getRepository(User).findOne({where: {userId: userId}, relations: ["role"]});
-        if(user == null){
+        if(!user){
             login();
             return;
         }
