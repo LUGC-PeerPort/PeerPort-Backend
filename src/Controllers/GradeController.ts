@@ -565,7 +565,6 @@ export class GradeController {
 
         // Get all grades for the course
         const grades = await this.gradeRepo.find({ where: { course: course } });
-
         if (grades.length === 0) {
             res.status(200).json({ grade: 0 });
             return;
