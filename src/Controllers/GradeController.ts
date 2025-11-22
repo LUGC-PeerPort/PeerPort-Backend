@@ -589,6 +589,7 @@ export class GradeController {
         // Result is expressed as a percentage (0-100)
         try {
             let gradeTotal = 0;
+            let totalWeight = 0;
             for (const grade of grades) {
                 const score = grade.achievedScore - grade.minScore;
                 const maxScore = grade.maxScore - grade.minScore;
@@ -596,10 +597,11 @@ export class GradeController {
                 if (isNaN(gradeScore) || !isFinite(gradeScore)) throw new Error(`Invalid grade calculation for grade ID ${grade.gradeId}`);
 
                 gradeTotal += gradeScore * grade.weight;
+                totalWeight += grade.weight;
             }
 
-            const averageGrade = gradeTotal / grades.length;
-            if (isNaN(averageGrade) || !isFinite(averageGrade)) throw new Error(`Invalid average grade calculation ${gradeTotal} / ${grades.length}`);
+            const averageGrade = gradeTotal / totalWeight;
+            if (isNaN(averageGrade) || !isFinite(averageGrade)) throw new Error(`Invalid average grade calculation ${gradeTotal} / ${totalWeight}`);
             const averageGradeResult = Math.round(averageGrade * 100);
 
             // Return the average grade
