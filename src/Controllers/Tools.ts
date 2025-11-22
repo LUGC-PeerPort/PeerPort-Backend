@@ -230,7 +230,7 @@ export async function checkIfUserRelatedToAssignment(req: Request, res: Response
     if (!courseConnection) {
         // Check if the user is an admin
         if (!isAdmin(user)) {
-            res.status(403).json({ message: "Forbidden: User does not have access to this content." });
+            res.status(403).json({ message: "Forbidden: User does not have access to this assignment." });
             return false;
         }
     }
