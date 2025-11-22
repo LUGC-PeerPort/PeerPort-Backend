@@ -28,7 +28,7 @@ export class Assignments {
         dueDate!: string;
 
 	@OneToMany(() => Files, (files) => files.assignment)
-		files!: Files[];
+	    files!: Files[];
 
     @ManyToOne(() => Course, (course) => course.assignments, { onDelete: "CASCADE" })
 	@JoinColumn({ name: "courseId" })

@@ -39,8 +39,11 @@ export class Files {
     @JoinColumn({ name: "assignmentId" })
         assignment!: Assignments;
 
+    /**
+     * Removes the file from the filesystem when the database entry is removed
+     */
     @BeforeRemove()
-    async RemoveFiles() {
+    async RemoveFiles(): Promise<void> {
         try {
             await fs.promises.unlink(this.location);
         } catch (err) {
