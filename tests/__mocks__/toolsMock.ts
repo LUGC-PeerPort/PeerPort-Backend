@@ -4,6 +4,7 @@ import type { User } from "../../src/Database/entities/User.js";
 import type { UsersToCourses } from "../../src/Database/entities/UsersToCourses.js";
 import type { Grade } from "../../src/Database/entities/Grade.js";
 import type { Content } from "../../src/Database/entities/Content.js";
+import type { Assignments } from "../../src/Database/entities/Assignments.js";
 
 /**
  * Checks if the UUID is valid
@@ -83,5 +84,18 @@ export async function checkIfUserRelatedToGrades(req: Request, res: Response, us
  * @returns Whether the user is related to the content
  */
 export async function checkIfUserRelatedToContent(req: Request, res: Response, userRepo: Repository<User>, userToCourse: Repository<UsersToCourses>, content: Content): Promise<boolean> {
+    return true;
+}
+
+/**
+ * Whether the user is related to the assignment
+ * @param req - The Request object
+ * @param res - The Response object
+ * @param userRepo - The user DB
+ * @param userToCourseRepo - The user to course DB
+ * @param assignmentRepo - The assignment DB
+ * @returns Whether the user is related to the assignment
+ */
+export async function checkIfUserRelatedToAssignment(req: Request, res: Response, userRepo: Repository<User>, userToCourseRepo: Repository<UsersToCourses>, assignmentRepo: Repository<Assignments>): Promise<boolean> {
     return true;
 }

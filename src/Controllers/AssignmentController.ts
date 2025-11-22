@@ -5,11 +5,12 @@ import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmission
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 import { Files } from "../Database/entities/Files.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToAssignment, checkIfUserRelatedToCourse, checkUUID } from "./Tools.js";
 import { uploader } from "../app.js";
 import * as fs from "fs";
 import multer from "multer";
 import type { Session } from "express-session";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 
 export interface AssignmentReturnWithoutCourseId {
     assignmentId: string;
@@ -42,6 +43,7 @@ export class AssignmentController {
     private assignmentRepo: Repository<Assignments>;
     private assignmentSubmissionsRepo: Repository<AssignmentSubmissions>;
     private userRepo: Repository<User>;
+    private userToCourseRepo: Repository<UsersToCourses>;
     private courseRepo: Repository<Course>;
     private fileRepo: Repository<Files>;
 
@@ -53,6 +55,7 @@ export class AssignmentController {
         this.assignmentRepo = dataSource.getRepository(Assignments);
         this.assignmentSubmissionsRepo = dataSource.getRepository(AssignmentSubmissions);
         this.userRepo = dataSource.getRepository(User);
+        this.userToCourseRepo = dataSource.getRepository(UsersToCourses);
         this.courseRepo = dataSource.getRepository(Course);
         this.fileRepo = dataSource.getRepository(Files);
     }
@@ -101,6 +104,11 @@ export class AssignmentController {
             return;
         }
 
+        // Check if the user is related to the course
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.userToCourseRepo)) {
+            return;
+        }
+
         // Check dates
         const dueDateParsed = Date.parse(assignmentStructure.dueDate);
         if(dueDateParsed < Date.now()) {
@@ -124,12 +132,14 @@ export class AssignmentController {
      * @param res - The response object
      */
     async getAssignment(req: Request, res: Response): Promise<void> {
+        // Check the assignment ID
         const assignmentId: unknown = req.params?.assignmentId;
         if(!checkUUID(assignmentId)) {
             res.status(400).json({message: "Invalid assignment ID"});
             return;
         }
 
+        // Get the assignment
         const assignment = await this.assignmentRepo.findOne({
             where: {assignmentId: assignmentId as string},
             relations: ["course"],
@@ -138,6 +148,13 @@ export class AssignmentController {
             res.status(404).json({message: "Assignment not found"});
             return;
         }
+
+        // Check if the user is related to the assignment
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
+            return;
+        }
+
+        // Return the assignment
         const assignmentReturn = this.convertToAssignmentReturn(
             assignment, 
             assignment.course.courseId
@@ -151,7 +168,6 @@ export class AssignmentController {
      * @param res - The response object
      */
     async updateAssignment(req: Request, res: Response): Promise<void> {
-    
         // Validate assignment ID
         const assignmentId: unknown = req.params?.assignmentId;
         if (!checkUUID(req.params?.assignmentId)) {
@@ -166,6 +182,11 @@ export class AssignmentController {
         });
         if (!assignment) {
             res.status(404).json({message: "Assignment not found"});
+            return;
+        }
+
+        // Check if the user is related to the assignment
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
             return;
         }
 
@@ -217,6 +238,11 @@ export class AssignmentController {
             return;
         }
 
+        // Check if the user is related to the assignment
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
+            return;
+        }
+
         // Delete the assignment
         await this.assignmentRepo.remove(assignment);
         res.status(200).json({ message: "Assignment deleted" });
@@ -241,6 +267,11 @@ export class AssignmentController {
         });
         if (!assignment) {
             res.status(404).json({ message: "Assignment not found" });
+            return;
+        }
+
+        // Check if the user is related to the assignment
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
             return;
         }
 
@@ -307,6 +338,12 @@ export class AssignmentController {
         const assignment = await this.assignmentRepo.findOne({ where: { assignmentId: assignmentId as string } });
         if (!assignment) {
             res.status(404).json({ message: "Assignment not found" });
+            this.removeFiles(req);
+            return;
+        }
+
+        // Check if the user is related to the assignment
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
             this.removeFiles(req);
             return;
         }

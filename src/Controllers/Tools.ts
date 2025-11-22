@@ -5,6 +5,7 @@ import type { User } from "../Database/entities/User.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import type { Grade } from "../Database/entities/Grade.js";
 import type { Content } from "../Database/entities/Content.js";
+import type { Assignments } from "../Database/entities/Assignments.js";
 
 /**
  * Checks if the UUID is valid
@@ -180,7 +181,56 @@ export async function checkIfUserRelatedToContent(req: Request, res: Response, u
     if (!courseConnection) {
         // Check if the user is an admin
         if (!isAdmin(user)) {
-            res.status(403).json({ message: "Forbidden: User not enrolled in this course." });
+            res.status(403).json({ message: "Forbidden: User does not have access to this content." });
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Whether the user is related to the assignment
+ * @param req - The Request object
+ * @param res - The Response object
+ * @param userRepo - The user DB
+ * @param userToCourseRepo - The user to course DB
+ * @param assignmentRepo - The assignment DB
+ * @returns Whether the user is related to the assignment
+ */
+export async function checkIfUserRelatedToAssignment(req: Request, res: Response, userRepo: Repository<User>, userToCourseRepo: Repository<UsersToCourses>, assignmentRepo: Repository<Assignments>): Promise<boolean> {
+    // Check if the user is related to this assignment
+    const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+    if (!session || session.passport === undefined || session.passport.user === undefined) {
+        res.status(401).json({ message: "Unauthorized: User not logged in." });
+        return false;
+    }
+    const userId = session.passport.user;
+
+    // Get the user
+    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["role"] });
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return false;
+    }
+
+    // Get the assignment
+    const assignment = await assignmentRepo.findOne({ where: { assignmentId: req.params.assignmentId }, relations: ["course"] });
+    if (!assignment) {
+        res.status(404).json({ message: "Assignment not found" });
+        return false;
+    }
+
+    // Check if the user is connected to the assignment's course
+    const courseConnection = await userToCourseRepo.findOne({
+        where: {
+            user: { userId: userId },
+            course: { courseId: assignment.course.courseId }
+        }
+    });
+    if (!courseConnection) {
+        // Check if the user is an admin
+        if (!isAdmin(user)) {
+            res.status(403).json({ message: "Forbidden: User does not have access to this content." });
             return false;
         }
     }
