@@ -78,7 +78,11 @@ export function checkIfUpdateAvailable({disable}: {disable: boolean}): boolean {
     }
 
     // Get the updated metadata of the repo
-    run("git fetch");
+    const fetchResult = run("git fetch");
+    if (fetchResult === "") {
+        console.error("\x1b[31m[ERROR] Failed to fetch updates from remote. Please check your network connection and authentication.\x1b[0m");
+        return false;
+    }
 
     // Check if we're ahead or behind
     if (isAheadOrBehind()) return false;
