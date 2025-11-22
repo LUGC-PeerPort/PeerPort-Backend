@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import type { Repository } from "typeorm";
 import type { User } from "../../src/Database/entities/User.js";
 import type { UsersToCourses } from "../../src/Database/entities/UsersToCourses.js";
+import type { Grade } from "../../src/Database/entities/Grade.js";
 
 /**
  * Checks if the UUID is valid
@@ -44,5 +45,29 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
  * @returns Whether the user is allowed to edit the user profile
  */
 export async function checkIfUserEditUser(req: Request, res: Response, userRepo: Repository<User>): Promise<boolean> {
+    return true;
+}
+
+
+/**
+ * Checks if the user is allowed to edit/get from the user profile
+ * @param req - The Request object
+ * @param res - The Response object
+ * @param userRepo - The user DB
+ * @returns Whether the user is allowed to edit the user profile
+ */
+export async function checkIfUserRelatedToUser(req: Request, res: Response, userRepo: Repository<User>): Promise<boolean> {
+    return true;
+}
+
+/**
+ * Checks whether the user is related to the grade that is given in the params
+ * @param req - The request object
+ * @param res - The response object
+ * @param userRepo - The user DB
+ * @param gradesRepo - The grade DB
+ * @returns Whether the user is related to the grade
+ */
+export async function checkIfUserRelatedToGrades(req: Request, res: Response, userRepo: Repository<User>, gradesRepo: Repository<Grade>): Promise<boolean> {
     return true;
 }

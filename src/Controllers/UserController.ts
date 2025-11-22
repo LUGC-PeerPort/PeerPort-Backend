@@ -6,7 +6,7 @@ import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Role } from "../Database/entities/Role.js";
-import { checkIfUserEditUser, checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToUser, checkUUID } from "./Tools.js";
 
 export interface UserReturn {
     userId: string | undefined;
@@ -152,7 +152,7 @@ export class UserController {
         }
 
         // Make sure the user is getting their own profile
-        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
 
@@ -188,7 +188,7 @@ export class UserController {
         }
 
         // Make sure the user is updating their own profile
-        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
 
@@ -234,7 +234,7 @@ export class UserController {
         }
 
         // Make sure the user is deleting their own profile
-        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
 
@@ -258,7 +258,7 @@ export class UserController {
         }
         
         // Make sure the user is getting their own courses
-        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
 
@@ -304,7 +304,7 @@ export class UserController {
         }
 
         // Make sure the user is getting their own course
-        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
 

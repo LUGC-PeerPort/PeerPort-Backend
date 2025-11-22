@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import type { Repository } from "typeorm";
 import type { User } from "../Database/entities/User.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import type { Grade } from "../Database/entities/Grade.js";
 
 /**
  * Checks if the UUID is valid
@@ -74,7 +75,7 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
  * @param userRepo - The user DB
  * @returns Whether the user is allowed to edit the user profile
  */
-export async function checkIfUserEditUser(req: Request, res: Response, userRepo: Repository<User>): Promise<boolean> {
+export async function checkIfUserRelatedToUser(req: Request, res: Response, userRepo: Repository<User>): Promise<boolean> {
     // Check if the user is editing their own profile
     const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
     if (!session || session.passport === undefined || session.passport.user === undefined) {
@@ -93,14 +94,54 @@ export async function checkIfUserEditUser(req: Request, res: Response, userRepo:
     if (userId !== req.params.userId) {
         // Check if the user is an admin
         if (!isAdmin(user)) {
-            res.status(403).json({ message: "Forbidden: Cannot edit other user's profile" });
+            res.status(403).json({ message: "Forbidden: Cannot access other user's profile" });
             return false;
         }
     }
     return true;
 }
 
+/**
+ * Checks whether the user is related to the grade that is given in the params
+ * @param req - The request object
+ * @param res - The response object
+ * @param userRepo - The user DB
+ * @param gradesRepo - The grade DB
+ * @returns Whether the user is related to the grade
+ */
+export async function checkIfUserRelatedToGrades(req: Request, res: Response, userRepo: Repository<User>, gradesRepo: Repository<Grade>): Promise<boolean> {
+    // Check if the user is related to this grade
+    const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+    if (!session || session.passport === undefined || session.passport.user === undefined) {
+        res.status(401).json({ message: "Unauthorized: User not logged in." });
+        return false;
+    }
+    const userId = session.passport.user;
 
+    // Get the user
+    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["role"] });
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return false;
+    }
+
+    // Get the grade
+    const grade = await gradesRepo.findOne({ where: { gradeId: req.params.gradeId }, relations: ["user"] });
+    if (!grade) {
+        res.status(404).json({ message: "Grade not found" });
+        return false;
+    }
+
+    // Check if the user is connected to the grade
+    if (grade.user.userId !== userId) {
+        // Check if the user is an admin
+        if (!isAdmin(user)) {
+            res.status(403).json({ message: "Forbidden: Cannot access other user's grade" });
+            return false;
+        }
+    }
+    return true;
+}
 
 /**
  * Checks if the user is an admin
@@ -109,7 +150,7 @@ export async function checkIfUserEditUser(req: Request, res: Response, userRepo:
  */
 function isAdmin(user: User): boolean {
     // Check if user is an admin or not
-    if (typeof user.role === "undefined" || user.role.name !== "admin") {
+    if (typeof user.role === "undefined" || (user.role.name !== "admin" && user.role.name !== "teacher")) {
         return false;
     }
     return true;
