@@ -22,14 +22,25 @@ import type { Request, Response } from "express";
 import { checkIfUpdateAvailable } from "./updateDetection.js";
 
 // Update check
-console.log("\x1b[32m[NOTICE] Checking for updates...\x1b[0m");
-if (!checkIfUpdateAvailable({disable: false})) { // Set to 'true' to disable update checks. Enable before you push.
-    console.error("\x1b[31m[ERROR] Update check failed. Exiting...\x1b[0m");
-    process.exit(1);
+function runUpdateCheck() {
+    // Only run in development mode
+    if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "production") {
+        console.log("\x1b[33m[NOTICE] Skipping update check in test/production environment.\x1b[0m");
+        return;
+    }
+    console.log("\x1b[32m[NOTICE] Checking for updates...\x1b[0m");
+    if (!checkIfUpdateAvailable({disable: false})) { // Set to 'true' to disable update checks. Enable before you push.
+        console.error("Update check failed or updates are available. Exiting...");
+        process.exit(1);
+    }
+    // Give a message to say checks are complete
+    console.log("\x1b[32m[SUCCESS] Checks complete...\x1b[0m\n");
 }
-// Give a message to say checks are complete
-console.log("\x1b[32m[SUCCESS] Checks complete...\x1b[0m\n");
 
+// Only run update check if this file is the entry point
+if (require.main === module) {
+    runUpdateCheck();
+}
 // Start of the PeerPort Backend
 console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
