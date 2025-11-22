@@ -104,8 +104,6 @@ export class GradeController {
             return;
         }
 
-        
-
         // Validate the courseId
         if (!checkUUID(courseIdUnknown)) {
             res.status(400).json({ message: "Invalid course ID" });
@@ -120,7 +118,7 @@ export class GradeController {
         }
 
         // Check if the user is related to the course
-        if (!await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo)) {
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
         
