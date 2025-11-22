@@ -43,7 +43,7 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
     const userId = session.passport.user;
 
     // Get the user
-    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["roles"] });
+    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["role"] });
     if (!user) {
         res.status(404).json({ message: "User not found" });
         return false;
@@ -58,10 +58,52 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
     });
     if (!courseConnection) {
         // Check if the user is an admin
-        if (typeof user.role === "undefined" || user.role.name !== "admin") {
+        if (!isAdmin(user)) {
             res.status(403).json({ message: "Forbidden: User not enrolled in this course." });
             return false;
         }
+    }
+    return true;
+}
+
+
+export async function checkIfUserEditUser(req: Request, res: Response, userRepo: Repository<User>): Promise<boolean> {
+    // Check if the user is editing their own profile
+    const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+    if (!session || session.passport === undefined || session.passport.user === undefined) {
+        res.status(401).json({ message: "Unauthorized: User not logged in." });
+        return false;
+    }
+    const userId = session.passport.user;
+
+    // Get the user
+    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["role"] });
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return false;
+    }
+
+    if (userId !== req.params.userId) {
+        // Check if the user is an admin
+        if (!isAdmin(user)) {
+            res.status(403).json({ message: "Forbidden: Cannot edit other user's profile" });
+            return false;
+        }
+    }
+    return true;
+}
+
+
+
+/**
+ * Checks if the user is an admin
+ * @param user - The user to check
+ * @returns Whether the user is an admin
+ */
+function isAdmin(user: User): boolean {
+    // Check if user is an admin or not
+    if (typeof user.role === "undefined" || user.role.name !== "admin") {
+        return false;
     }
     return true;
 }

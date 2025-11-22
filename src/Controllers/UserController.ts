@@ -6,7 +6,8 @@ import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Role } from "../Database/entities/Role.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserEditUser, checkUUID } from "./Tools.js";
+import type { Session } from "express-session";
 
 export interface UserReturn {
     userId: string | undefined;
@@ -151,6 +152,11 @@ export class UserController {
             return;
         }
 
+        // Make sure the user is getting their own profile
+        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
+            return;
+        }
+
         // Get the profile from the database
         const user = await this.userRepo
             .createQueryBuilder("user")
@@ -179,6 +185,11 @@ export class UserController {
         const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
+            return;
+        }
+
+        // Make sure the user is updating their own profile
+        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
             return;
         }
 
@@ -223,6 +234,11 @@ export class UserController {
             return;
         }
 
+        // Make sure the user is deleting their own profile
+        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
+            return;
+        }
+
         // Delete the user
         await this.userRepo.delete(userID);
         res.status(204).json({ message: "User deleted successfully" });
@@ -239,6 +255,11 @@ export class UserController {
         const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
+            return;
+        }
+        
+        // Make sure the user is getting their own courses
+        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
             return;
         }
 
@@ -269,15 +290,22 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
+        // Check the user ID
         const userID = checkUUID(req.params.userId);
         if (userID == undefined) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
 
+        // Check if the user exists
         const user = await this.userRepo.findOneBy({ userId: userID });
         if (!user) {
             res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        // Make sure the user is getting their own course
+        if (!await checkIfUserEditUser(req, res, this.userRepo)) {
             return;
         }
 
