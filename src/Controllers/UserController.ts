@@ -7,7 +7,6 @@ import type { CourseReturn } from "./CourseController.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Role } from "../Database/entities/Role.js";
 import { checkIfUserEditUser, checkUUID } from "./Tools.js";
-import type { Session } from "express-session";
 
 export interface UserReturn {
     userId: string | undefined;
