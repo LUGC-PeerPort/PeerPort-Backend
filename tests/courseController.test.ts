@@ -286,7 +286,7 @@ describe("CourseController test:", () => {
             await controller.createCourse(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course structure" });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid dates" });
         });
 
         it("Should create a course with valid data", async () => {

@@ -81,7 +81,7 @@ export class CourseController {
         const startDate = courseStructure.startDate;
         const endDate = courseStructure.endDate ?? null;
         if (!this.checkDates(startDate, endDate)) {
-            res.status(400).json({ message: "Invalid course structure" });
+            res.status(400).json({ message: "Invalid dates" });
             return;
         }
 
