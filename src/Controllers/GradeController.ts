@@ -563,6 +563,11 @@ export class GradeController {
             return;
         }
 
+        // Check if the user is related to the course
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
         // Get all grades for the course
         const grades = await this.gradeRepo.find({ where: { course: course } });
         if (grades.length === 0) {
