@@ -33,6 +33,10 @@ function isAheadOrBehind(main: boolean=false): boolean {
     const behindCmd = `git rev-list --right-only --count HEAD...${targetRef}`;
 
     const branchName = run("git rev-parse --abbrev-ref @{u}");
+    if (!main && !branchName) {
+        console.error("\x1b[31m[ERROR] No upstream branch is configured for the current branch. Please set an upstream with 'git push --set-upstream origin <branch>' or 'git branch --set-upstream-to=origin/<branch>'.\x1b[0m");
+        return false;
+    }
     console.log(`\x1b[34m[INFO] Comparing local branch to ${main ? "origin/main" : branchName}...\x1b[0m`);
 
     const isAhead = Number(run(aheadCmd)) || 0;
