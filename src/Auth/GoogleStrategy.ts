@@ -176,7 +176,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         const userId = session.passport.user;
 
         // Check if the user exists
-        const user = await AppDataSource.getRepository(User).findOneBy({userId: userId});
+        const user = await AppDataSource.getRepository(User).findOne({where: {userId: userId}, relations: ["role"]});
         if(user == null){
             login();
             return;
@@ -186,7 +186,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         let userRole = user?.role;
 
         // If the user has no role, assign the 'user' role
-        if(!userRole){
+        if(typeof userRole === "undefined"){
             const roleUser = await AppDataSource.getRepository(Role).findOneBy({name: "user"});
             if(roleUser){
                 userRole = roleUser;
