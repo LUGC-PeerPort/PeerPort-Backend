@@ -18,11 +18,11 @@ export class UsersToCourses {
     })
     	enrolledOn!: string;
 
-    @ManyToOne(() => User, (user) => user.courses)
+    @ManyToOne(() => User, (user) => user.courses, { onDelete: "CASCADE" })
     @JoinColumn({ name: "userId" })
     	user!: User;
 
-    @ManyToOne(() => Course, (course) => course.users)
+    @ManyToOne(() => Course, (course) => course.users, { onDelete: "CASCADE" })
     @JoinColumn({ name: "courseId" })
     	course!: Course;
 }

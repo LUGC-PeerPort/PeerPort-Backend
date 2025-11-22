@@ -24,7 +24,7 @@ export class AssignmentSubmissions {
     @ManyToOne(() => User, (user) => user.courses)
     	user!: User;
 
-    @ManyToOne(() => Assignments, (assignment) => assignment.assignmentSubmissions)
+    @ManyToOne(() => Assignments, (assignment) => assignment.assignmentSubmissions, { onDelete: "CASCADE" })
     @JoinColumn({ name: "assignmentId" })
     	assignment!: Assignments;
 
