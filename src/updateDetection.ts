@@ -50,10 +50,10 @@ function isAheadOrBehind(main: boolean=false): boolean {
         else console.warn("\x1b[33m[FIX] Run `git pull` then re-run.\x1b[0m");
         return true;
     } else if (isAhead > 0) {
-        console.warn(`\x1b[33m[WARNING] Your local branch is ahead of ${refLabel} by ${isAhead} commits.\x1b[0m`);
+        console.log(`\x1b[34m[NOTICE] Your local branch is ahead of ${refLabel} by ${isAhead} commits.\x1b[0m`);
         return false;
     } else {
-        console.log("\x1b[32m[NOTICE] No updates available.\x1b[0m");
+        console.log("\x1b[34m[INFO] No updates available.\x1b[0m");
         return false;
     }
 }

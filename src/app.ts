@@ -22,13 +22,13 @@ import type { Request, Response } from "express";
 import { checkIfUpdateAvailable } from "./updateDetection.js";
 
 // Update check
-console.log("Checking for updates...");
+console.log("\x1b[32m[NOTICE] Checking for updates...\x1b[0m");
 if (!checkIfUpdateAvailable({disable: false})) { // Set to 'true' to disable update checks. Enable before you push.
     console.error("Update check failed or updates are available. Exiting...");
     process.exit(1);
 }
 // Give a message to say checks are complete
-console.log("\x1b[32m[SUCCESS] Checks complete...\x1b[0m");
+console.log("\x1b[32m[SUCCESS] Checks complete...\x1b[0m\n");
 
 // Start of the PeerPort Backend
 console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
