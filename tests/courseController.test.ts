@@ -1,15 +1,17 @@
 import { TestDataSource } from "./test-data-source.js";
 import { CourseController } from "../src/Controllers/CourseController.js";
+import { Role } from "../src/Database/entities/Role.js";
 
 describe("CourseController test:", () => {
     let controller: CourseController;
+    let role: Role;
 
     beforeAll(async () => {
         await TestDataSource.initialize();
         controller = new CourseController(TestDataSource);
 
         // Create a role for the user to use
-        await TestDataSource.getRepository("Role").save({ name: "student" });
+        role = await TestDataSource.getRepository(Role).save({ name: "teacher" });
     });
 
     beforeEach(async () => {
@@ -267,7 +269,7 @@ describe("CourseController test:", () => {
                 email: "test@example.com",
                 password: "password",
                 idNumber: "123456789",
-                role: await TestDataSource.getRepository("Role").findOneBy({ name: "student" }),
+                role: await TestDataSource.getRepository("Role").findOneBy({ name: "teacher" }),
             });
 
             const req: any = {
@@ -295,7 +297,7 @@ describe("CourseController test:", () => {
                 email: "test@example.com",
                 password: "password",
                 idNumber: "123456789",
-                role: await TestDataSource.getRepository("Role").findOneBy({ name: "student" }),
+                role: role,
             });
 
             const req: any = {
@@ -330,7 +332,7 @@ describe("CourseController test:", () => {
                 email: "test@example.com",
                 password: "password",
                 idNumber: "123456789",
-                role: await TestDataSource.getRepository("Role").findOneBy({ name: "student" }),
+                role: role,
             });
             const req: any = {
                 body: {
@@ -365,7 +367,7 @@ describe("CourseController test:", () => {
                 email: "test@example.com",
                 password: "password",
                 idNumber: "123456789",
-                role: await TestDataSource.getRepository("Role").findOneBy({ name: "student" }),
+                role: role,
             });
             const req: any = {
                 body: {
@@ -1170,6 +1172,41 @@ describe("CourseController test:", () => {
                     dueDate: assignment2.dueDate,
                 }
             ]);
+        });
+    });
+
+    describe("Get content for a course", () => {
+        it.each([
+            { name: "fail when no courseId is provided",    courseId: undefined,                                status: 400, returnValue: { message: "Invalid course ID" } },
+            { name: "fail when courseId is empty",          courseId: "  ",                                     status: 400, returnValue: { message: "Invalid course ID" } },
+            { name: "fail when courseId is a number",       courseId: 123,                                      status: 400, returnValue: { message: "Invalid course ID" } },
+            { name: "fail when courseId is invalid",        courseId: "invalid-id",                             status: 400, returnValue: { message: "Invalid course ID" } },
+            { name: "fail when courseId doesn't exist",  courseId: "123e4567-e89b-12d3-a456-426614174999",   status: 404, returnValue: { message: "Course not found" } },
+
+            { name: "pass when courseId is valid",          courseId: async (): Promise<string> => {
+                const course = await TestDataSource.getRepository("Course").save({
+                    name: "testCourse",
+                    courseCode: "tes-st01",
+                    isOpen: true,
+                    description: "A test course",
+                    startDate: "3000-01-01",
+                    endDate: "3000-06-01",
+                });
+                return course.courseId;
+            }, status: 200, returnValue: [] }
+        ])("should $name", async ({name: _name, courseId, status, returnValue}) => {
+            if (typeof courseId === "function") {
+                courseId = await courseId();
+            }
+            const req: any = { params: {courseId: courseId}};
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+
+            await controller.getCourseContentForACourse(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(status);
+            expect(res.json).toHaveBeenCalledWith(returnValue);
         });
     });
 

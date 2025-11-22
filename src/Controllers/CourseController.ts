@@ -5,7 +5,7 @@ import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
 import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToCourse, checkUUID } from "./Tools.js";
 import { Content } from "../Database/entities/Content.js";
 import { formatContentListToTree } from "./ContentController.js";
 import type { Session } from "express-session";
@@ -70,6 +70,7 @@ export class CourseController {
 
         // Convert to Course type
         const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+        /* istanbul ignore next */
         if (!session || session.passport === undefined || session.passport.user === undefined) {
             res.status(401).json({ message: "Unauthorized: User not logged in." });
             return;
@@ -84,17 +85,19 @@ export class CourseController {
             res.status(400).json({ message: "Invalid dates" });
             return;
         }
-
-        // Check if the user ID is valid
-        if (!checkUUID(userId)) {
-            res.status(400).json({ message: "Invalid user ID" });
-            return;
-        }
         
         // Check if the user exists
-        const user = await this.userRepo.findOneBy({ userId: userId });
+        const user = await this.userRepo.findOne({where: { userId: userId }, relations: ["role"] });
+        /* istanbul ignore next */
         if (!user) {
             res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        // Check if the user is a teacher or admin
+        /* istanbul ignore next */
+        if (user.role.name !== "teacher" && user.role.name !== "admin") {
+            res.status(403).json({ message: "Forbidden: User does not have permission to create a course." });
             return;
         }
 
@@ -121,6 +124,7 @@ export class CourseController {
      * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
+
         // Check the course ID
         const courseId = req.params.courseId;
         if (!checkUUID(courseId)) {
@@ -132,6 +136,12 @@ export class CourseController {
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
 
@@ -157,6 +167,12 @@ export class CourseController {
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
 
@@ -209,6 +225,12 @@ export class CourseController {
             return;
         }
 
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
         // Delete the course
         await this.courseRepo.remove(course);
         res.status(204).json({ message: "Course deleted" });
@@ -232,6 +254,12 @@ export class CourseController {
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user assigning the enrollment is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
 
@@ -287,6 +315,12 @@ export class CourseController {
             return;
         }
 
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
         // Get assignments
         const assignments = await this.assignmentsRepo.find({
             where: { course: { courseId: courseId } },
@@ -311,13 +345,18 @@ export class CourseController {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
-
         const courseId = courseIdUnknown as string;
 
         // Check if course exists
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
 

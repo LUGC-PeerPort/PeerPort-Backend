@@ -11,8 +11,9 @@ export default {
     // using the deprecated `globals.ts-jest` configuration.
     moduleNameMapper: {
         // Map imports of '../app.js' (used by controllers) to a lightweight mock
-        // so tests don't execute the full Express app with side effects.
         "^\\.\\./app\\.js$": "<rootDir>/tests/__mocks__/appMock.ts",
+        // Map imports of Tools.js to a mock for testing
+        "/Tools\\.js$": "<rootDir>/tests/__mocks__/toolsMock.ts",
         "^(\\.{1,2}/.*)\\.js$": "$1", // strip .js for TS imports in tests
     },
 

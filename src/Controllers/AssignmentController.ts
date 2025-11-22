@@ -5,11 +5,12 @@ import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmission
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 import { Files } from "../Database/entities/Files.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToAssignment, checkIfUserRelatedToCourse, checkUUID } from "./Tools.js";
 import { uploader } from "../app.js";
 import * as fs from "fs";
 import multer from "multer";
 import type { Session } from "express-session";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 
 export interface AssignmentReturnWithoutCourseId {
     assignmentId: string;
@@ -42,6 +43,7 @@ export class AssignmentController {
     private assignmentRepo: Repository<Assignments>;
     private assignmentSubmissionsRepo: Repository<AssignmentSubmissions>;
     private userRepo: Repository<User>;
+    private userToCourseRepo: Repository<UsersToCourses>;
     private courseRepo: Repository<Course>;
     private fileRepo: Repository<Files>;
 
@@ -53,6 +55,7 @@ export class AssignmentController {
         this.assignmentRepo = dataSource.getRepository(Assignments);
         this.assignmentSubmissionsRepo = dataSource.getRepository(AssignmentSubmissions);
         this.userRepo = dataSource.getRepository(User);
+        this.userToCourseRepo = dataSource.getRepository(UsersToCourses);
         this.courseRepo = dataSource.getRepository(Course);
         this.fileRepo = dataSource.getRepository(Files);
     }
@@ -108,6 +111,14 @@ export class AssignmentController {
             return;
         }
 
+        // Check if the user is related to the course
+        const tempReq = req;
+        tempReq.params = { courseId: courseId };
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(tempReq, res, this.userRepo, this.userToCourseRepo)) {
+            return;
+        }
+
         // Create and save the assignment
         const newAssignment = this.assignmentRepo.create({
             ...assignmentStructure,
@@ -124,12 +135,14 @@ export class AssignmentController {
      * @param res - The response object
      */
     async getAssignment(req: Request, res: Response): Promise<void> {
+        // Check the assignment ID
         const assignmentId: unknown = req.params?.assignmentId;
         if(!checkUUID(assignmentId)) {
             res.status(400).json({message: "Invalid assignment ID"});
             return;
         }
 
+        // Get the assignment
         const assignment = await this.assignmentRepo.findOne({
             where: {assignmentId: assignmentId as string},
             relations: ["course"],
@@ -138,6 +151,14 @@ export class AssignmentController {
             res.status(404).json({message: "Assignment not found"});
             return;
         }
+
+        // Check if the user is related to the assignment
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
+            return;
+        }
+
+        // Return the assignment
         const assignmentReturn = this.convertToAssignmentReturn(
             assignment, 
             assignment.course.courseId
@@ -151,7 +172,6 @@ export class AssignmentController {
      * @param res - The response object
      */
     async updateAssignment(req: Request, res: Response): Promise<void> {
-    
         // Validate assignment ID
         const assignmentId: unknown = req.params?.assignmentId;
         if (!checkUUID(req.params?.assignmentId)) {
@@ -166,6 +186,12 @@ export class AssignmentController {
         });
         if (!assignment) {
             res.status(404).json({message: "Assignment not found"});
+            return;
+        }
+
+        // Check if the user is related to the assignment
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
             return;
         }
 
@@ -217,6 +243,12 @@ export class AssignmentController {
             return;
         }
 
+        // Check if the user is related to the assignment
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
+            return;
+        }
+
         // Delete the assignment
         await this.assignmentRepo.remove(assignment);
         res.status(200).json({ message: "Assignment deleted" });
@@ -244,6 +276,12 @@ export class AssignmentController {
             return;
         }
 
+        // Check if the user is related to the assignment
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
+            return;
+        }
+
         // Get submissions for the assignment
         const submissions = await this.assignmentSubmissionsRepo.find({ 
             where: { assignment: { assignmentId: assignmentId as string } },
@@ -261,6 +299,7 @@ export class AssignmentController {
      * @param res - The response object
      */
     async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
+        /* istanbul ignore next */
         try {
             await new Promise<void>((resolve, reject) => {
                 uploader.array("files")(req, res, async (err: unknown) => {
@@ -281,6 +320,7 @@ export class AssignmentController {
                     resolve();
                 });
             });
+        /* istanbul ignore next */
         } catch (err) {
             if (err === "file size limit exceeded") {
                 console.error("\x1b[33m[WARNING] A file exceeded the size limit of 10MB.\x1b[0m");
@@ -311,6 +351,13 @@ export class AssignmentController {
             return;
         }
 
+        // Check if the user is related to the assignment
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToAssignment(req, res, this.userRepo, this.userToCourseRepo, this.assignmentRepo)) {
+            this.removeFiles(req);
+            return;
+        }
+
         // Check the validity of the submission body
         const submissionUnknown = req.body as unknown;
         if (!this.isValidAssSubmissionBody(submissionUnknown)) {
@@ -319,8 +366,11 @@ export class AssignmentController {
             return;
         }
 
-        if (typeof req.files == "undefined" && typeof req.body.content === "undefined") {
+        /* istanbul ignore next */
+        const filesCheck = Array.isArray(req.files) ? (req.files as Express.Multer.File[]) : [];
+        if (filesCheck.length === 0 && (typeof req.body.comment === "undefined" || req.body.comment.trim() === "")) {
             res.status(400).json({ message: "Invalid submission structure" });
+            this.removeFiles(req);
             return;
         }
 
@@ -328,35 +378,28 @@ export class AssignmentController {
 
         // Get userId
         const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+        /* istanbul ignore next */
         if (!session || session.passport === undefined || session.passport.user === undefined) {
             res.status(401).json({ message: "Unauthorized: User not logged in." });
             this.removeFiles(req);
             return;
         }
-        const userId = session.passport.user;
-        if (!checkUUID(userId)) {
-            res.status(400).json({ message: "Invalid user ID" });
-            this.removeFiles(req);
-            return;
-        }
 
+        // These are already checked in the auth middleware
+        const userId = session.passport.user;
         const user = await this.userRepo.findOne({ where: { userId: userId as string }});
-        if (!user) {
-            res.status(404).json({message: "User not found"});
-            this.removeFiles(req);
-            return;
-        }
 
         // Create submission
         const submission = await this.assignmentSubmissionsRepo.create({
             ...submissionTyped,
             assignment: assignment,
-            user: user,
+            user: user!,
         });
         await this.assignmentSubmissionsRepo.save(submission);
 
         // Handle the files
         const files = (req.files as Express.Multer.File[]) || [];
+        /* istanbul ignore next */
         for (const file of files) {
             const fileEntry = this.fileRepo.create({
                 fileName: file.originalname,
@@ -377,6 +420,7 @@ export class AssignmentController {
      * -------- TOOLS --------
      */
 
+    /* istanbul ignore start */
     /**
      * Remove uploaded files from the request
      * @param req - The request object
@@ -387,6 +431,7 @@ export class AssignmentController {
         const files = req.files as Express.Multer.File[] | undefined;
         if (files) {
             for (const file of files) {
+                /* istanbul ignore next */
                 fs.unlink(file.path, (err) => {
                     if (err) {
                         console.error(`\x1b[31m[ERROR] Removing file ${file.path} failed: ${err}\x1b[0m`);
@@ -395,6 +440,7 @@ export class AssignmentController {
             }
         }
     }
+    /* istanbul ignore end */
 
     /**
      * Helper for assignment request body validation

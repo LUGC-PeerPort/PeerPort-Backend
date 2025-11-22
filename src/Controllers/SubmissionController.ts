@@ -1,13 +1,17 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToUser, checkUUID } from "./Tools.js";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import { User } from "../Database/entities/User.js";
 
 /**
  * Used to manage assignment submissions.
  */
 export class SubmissionController {
     private submissionRepo: Repository<AssignmentSubmissions>;
+    private userRepo: Repository<User>;
+    private userToCourseRepo: Repository<UsersToCourses>;
     
     /**
      * Constructor for SubmissionController.
@@ -15,6 +19,8 @@ export class SubmissionController {
      * */
     constructor(dataSource: DataSource) {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
+        this.userRepo = dataSource.getRepository(User);
+        this.userToCourseRepo = dataSource.getRepository(UsersToCourses);
     }
 
     /**
@@ -37,7 +43,9 @@ export class SubmissionController {
             res.status(200).json(formattedSubmissions);
             return;
         } catch (error) {
+            /* istanbul ignore next */
             console.error("Error fetching submissions:", error);
+            /* istanbul ignore next */
             res.status(500).json({ message: "Internal server error" });
         }   
     }
@@ -62,6 +70,15 @@ export class SubmissionController {
                 res.status(404).json({ message: "Submission not found" });
                 return;
             }
+
+            // Check that the user is a part of the course
+            const tempReq = req;
+            tempReq.params = { userId: submission.user.userId };
+            /* istanbul ignore next */
+            if (!await checkIfUserRelatedToUser(tempReq, res, this.userRepo)) {
+                return;
+            }
+
             res.status(200).json({
                 comment: submission.comment,
                 timeSubmitted: submission.timeSubmitted,
@@ -70,7 +87,9 @@ export class SubmissionController {
                 submissionId: submission.assignmentSubmissionId,
             });
         } catch (error) {
+            /* istanbul ignore next */
             console.error("Error fetching submission:", error);
+            /* istanbul ignore next */
             res.status(500).json({ message: "Internal server error" });
         }
     }

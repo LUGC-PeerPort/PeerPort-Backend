@@ -66,6 +66,14 @@ describe("ContentController test:", () => {
                 course: course
             });
 
+            const content3 = await TestDataSource.getRepository(Content).save({
+                name: "Sub Content",
+                description: "This is a sub content",
+                viewable: true,
+                parent: content2,
+                course: course
+            });
+
             const req: any = {};
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -74,27 +82,42 @@ describe("ContentController test:", () => {
             await controller.getAllContent(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith([{
-                contentId: content.contentId,
-                name: content.name,
-                description: content.description,
-                viewable: content.viewable,
-                dateCreated: expect.anything(),
-                dateUpdated: expect.anything(),
-                parentId: undefined,
-                courseId: course.courseId,
-                subContent: []
-            }, {
-                contentId: content2.contentId,
-                name: content2.name,
-                description: content2.description,
-                viewable: content2.viewable,
-                dateCreated: expect.anything(),
-                dateUpdated: expect.anything(),
-                parentId: undefined,
-                courseId: course.courseId,
-                subContent: []
-            }]);
+            expect(res.json).toHaveBeenCalledWith([
+                {
+                    contentId: content.contentId,
+                    name: content.name,
+                    description: content.description,
+                    viewable: content.viewable,
+                    dateCreated: expect.any(Date),
+                    dateUpdated: expect.any(Date),
+                    parentId: undefined,
+                    courseId: course.courseId,
+                    subContent: []
+                }, 
+                {
+                    contentId: content2.contentId,
+                    name: content2.name,
+                    description: content2.description,
+                    viewable: content2.viewable,
+                    dateCreated: expect.any(Date),
+                    dateUpdated: expect.any(Date),
+                    parentId: undefined,
+                    courseId: course.courseId,
+                    subContent: [
+                        {
+                            contentId: content3.contentId,
+                            name: content3.name,
+                            description: content3.description,
+                            viewable: content3.viewable,
+                            dateCreated: expect.any(Date),
+                            dateUpdated: expect.any(Date),
+                            parentId: content3.parent.contentId,
+                            courseId: course.courseId,
+                            subContent: []
+                        }
+                    ]
+                }
+            ]);
         });
 
         const contentId = (): string => content.contentId;

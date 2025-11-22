@@ -4,7 +4,8 @@ import { Grade } from "../Database/entities/Grade.js";
 import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToCourse, checkIfUserRelatedToGrades, checkIfUserRelatedToUser, checkUUID } from "./Tools.js";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 
 /**
  * Used to manage grades.
@@ -14,6 +15,7 @@ export class GradeController {
     private userRepo: Repository<User>;
     private courseRepo: Repository<Course>;
     private assignmentSubmissionRepo: Repository<AssignmentSubmissions>;
+    private usersToCoursesRepo: Repository<UsersToCourses>;
 
     /**
      * Constructor for GradeController.
@@ -24,6 +26,7 @@ export class GradeController {
         this.userRepo = dataSource.getRepository(User);
         this.courseRepo = dataSource.getRepository(Course);
         this.assignmentSubmissionRepo = dataSource.getRepository(AssignmentSubmissions);
+        this.usersToCoursesRepo = dataSource.getRepository(UsersToCourses);
     }
 
     /**
@@ -59,6 +62,12 @@ export class GradeController {
         const grade = await this.gradeRepo.findOne({ where: { gradeId: gradeId as string }, relations: ["user", "course", "assignmentSubmission"] });
         if (!grade) {
             res.status(404).json({ message: "Grade not found" });
+            return;
+        }
+
+        // Check if the user is allowed to see this grade
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo)) {
             return;
         }
 
@@ -108,6 +117,12 @@ export class GradeController {
             return;
         }
 
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+        
         // Validate the assignmentSubmissionId if provided
         let assignmentSubmission = undefined;
         if (typeof assignmentSubmissionIdUnknown !== "undefined") {
@@ -200,6 +215,12 @@ export class GradeController {
         const grade = await this.gradeRepo.findOne({ where: { gradeId: gradeId as string }, relations: ["user", "course", "assignmentSubmission"] });
         if (!grade) {
             res.status(404).json({ message: "Grade not found" });
+            return;
+        }
+
+        // Check if the user is allowed to update this grade
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo)) {
             return;
         }
 
@@ -298,6 +319,12 @@ export class GradeController {
             return;
         }
 
+        // Check if the user is allowed to delete this grade
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo)) {
+            return;
+        }
+
         // Delete the grade
         await this.gradeRepo.remove(grade);
 
@@ -329,6 +356,12 @@ export class GradeController {
             return;
         }
 
+        // Check if the user is related to the user
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
+            return;
+        }
+
         // Get all grades for the user
         const grades = await this.gradeRepo.find({ where: { user: user }, relations: ["user", "course", "assignmentSubmission"] });
 
@@ -357,6 +390,12 @@ export class GradeController {
         const course = await this.courseRepo.findOne({ where: { courseId: courseId as string } });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
 
@@ -405,6 +444,18 @@ export class GradeController {
             return;
         }
 
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
+        // Check if the user is related to the user
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
+            return;
+        }
+
         // Get all grades for the user in the course
         const grades = await this.gradeRepo.find({ where: { user: user, course: course }, relations: ["user", "course", "assignmentSubmission"] });
 
@@ -447,6 +498,18 @@ export class GradeController {
         const course = await this.courseRepo.findOne({ where: { courseId: courseId as string } });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
+        // Check if the user is related to the user
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
 
@@ -507,24 +570,42 @@ export class GradeController {
             return;
         }
 
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
         // Get all grades for the course
         const grades = await this.gradeRepo.find({ where: { course: course } });
+        if (grades.length === 0) {
+            res.status(200).json({ grade: 0 });
+            return;
+        }
 
         // Calculate the average grade
+        // For each grade: normalize the score (achievedScore - minScore) / (maxScore - minScore), multiply by weight
+        // Average = sum of (normalized_score * weight) for all grades / number of grades
+        // Result is expressed as a percentage (0-100)
         try {
-            let totalAchievedScore = 0;
-            let totalMaxScore = 0;  
+            let gradeTotal = 0;
+            let totalWeight = 0;
             for (const grade of grades) {
-                totalAchievedScore += grade.achievedScore - grade.minScore;
-                totalMaxScore += grade.maxScore - grade.minScore;
+                const score = grade.achievedScore - grade.minScore;
+                const maxScore = grade.maxScore - grade.minScore;
+                const gradeScore = score / maxScore;
+                if (isNaN(gradeScore) || !isFinite(gradeScore)) throw new Error(`Invalid grade calculation for grade ID ${grade.gradeId}`);
+
+                gradeTotal += gradeScore * grade.weight;
+                totalWeight += grade.weight;
             }
 
-            const rawPercent = totalMaxScore > 0 ? (totalAchievedScore / totalMaxScore) * 100 : 0;
-            if (isNaN(rawPercent) || !isFinite(rawPercent)) throw new Error(`Invalid average grade calculation ${totalAchievedScore} / ${totalMaxScore}`);
-            const averageGrade = Math.round(rawPercent * 100) / 100;
+            const averageGrade = gradeTotal / totalWeight;
+            if (isNaN(averageGrade) || !isFinite(averageGrade)) throw new Error(`Invalid average grade calculation ${gradeTotal} / ${totalWeight}`);
+            const averageGradeResult = Math.round(averageGrade * 100);
 
             // Return the average grade
-            res.status(200).json({ grade: averageGrade });
+            res.status(200).json({ grade: averageGradeResult });
         } catch (error) {
             console.error(`\x1b[31m[FATAL] Error calculating average grade for course ${courseId}: ${error}\x1b[0m`);
             res.status(500).json({ message: "Error calculating average grade" });

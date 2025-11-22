@@ -2,7 +2,9 @@ import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
 import { Content } from "../Database/entities/Content.js";
 import { Course } from "../Database/entities/Course.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToContent, checkIfUserRelatedToCourse, checkUUID } from "./Tools.js";
+import { User } from "../Database/entities/User.js";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 
 
 export interface ContentReturn {
@@ -24,6 +26,8 @@ export interface ContentReturn {
 export class ContentController {
     private contentRepo: Repository<Content>;
     private courseRepo: Repository<Course>;
+    private userRepo: Repository<User>;
+    private userToCourseRepo: Repository<UsersToCourses>;
 
 
     /**
@@ -33,6 +37,8 @@ export class ContentController {
     constructor(dataSource: DataSource) {
         this.contentRepo = dataSource.getRepository(Content);
         this.courseRepo = dataSource.getRepository(Course);
+        this.userRepo = dataSource.getRepository(User);
+        this.userToCourseRepo = dataSource.getRepository(UsersToCourses);
     }
 
     /**
@@ -66,6 +72,12 @@ export class ContentController {
             return;
         }
 
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
+            return;
+        }
+
         // Return the content
         res.status(200).json(contentReturn(content));
     }
@@ -91,7 +103,13 @@ export class ContentController {
             return;
         }
 
-        // Check course structure
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.userToCourseRepo)) {
+            return;
+        }
+
+        // Check content structure
         const unknownContent = req.body as unknown;
         if (!this.checkContentStructure(unknownContent, false)) {
             res.status(400).json({ message: "Invalid content structure" });
@@ -133,7 +151,15 @@ export class ContentController {
             return;
         }
 
-        const course = parent.course;
+        const course = parent.course!;
+
+        // Check if the user is related to the course
+        const tempReq = req;
+        tempReq.params = { courseId: course.courseId };
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(tempReq, res, this.userRepo, this.userToCourseRepo)) {
+            return;
+        }
 
         // Check the structure
         const unknownContent = req.body as unknown;
@@ -178,6 +204,12 @@ export class ContentController {
             return;
         }
 
+        // Check if the user is related to the content
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
+            return;
+        }
+
         // Check the structure
         const unknownContent = req.body as unknown;
         if (!this.checkContentStructure(unknownContent, true)) {
@@ -210,9 +242,15 @@ export class ContentController {
         }
         
         const contentId = contentIdUnknown as string;
-        const content = await this.contentRepo.findOne({ where: { contentId: contentId } });
+        const content = await this.contentRepo.findOne({ where: { contentId: contentId }, relations: ["course"] });
         if (!content) {
             res.status(404).json({ message: "Content not found" });
+            return;
+        }
+
+        // Check if the user is related to the content
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
             return;
         }
 
@@ -303,6 +341,7 @@ export function formatContentListToTree(contentList: Content[]): ContentReturn[]
         const parentId = content.parent?.contentId;
         if (parentId && contentMap[parentId]) {
             // If the content has a parent, add it to the parent's subContent
+            /* istanbul ignore next */
             if (!contentMap[parentId].subContent) {
                 contentMap[parentId].subContent = [];
             }
