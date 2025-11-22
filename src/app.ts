@@ -212,6 +212,39 @@ AppDataSource.initialize().then(() => {
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
 
+    // Custom error handler
+    app.use((err: any, req: any, res: any, next: any) => {
+        // Get the status code from the error, default to 500
+        const statusCode = err.statusCode || 500;
+
+        // Get the message from the error, default to 'Internal Server Error'
+        const message = err.message || "Internal Server Error";
+
+        // Get the api call path
+        const path = req.originalUrl || req.url;
+
+        // Get the source path if available
+        const source = req.referrer || req.host || "unknown source";
+
+        // Get the method used
+        const method = req.method;
+
+        // Get the body if available
+        const body = req.body ? JSON.stringify(req.body) : "no body";
+
+        // Get the session if available
+        const session = req.session ? JSON.stringify(req.session) : "no session";
+        
+        // Make the message
+        const errorMessage = `[ERROR] ${statusCode} on ${method} ${path} from '${source}': ${message}\n\tBody: ${body}\n\tSession: ${session}\n${err.stack || ""}`;
+        
+        // Log the error to the console
+        console.error(`\x1b[31m${errorMessage}\x1b[0m`);
+
+        // Send the error response
+        res.status(statusCode).json({ message: message });
+    });
+
     // Start the server
     app.listen(3000, () => {
         console.log("\n\x1b[34m[INFO] Server is running on port 3000 at http://localhost:3000/\x1b[0m");
