@@ -24,7 +24,7 @@ import { checkIfUpdateAvailable } from "./updateDetection.js";
 // Update check
 console.log("\x1b[32m[NOTICE] Checking for updates...\x1b[0m");
 if (!checkIfUpdateAvailable({disable: false})) { // Set to 'true' to disable update checks. Enable before you push.
-    console.error("Update check failed or updates are available. Exiting...");
+    console.error("\x1b[31m[ERROR] Update check failed. Exiting...\x1b[0m");
     process.exit(1);
 }
 // Give a message to say checks are complete
