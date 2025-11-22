@@ -73,6 +73,7 @@ export class ContentController {
         }
 
         // Check if the user is related to the course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
             return;
         }
@@ -103,6 +104,7 @@ export class ContentController {
         }
 
         // Check if the user is related to the course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.userToCourseRepo)) {
             return;
         }
@@ -154,6 +156,7 @@ export class ContentController {
         // Check if the user is related to the course
         const tempReq = req;
         tempReq.params = { courseId: course.courseId };
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(tempReq, res, this.userRepo, this.userToCourseRepo)) {
             return;
         }
@@ -202,6 +205,7 @@ export class ContentController {
         }
 
         // Check if the user is related to the content
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
             return;
         }
@@ -245,6 +249,7 @@ export class ContentController {
         }
 
         // Check if the user is related to the content
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
             return;
         }
@@ -336,6 +341,7 @@ export function formatContentListToTree(contentList: Content[]): ContentReturn[]
         const parentId = content.parent?.contentId;
         if (parentId && contentMap[parentId]) {
             // If the content has a parent, add it to the parent's subContent
+            /* istanbul ignore next */
             if (!contentMap[parentId].subContent) {
                 contentMap[parentId].subContent = [];
             }

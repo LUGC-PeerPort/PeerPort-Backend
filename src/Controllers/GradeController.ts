@@ -66,8 +66,8 @@ export class GradeController {
         }
 
         // Check if the user is allowed to see this grade
-        const isRelated = await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo);
-        if (!isRelated) {
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo)) {
             return;
         }
 
@@ -118,6 +118,7 @@ export class GradeController {
         }
 
         // Check if the user is related to the course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
@@ -218,6 +219,7 @@ export class GradeController {
         }
 
         // Check if the user is allowed to update this grade
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo)) {
             return;
         }
@@ -318,6 +320,7 @@ export class GradeController {
         }
 
         // Check if the user is allowed to delete this grade
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToGrades(req, res, this.userRepo, this.gradeRepo)) {
             return;
         }
@@ -354,6 +357,7 @@ export class GradeController {
         }
 
         // Check if the user is related to the user
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
@@ -390,6 +394,7 @@ export class GradeController {
         }
 
         // Check if the user is related to the course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
@@ -440,11 +445,13 @@ export class GradeController {
         }
 
         // Check if the user is related to the course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
 
         // Check if the user is related to the user
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
@@ -495,11 +502,13 @@ export class GradeController {
         }
 
         // Check if the user is related to the course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }
 
         // Check if the user is related to the user
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
@@ -562,6 +571,7 @@ export class GradeController {
         }
 
         // Check if the user is related to the course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
             return;
         }

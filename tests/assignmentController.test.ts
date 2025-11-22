@@ -1050,6 +1050,32 @@ describe("AssignmentController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
         });
 
+        it("Should not create a submission with no comment and no files", async () => {
+            const assignment = await TestDataSource.getRepository("Assignments").save({
+                name: "Test Assignment",
+                description: "This is a test assignment",
+                dueDate: "2025-06-01",
+                course: course,
+            });
+            const req: any = {
+                params: {
+                    assignmentId: assignment.assignmentId,
+                },
+                headers: { "content-type": "multipart/form-data" },
+                is: jest.fn().mockReturnValue(true),
+                body: {
+                },
+                session: { passport: { user: user.userId } }
+            };
+            const res: any = {};
+            res.status = jest.fn().mockReturnValue(res);
+            res.json = jest.fn().mockReturnValue(res);
+            await controller.createSubmissionForAssignment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid submission structure" });
+        });
+
         it("Should create a submission with valid data", async () => {
             const assignment = await TestDataSource.getRepository("Assignments").save({
                 name: "Test Assignment",
@@ -1082,6 +1108,7 @@ describe("AssignmentController test:", () => {
                 userId: user.userId,
             });
         });
+
 
         // Not needed in MVP
         // it("Should create multiple submissions for the same assignment from different users", async () => {});

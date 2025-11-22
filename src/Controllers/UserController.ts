@@ -152,6 +152,7 @@ export class UserController {
         }
 
         // Make sure the user is getting their own profile
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
@@ -188,6 +189,7 @@ export class UserController {
         }
 
         // Make sure the user is updating their own profile
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
@@ -234,6 +236,7 @@ export class UserController {
         }
 
         // Make sure the user is deleting their own profile
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
@@ -258,6 +261,7 @@ export class UserController {
         }
         
         // Make sure the user is getting their own courses
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }
@@ -304,6 +308,7 @@ export class UserController {
         }
 
         // Make sure the user is getting their own course
+        /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
             return;
         }

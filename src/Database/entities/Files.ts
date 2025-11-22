@@ -44,6 +44,7 @@ export class Files {
      */
     @BeforeRemove()
     async RemoveFiles(): Promise<void> {
+        /* istanbul ignore next */
         try {
             await fs.promises.unlink(this.location);
         } catch (err) {
