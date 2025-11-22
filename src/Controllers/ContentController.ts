@@ -2,7 +2,9 @@ import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
 import { Content } from "../Database/entities/Content.js";
 import { Course } from "../Database/entities/Course.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToContent, checkIfUserRelatedToCourse, checkUUID } from "./Tools.js";
+import { User } from "../Database/entities/User.js";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 
 
 export interface ContentReturn {
@@ -24,6 +26,8 @@ export interface ContentReturn {
 export class ContentController {
     private contentRepo: Repository<Content>;
     private courseRepo: Repository<Course>;
+    private userRepo: Repository<User>;
+    private userToCourseRepo: Repository<UsersToCourses>;
 
 
     /**
@@ -33,6 +37,8 @@ export class ContentController {
     constructor(dataSource: DataSource) {
         this.contentRepo = dataSource.getRepository(Content);
         this.courseRepo = dataSource.getRepository(Course);
+        this.userRepo = dataSource.getRepository(User);
+        this.userToCourseRepo = dataSource.getRepository(UsersToCourses);
     }
 
     /**
@@ -66,6 +72,11 @@ export class ContentController {
             return;
         }
 
+        // Check if the user is related to the course
+        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
+            return;
+        }
+
         // Return the content
         res.status(200).json(contentReturn(content));
     }
@@ -91,7 +102,12 @@ export class ContentController {
             return;
         }
 
-        // Check course structure
+        // Check if the user is related to the course
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.userToCourseRepo)) {
+            return;
+        }
+
+        // Check content structure
         const unknownContent = req.body as unknown;
         if (!this.checkContentStructure(unknownContent, false)) {
             res.status(400).json({ message: "Invalid content structure" });
@@ -134,6 +150,11 @@ export class ContentController {
         }
 
         const course = parent.course;
+
+        // Check if the user is related to the course
+        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, parent)) {
+            return;
+        }
 
         // Check the structure
         const unknownContent = req.body as unknown;
@@ -178,6 +199,11 @@ export class ContentController {
             return;
         }
 
+        // Check if the user is related to the content
+        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
+            return;
+        }
+
         // Check the structure
         const unknownContent = req.body as unknown;
         if (!this.checkContentStructure(unknownContent, true)) {
@@ -213,6 +239,11 @@ export class ContentController {
         const content = await this.contentRepo.findOne({ where: { contentId: contentId } });
         if (!content) {
             res.status(404).json({ message: "Content not found" });
+            return;
+        }
+
+        // Check if the user is related to the content
+        if (!await checkIfUserRelatedToContent(req, res, this.userRepo, this.userToCourseRepo, content)) {
             return;
         }
 

@@ -4,6 +4,7 @@ import type { Repository } from "typeorm";
 import type { User } from "../Database/entities/User.js";
 import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import type { Grade } from "../Database/entities/Grade.js";
+import type { Content } from "../Database/entities/Content.js";
 
 /**
  * Checks if the UUID is valid
@@ -137,6 +138,49 @@ export async function checkIfUserRelatedToGrades(req: Request, res: Response, us
         // Check if the user is an admin
         if (!isAdmin(user)) {
             res.status(403).json({ message: "Forbidden: Cannot access other user's grade" });
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Checks whether the user is related to the content that is given
+ * @param req - The request object
+ * @param res - The response object
+ * @param userRepo - The user DB
+ * @param userToCourse - The user to course DB
+ * @param content - The content to check
+ * @returns Whether the user is related to the content
+ */
+export async function checkIfUserRelatedToContent(req: Request, res: Response, userRepo: Repository<User>, userToCourse: Repository<UsersToCourses>, content: Content): Promise<boolean> {
+    // Check if the user is related to this content
+    const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+    if (!session || session.passport === undefined || session.passport.user === undefined) {
+        res.status(401).json({ message: "Unauthorized: User not logged in." });
+        return false;
+    }
+    const userId = session.passport.user;
+
+    // Get the user
+    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["role"] });
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return false;
+    }
+
+    // Check if the user is connected to the content's course
+    const courseConnection = await userToCourse.findOne({
+        where: {
+            user: { userId: userId },
+            course: { courseId: content.course!.courseId }
+        }
+    });
+
+    if (!courseConnection) {
+        // Check if the user is an admin
+        if (!isAdmin(user)) {
+            res.status(403).json({ message: "Forbidden: User not enrolled in this course." });
             return false;
         }
     }

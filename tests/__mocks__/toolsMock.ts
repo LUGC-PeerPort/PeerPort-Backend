@@ -3,6 +3,7 @@ import type { Repository } from "typeorm";
 import type { User } from "../../src/Database/entities/User.js";
 import type { UsersToCourses } from "../../src/Database/entities/UsersToCourses.js";
 import type { Grade } from "../../src/Database/entities/Grade.js";
+import type { Content } from "../../src/Database/entities/Content.js";
 
 /**
  * Checks if the UUID is valid
@@ -69,5 +70,18 @@ export async function checkIfUserRelatedToUser(req: Request, res: Response, user
  * @returns Whether the user is related to the grade
  */
 export async function checkIfUserRelatedToGrades(req: Request, res: Response, userRepo: Repository<User>, gradesRepo: Repository<Grade>): Promise<boolean> {
+    return true;
+}
+
+/**
+ * Checks whether the user is related to the content that is given
+ * @param req - The request object
+ * @param res - The response object
+ * @param userRepo - The user DB
+ * @param userToCourse - The user to course DB
+ * @param content - The content to check
+ * @returns Whether the user is related to the content
+ */
+export async function checkIfUserRelatedToContent(req: Request, res: Response, userRepo: Repository<User>, userToCourse: Repository<UsersToCourses>, content: Content): Promise<boolean> {
     return true;
 }
