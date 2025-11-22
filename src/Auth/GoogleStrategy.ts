@@ -183,7 +183,7 @@ export const GoogleStrategySetup = (app: express.Express, AppDataSource:DataSour
         }
 
         // Get the user's role
-        let userRole = user?.role;
+        let userRole = user.role;
 
         // If the user has no role, assign the 'user' role
         if(typeof userRole === "undefined"){
