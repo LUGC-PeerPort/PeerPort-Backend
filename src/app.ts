@@ -213,7 +213,7 @@ AppDataSource.initialize().then(() => {
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
 
     // Custom error handler
-    app.use((err: any, req: any, res: any, next: any) => {
+    app.use((err: any, req: any, res: any, _next: any) => {
         // Get the status code from the error, default to 500
         const statusCode = err.statusCode || 500;
 
