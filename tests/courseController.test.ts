@@ -89,8 +89,7 @@ describe("CourseController test:", () => {
                     courseCode: "tes-st01",
                     isOpen: true,
                     startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
-                } 
+                }
             };
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -108,7 +107,6 @@ describe("CourseController test:", () => {
                     courseCode: "tes-st01",
                     isOpen: true,
                     startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 } 
             };
             const res: any = {};
@@ -126,7 +124,6 @@ describe("CourseController test:", () => {
                     name: "testCourse",
                     isOpen: true,
                     startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 } 
             };
             const res: any = {};
@@ -145,7 +142,6 @@ describe("CourseController test:", () => {
                     courseCode: 12345,
                     isOpen: true,
                     startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 } 
             };
             const res: any = {};
@@ -163,7 +159,6 @@ describe("CourseController test:", () => {
                     name: "testCourse",
                     courseCode: "tes-st01",
                     startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
             const res: any = {};
@@ -182,7 +177,6 @@ describe("CourseController test:", () => {
                     courseCode: "tes-st01",
                     isOpen: "true",
                     startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
             const res: any = {};
@@ -200,7 +194,6 @@ describe("CourseController test:", () => {
                     name: "testCourse",
                     courseCode: "tes-st01",
                     isOpen: true,
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
             const res: any = {};
@@ -219,7 +212,6 @@ describe("CourseController test:", () => {
                     courseCode: "tes-st01",
                     isOpen: true,
                     startDate: "invalid-date",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
             const res: any = {};
@@ -231,62 +223,6 @@ describe("CourseController test:", () => {
             expect(res.json).toHaveBeenCalledWith({ message: "Invalid course structure" });
         });
 
-        it("Should not create a course without a user ID", async () => {
-            const req: any = {
-                body: {
-                    name: "testCourse",
-                    courseCode: "tes-st01",
-                    isOpen: true,
-                    startDate: "2024-01-01",
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.createCourse(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
-        });
-
-        it("Should not create a course with an invalid user ID", async () => {
-            const req: any = {
-                body: {
-                    name: "testCourse",
-                    courseCode: "tes-st01",
-                    isOpen: true,
-                    startDate: "2024-01-01",
-                    userId: "invalid-uuid"
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.createCourse(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid user ID" });
-        });
-
-        it("Should not create a course with a non-existent user ID", async () => {
-            const req: any = {
-                body: {
-                    name: "testCourse",
-                    courseCode: "tes-st01",
-                    isOpen: true,
-                    startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174999"
-                }
-            };
-            const res: any = {};
-            res.status = jest.fn().mockReturnValue(res);
-            res.json = jest.fn().mockReturnValue(res);
-            await controller.createCourse(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
-        });
-
         it("Should not create a course with a invalid description", async () => {
             const req: any = {
                 body: {
@@ -295,7 +231,6 @@ describe("CourseController test:", () => {
                     isOpen: true,
                     description: 12345,
                     startDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
             const res: any = {};
@@ -315,7 +250,6 @@ describe("CourseController test:", () => {
                     isOpen: true,
                     startDate: "2024-01-01",
                     endDate: "invalid-date",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
                 }
             };
             const res: any = {};
@@ -328,6 +262,14 @@ describe("CourseController test:", () => {
         });
 
         it("Should not create a course with an end date before the start date", async () => {
+            const user = await TestDataSource.getRepository("User").save({
+                name: "TestUser",
+                email: "test@example.com",
+                password: "password",
+                idNumber: "123456789",
+                role: await TestDataSource.getRepository("Role").findOneBy({ name: "student" }),
+            });
+
             const req: any = {
                 body: {
                     name: "testCourse",
@@ -335,8 +277,8 @@ describe("CourseController test:", () => {
                     isOpen: true,
                     startDate: "2024-01-01",
                     endDate: "2024-01-01",
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
-                }
+                },
+                session: { passport: { user: user.userId } }
             };
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -344,7 +286,7 @@ describe("CourseController test:", () => {
             await controller.createCourse(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: "Invalid course structure" });
+            expect(res.json).toHaveBeenCalledWith({ message: "Invalid dates" });
         });
 
         it("Should create a course with valid data", async () => {
@@ -362,8 +304,8 @@ describe("CourseController test:", () => {
                     courseCode: "tes-st01",
                     isOpen: true,
                     startDate: "2024-01-01",
-                    userId: `${user.userId}`
-                }
+                },
+                session: { passport: { user: user.userId } }
             };
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -397,8 +339,8 @@ describe("CourseController test:", () => {
                     isOpen: true,
                     description: "A test course",
                     startDate: "2024-01-01",
-                    userId: `${user.userId}`
-                }
+                },
+                session: { passport: { user: user.userId } }
             };
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -431,8 +373,8 @@ describe("CourseController test:", () => {
                     courseCode: "tes-st01",
                     isOpen: true,
                     startDate: "2024-01-01",
-                    userId: `${user.userId}`
-                }
+                },
+                session: { passport: { user: user.userId } }
             };
             const res: any = {};
             res.status = jest.fn().mockReturnValue(res);
@@ -1236,39 +1178,7 @@ describe("CourseController test:", () => {
             {name: "Fails if courseData is null", courseData: null, creation: false, updating: false, expected: false},
             {name: "Fails if courseData is string", courseData: "invalid", creation: false, updating: false, expected: false},
             {name: "Fails if courseData is a number", courseData: 123, creation: false, updating: false, expected: false},
-
             {name: "Fails if extra key in courseData", courseData: { extraKey: "value" }, creation: false, updating: false, expected: false},
-            {name: "Fails if userId is in keys", courseData: { userId: "123" }, creation: false, updating: false, expected: false},
-            { 
-                name: "Passes if userId included when creating", 
-                courseData: {
-                    userId: "123",
-                    name: "Test Course",
-                    courseCode: "test-01",
-                    isOpen: true,
-                    description: "A test course",
-                    startDate: "2024-01-01",
-                    endDate: "2024-06-01",
-                }, 
-                creation: true, 
-                updating: false, 
-                expected: true
-            },
-            { 
-                name: "Fails if userId included when updating", 
-                courseData: {
-                    userId: "123",
-                    name: "Test Course",
-                    courseCode: "test-01",
-                    isOpen: true,
-                    description: "A test course",
-                    startDate: "2024-01-01",
-                    endDate: "2024-06-01",
-                }, 
-                creation: false, 
-                updating: true, 
-                expected: false
-            },
 
             // Creation mode specific failures
             { name: "Creation fails when missing name", courseData: { courseCode: "cc", isOpen: true, startDate: "2024-01-01" }, creation: true, updating: false, expected: false },

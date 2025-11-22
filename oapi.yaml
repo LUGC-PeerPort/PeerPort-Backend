@@ -23,7 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserId'
+                $ref: '#/components/schemas/CurrentUser'
         '401':
           description: Unauthorized - No valid authentication token provided
           content:
@@ -247,10 +247,10 @@ paths:
     get:
       tags:
         - Courses
-      summary: Retrieve a list of classes
+      summary: Retrieve a list of courses
       responses:
         '200':
-          description: A list of classes
+          description: A list of courses
           content:
             application/json:
               schema:
@@ -360,6 +360,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Courses
+      summary: Delete a specific course by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Course deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Course deleted
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
   /courses/{courseId}/enroll/{userId}:
     post:
       tags:
@@ -430,6 +464,40 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AssignmentBasicWithAssignmentId'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  /courses/{courseId}/content:
+    get:
+      tags:
+        - Courses
+        - Content
+      summary: Retrieve content for a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of content for the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentGet'
         '400':
           description: Bad request - Invalid course ID format
           content:
@@ -842,12 +910,30 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SubmissionPost'
+              type: object
+              properties:
+                comment:
+                  type: string
+                  description: Comment or feedback for the submission
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                    description: Binary file upload(s)
+            encoding:
+              files:
+                contentType: application/octet-stream
             examples:
               payload:
-                $ref: '#/components/examples/AssignmentSubmissionPostExample'
+                summary: Example multipart submission
+                value:
+                  comment: "Please find my submission attached."
+                  files:
+                    - "file1.pdf"
+                    - "screenshot.png"
       responses:
         '201':
           description: Submission created successfully
@@ -1315,13 +1401,17 @@ paths:
 
 components:
   schemas:
-    UserId:
+    CurrentUser:
       type: object
       properties:
         userId:
           type: string
           format: uuid
           description: Unique identifier for the user
+        roleId:
+          type: string
+          format: uuid
+          description: Unique identifier for the user's role
     UserBasic:
       type: object
       required:
@@ -1363,7 +1453,7 @@ components:
               description: Unique identifier for the user
             role:
               $ref: '#/components/schemas/RoleBasic'
-            classes:
+            courses:
               type: array
               items:
                 $ref: '#/components/schemas/CourseWithEnrolledDate'
@@ -1386,16 +1476,6 @@ components:
         name:
           type: string
           description: Name of the role (e.g., Student, Instructor, Admin)
-    RoleWithId:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/RoleBasic'
-        - type: object
-          properties:
-            roleId:
-              type: string
-              format: uuid
-              description: Unique Role identifier
 
     CourseBasic:
       required:
@@ -1440,15 +1520,8 @@ components:
       required:
         - name
         - courseCode
-        - userId
       allOf:
         - $ref: '#/components/schemas/CourseBasic'
-        - type: object
-          properties:
-            userId:
-              type: string
-              format: uuid
-              description: ID of the instructor creating the course
     CourseWithEnrolledDate:
       type: object
       allOf:
@@ -1459,32 +1532,6 @@ components:
               type: string
               format: date
               description: Date when the User started the course
-    CourseWithUsers:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/CourseBasicWithId'
-        - type: object
-          properties:
-            users:
-              type: array
-              items:
-                $ref: '#/components/schemas/UserBasic'
-
-    UserToCourses:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the user-course relationship
-        enrolledOn:
-          type: string
-          format: date
-          description: Date when the user enrolled in the course
-        user:
-          $ref: '#/components/schemas/UserBasic'
-        classEntity:
-          $ref: '#/components/schemas/CourseBasic'
 
     AssignmentBasic:
       type: object
@@ -1565,27 +1612,6 @@ components:
               type: string
               format: uuid
               description: Unique identifier for the submission
-    SubmissionPost:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/SubmissionBasic'
-        - type: object
-          required:
-            - userId
-          properties:
-            userId:
-              type: string
-              format: uuid
-              description: Unique identifier for the user making the submission
-            files:
-              type: array
-              items:
-                type: string
-                format: byte
-                description: File data
-            comment:
-              type: string
-              description: Comment or feedback for the submission
 
     GradeBasic:
       type: object
@@ -1694,6 +1720,10 @@ components:
             dateUpdated:
               type: string
               format: date-time
+            subContent:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContentGet'
 
     BasicError:
       type: object
@@ -1713,7 +1743,6 @@ components:
         description: "An intermediate course on data structures."
         startDate: "2025-09-01"
         endDate: "2025-12-15"
-        userId: "11111111-2222-3333-4444-555555555555"
     CourseUpdateExample:
       summary: Example course update payload
       value:
@@ -1730,10 +1759,6 @@ components:
         name: "Lecture 2 — Advanced Topics"
         description: "Slides covering advanced concepts."
         viewable: true
-    BasicErrorExample:
-      summary: Example error
-      value:
-        message: "An error occurred"
     
     AssignmentPostExample:
       summary: Example assignment creation payload
@@ -1751,9 +1776,7 @@ components:
     AssignmentSubmissionPostExample:
       summary: Example assignment submission payload
       value:
-        userId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
         comment: "Please find my submission attached."
-        timeSubmitted: "2025-09-14T18:30:00Z"
         files:
           - "Base64EncodedFileDataHere"
     

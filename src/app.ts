@@ -13,11 +13,12 @@ import {User} from "./Database/entities/User.js";
 import {Role} from "./Database/entities/Role.js";
 import {GoogleStrategySetup} from "./Auth/GoogleStrategy.js";
 import cors from "cors";
-import multer from "multer";
-import fs from "fs";
 import { GradeController } from "./Controllers/GradeController.js";
 import { ContentController } from "./Controllers/ContentController.js";
 import { SubmissionController } from "./Controllers/SubmissionController.js";
+import fs from "fs";
+import multer from "multer";
+import type { Request, Response } from "express";
 import { checkIfUpdateAvailable } from "./updateDetection.js";
 
 // Update check
@@ -30,17 +31,37 @@ if (!checkIfUpdateAvailable({disable: false})) { // Set to 'true' to disable upd
 console.log("\x1b[32m[SUCCESS] Checks complete...\x1b[0m");
 
 // Start of the PeerPort Backend
-console.log("\nStarting PeerPort Backend...");
+console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
+// Check if the environment variables are set
+const VARS = [
+    ["DB_HOST", process.env.DB_HOST], 
+    ["DB_USER", process.env.DB_USER], 
+    ["DB_PASSWORD", process.env.DB_PASSWORD], 
+    ["DB_NAME", process.env.DB_NAME],
+    ["CLIENT_URL", process.env.CLIENT_URL]
+];
+let fail = false;
+for (const [name, data] of VARS) {
+    if (data === undefined) {
+        console.error(`\x1b[31m[ERROR] Environment variable ${name} is not set.\x1b[0m`);
+        fail = true;
+    }
+}
+if (fail) process.exit(1);
+
+// Initialize Express app
 const app = express();
 app.use(express.json());
 
+// Setup CORS
 app.use(cors({
     origin: process.env.CLIENT_URL,
     methods: "GET,POST,PUT,DELETE,HEAD,OPTIONS",
     credentials: true,
     allowedHeaders: "Content-Type,Authorization"
 }));
+
 
 // Setting up swagger
 const __filename = fileURLToPath(import.meta.url);
@@ -49,17 +70,16 @@ const swaggerDocument = YAML.load(path.resolve(__dirname, "../../oapi.yaml"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
-
 // Initialize file upload middleware
 let uploadDir: string;
 if (!process.env.UPLOAD_DIR) {
     uploadDir = path.resolve(__dirname, "./uploads");
     if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
-    console.warn(`UPLOAD_DIR environment variable not set, defaulting to '${uploadDir}'`);
+    console.warn(`\x1b[33m[WARNING] UPLOAD_DIR environment variable not set, defaulting to '${uploadDir}'\x1b[0m`);
 } else {
     uploadDir = path.resolve(__dirname, process.env.UPLOAD_DIR);
     if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
-    console.log(`Uploads will be stored in: ${uploadDir}`);
+    console.log(`\x1b[32m[INFO] Uploads will be stored in: ${uploadDir}\x1b[0m`);
 }
 
 const storage = multer.diskStorage({
@@ -70,16 +90,10 @@ const storage = multer.diskStorage({
         cb(null, safeFileName);
     }
 });
-const uploader = multer({
+export const uploader = multer({
     storage,
-    // Removed limit temproaraly limits: {fileSize: 1e+7} // 10MB file size limit
+    limits: {fileSize: 10 * 1024 * 1024}, // 10MB (10,485,760 bytes) file size limit
 });
-
-// Check if the environment variables are set
-if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
-    console.error("Database environment variables are not set.");
-    process.exit(1);
-}
 
 
 AppDataSource.initialize().then(() => {
@@ -94,7 +108,7 @@ AppDataSource.initialize().then(() => {
                 role = new Role();
                 role.name = roleName;
                 await roleRepository.save(role);
-                console.log(`Created default role: ${roleName}`);
+                console.log(`\x1b[32m[INFO] Created default role: ${roleName}\x1b[0m`);
             }
         }
     };
@@ -103,6 +117,7 @@ AppDataSource.initialize().then(() => {
 
     const userController = new UserController(AppDataSource);
     const courseController = new CourseController(AppDataSource);
+    const assignmentController = new AssignmentController(AppDataSource);
     const gradeController = new GradeController(AppDataSource);
     const contentController = new ContentController(AppDataSource);
     const submissionController = new SubmissionController(AppDataSource);
@@ -151,7 +166,6 @@ AppDataSource.initialize().then(() => {
     app.get("/auth/testAuth/admin", (req, res) => ifAuthed(["admin"], req, res, () => {
         return res.json({message: "User has 'admin' role access."});
     }));
-    const assignmentController = new AssignmentController(AppDataSource);
 
     // Define routes
     app.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }));
@@ -174,15 +188,16 @@ AppDataSource.initialize().then(() => {
     app.get("/courses/:courseId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
     app.post("/courses/:courseId/enroll/:userId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res)));
     app.get("/courses/:courseId/assignments",       (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
+    app.get("/courses/:courseId/content",           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseContentForACourse(req, res)));
 
     // Assignment controller
-    app.get("/assignments/:assignmentId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
-    app.get("/assignments",                                             (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
-    app.post("/assignments",                                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
-    app.put("/assignments/:assignmentId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
-    app.delete("/assignments/:assignmentId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
-    app.post("/assignments/:assignmentId/submissions", uploader.any(),  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
-    app.get("/assignments/:assignmentId/submissions",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
+    app.get("/assignments/:assignmentId",               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
+    app.get("/assignments",                             (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
+    app.post("/assignments",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
+    app.put("/assignments/:assignmentId",               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
+    app.delete("/assignments/:assignmentId",            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
+    app.post("/assignments/:assignmentId/submissions",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
+    app.get("/assignments/:assignmentId/submissions",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
 
     // Submission controller
     app.get("/submissions",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => submissionController.getAllSubmissions(req, res)));
@@ -208,31 +223,56 @@ AppDataSource.initialize().then(() => {
     app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
-});
 
-// Error handler for multer
-app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    // Check if the error is a Multer error
-    if (err && typeof err === "object" && "code" in err) {
+    // Custom error handler
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    app.use((err: any, req: Request, res: Response, _next: any) => {
+        // Get the status code from the error, default to 500
+        const statusCode = err.statusCode || 500;
+
+        // Get the message from the error, default to 'Internal Server Error'
+        const message = err.message || "Internal Server Error";
+
+        // Get the api call path
+        const path = req.originalUrl || req.url;
+
+        // Get the source path if available
+        const source = req.headers?.referer || req.headers?.host || "unknown source";
+
+        // Get the method used
+        const method = req.method;
+
+        // Safe stringify function to avoid errors with circular references
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const e = err as any;
+        const safeStringify = (obj: any): string => {
+            try {
+                return JSON.stringify(obj);
+            } catch {
+                return "[Unable to stringify]";
+            }
+        };
 
-        // Handle specific Multer errors
-        if (e.code === "LIMIT_FILE_SIZE") {
-            return res.status(413).json({ message: "One or more files exceed the 10MB limit." });
-        }
-        if (e instanceof multer.MulterError) {
-            return res.status(400).json({ message: e.message });
-        }
-    }
-    // Go to next error handler
-    return next(err);
-});
+        // Get the body if available
+        const body = req.body ? safeStringify(req.body) : "no body";
 
-// Start the server
-app.listen(3000, () => {
-    console.log("Server is running on port 3000 at http://localhost:3000/");
-    console.log("API documentation available at http://localhost:3000/api-docs"); // link to api so that I don't need to find the link every time
+        // Get the session if available
+        const session = req.session ? safeStringify(req.session) : "no session";
+        
+        // Make the message
+        const errorMessage = `[ERROR] ${statusCode} on ${method} ${path} from '${source}': ${message}\n\tBody: ${body}\n\tSession: ${session}\n${err.stack || ""}`;
+        
+        // Log the error to the console
+        console.error(`\x1b[31m${errorMessage}\x1b[0m`);
+
+        // Send the error response
+        res.status(statusCode).json({ message: message });
+    });
+
+    // Start the server
+    app.listen(3000, () => {
+        console.log("\n\x1b[34m[INFO] Server is running on port 3000 at http://localhost:3000/\x1b[0m");
+        console.log("\x1b[34m[INFO] API documentation available at http://localhost:3000/api-docs\x1b[0m"); // link to api so that I don't need to find the link every time
+    });
 });
 
 export default app;

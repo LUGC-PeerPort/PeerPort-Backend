@@ -6,6 +6,10 @@ import { User } from "../Database/entities/User.js";
 import { Course } from "../Database/entities/Course.js";
 import { Files } from "../Database/entities/Files.js";
 import { checkUUID } from "./Tools.js";
+import { uploader } from "../app.js";
+import * as fs from "fs";
+import multer from "multer";
+import type { Session } from "express-session";
 
 export interface AssignmentReturnWithoutCourseId {
     assignmentId: string;
@@ -91,7 +95,7 @@ export class AssignmentController {
         }
 
         // Get course
-        const course = await this.courseRepo.findOne({ where: {courseId} });
+        const course = await this.courseRepo.findOne({ where: { courseId } });
         if(!course) {
             res.status(404).json({ message: "Course not found" });
             return;
@@ -207,17 +211,13 @@ export class AssignmentController {
         }
 
         // Find the assignment
-        const assignment = await this.assignmentRepo.findOneBy({ assignmentId: assignmentId as string });
+        const assignment = await this.assignmentRepo.findOne({ where: { assignmentId: assignmentId as string }, relations: ["course", "assignmentSubmissions", "files"] });
         if (!assignment) {
             res.status(404).json({ message: "Assignment not found" });
             return;
         }
 
-        // TODO: Delete the assignment and its links - Future us problem lol
-        // await this.assignmentToFilesRepo.delete({ assignment: { assignmentId: assignmentId as string } });
-        // await this.assignmentSubmissionsRepo.delete({ assignment: { assignmentId: assignmentId as string } });
-        // await this.assignmentRepo.delete({ assignmentId: assignmentId as string });
-
+        // Delete the assignment
         await this.assignmentRepo.remove(assignment);
         res.status(200).json({ message: "Assignment deleted" });
     }
@@ -261,16 +261,53 @@ export class AssignmentController {
      * @param res - The response object
      */
     async createSubmissionForAssignment(req: Request, res: Response): Promise<void> {
+        try {
+            await new Promise<void>((resolve, reject) => {
+                uploader.array("files")(req, res, async (err: unknown) => {
+                    if (err) {
+                        if (err instanceof multer.MulterError) {
+                            if (err.code === "LIMIT_FILE_SIZE") {
+                                // File too large
+                                res.status(400).json({ message: "One or more files exceed the size limit of 10MB." });
+
+                                // resolve so we can handle cleanup after the await
+                                return reject("file size limit exceeded");
+                            }
+                        }
+                        // Multer error occurred
+                        console.error(`\x1b[31m[ERROR] Multer error: ${err}\x1b[0m`);
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            });
+        } catch (err) {
+            if (err === "file size limit exceeded") {
+                console.error("\x1b[33m[WARNING] A file exceeded the size limit of 10MB.\x1b[0m");
+                // Files already handled in the multer error case
+                this.removeFiles(req);
+                return;
+            } else {
+                // Unexpected upload error
+                console.error(`\x1b[31m[ERROR] Upload failed: ${err}\x1b[0m`);
+                res.status(500).json({ message: "File upload failed." });
+                this.removeFiles(req);
+                return;
+            }
+        }
+
         // Get assignmentId
         const assignmentId: unknown = req.params?.assignmentId;
         if (!checkUUID(assignmentId)) {
             res.status(400).json({ message: "Invalid assignment ID" });
+            this.removeFiles(req);
             return;
         }
 
         const assignment = await this.assignmentRepo.findOne({ where: { assignmentId: assignmentId as string } });
         if (!assignment) {
             res.status(404).json({ message: "Assignment not found" });
+            this.removeFiles(req);
             return;
         }
 
@@ -278,21 +315,35 @@ export class AssignmentController {
         const submissionUnknown = req.body as unknown;
         if (!this.isValidAssSubmissionBody(submissionUnknown)) {
             res.status(400).json({ message: "Invalid submission structure" });
+            this.removeFiles(req);
+            return;
+        }
+
+        if (typeof req.files == "undefined" && typeof req.body.content === "undefined") {
+            res.status(400).json({ message: "Invalid submission structure" });
             return;
         }
 
         const submissionTyped = submissionUnknown as AssignmentSubmissions;
 
         // Get userId
-        const userId = (req.body as { userId?: unknown }).userId;
+        const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+        if (!session || session.passport === undefined || session.passport.user === undefined) {
+            res.status(401).json({ message: "Unauthorized: User not logged in." });
+            this.removeFiles(req);
+            return;
+        }
+        const userId = session.passport.user;
         if (!checkUUID(userId)) {
             res.status(400).json({ message: "Invalid user ID" });
+            this.removeFiles(req);
             return;
         }
 
         const user = await this.userRepo.findOne({ where: { userId: userId as string }});
         if (!user) {
             res.status(404).json({message: "User not found"});
+            this.removeFiles(req);
             return;
         }
 
@@ -304,7 +355,7 @@ export class AssignmentController {
         });
         await this.assignmentSubmissionsRepo.save(submission);
 
-        // Handle file uploads
+        // Handle the files
         const files = (req.files as Express.Multer.File[]) || [];
         for (const file of files) {
             const fileEntry = this.fileRepo.create({
@@ -325,6 +376,25 @@ export class AssignmentController {
     /**
      * -------- TOOLS --------
      */
+
+    /**
+     * Remove uploaded files from the request
+     * @param req - The request object
+     * @returns Nothing
+     */
+    private removeFiles(req: Request): void {
+        if (req.files === undefined) return;
+        const files = req.files as Express.Multer.File[] | undefined;
+        if (files) {
+            for (const file of files) {
+                fs.unlink(file.path, (err) => {
+                    if (err) {
+                        console.error(`\x1b[31m[ERROR] Removing file ${file.path} failed: ${err}\x1b[0m`);
+                    }
+                });
+            }
+        }
+    }
 
     /**
      * Helper for assignment request body validation
@@ -379,7 +449,7 @@ export class AssignmentController {
     private isValidAssSubmissionBody(submission: unknown): boolean {
         if (typeof submission !== "object" || submission === null) return false;
 
-        const allowedFields = ["comment", "timeSubmitted", "userId"];
+        const allowedFields = ["comment"];
         for (const key of Object.keys(submission)) {
             if (!allowedFields.includes(key)) {
                 return false;
@@ -393,14 +463,10 @@ export class AssignmentController {
             userId: string;
         }>;
 
+        // Optional comment
         if (typeof submissionTyped.comment === "string") {
             if (submissionTyped.comment.trim() === "") return false;
         }
-
-        if (typeof submissionTyped.timeSubmitted === "string") {
-            const date = Date.parse(submissionTyped.timeSubmitted);
-            if (isNaN(date)) return false;
-        } else return false;
 
         return true;
     }

@@ -6,6 +6,9 @@ import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
 import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
 import { checkUUID } from "./Tools.js";
+import { Content } from "../Database/entities/Content.js";
+import { formatContentListToTree } from "./ContentController.js";
+import type { Session } from "express-session";
 
 export interface CourseReturn {
     courseId: string;
@@ -27,6 +30,7 @@ export class CourseController {
     private userRepo: Repository<User>;
     private usersToCoursesRepo: Repository<UsersToCourses>;
     private assignmentsRepo: Repository<Assignments>;
+    private contentRepo: Repository<Content>;
 
     /**
      * Create an instance of the CourseController
@@ -37,6 +41,7 @@ export class CourseController {
         this.userRepo = appDataSource.getRepository(User);
         this.usersToCoursesRepo = appDataSource.getRepository(UsersToCourses);
         this.assignmentsRepo = appDataSource.getRepository(Assignments);
+        this.contentRepo = appDataSource.getRepository(Content);
     }
 
     /**
@@ -64,14 +69,19 @@ export class CourseController {
         }
 
         // Convert to Course type
-        const userId = (courseUnknown as Course & { userId: string }).userId;
+        const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+        if (!session || session.passport === undefined || session.passport.user === undefined) {
+            res.status(401).json({ message: "Unauthorized: User not logged in." });
+            return;
+        }
+        const userId = session.passport.user;
         const courseStructure = courseUnknown as Course;
 
         // Check dates
         const startDate = courseStructure.startDate;
         const endDate = courseStructure.endDate ?? null;
         if (!this.checkDates(startDate, endDate)) {
-            res.status(400).json({ message: "Invalid course structure" });
+            res.status(400).json({ message: "Invalid dates" });
             return;
         }
 
@@ -287,8 +297,42 @@ export class CourseController {
         res.status(200).json(assignmentReturns);
     }
 
+    // /api/v1/courses/:courseId/content
+    /**
+     * Gets all the content for a specific course
+     * @param req - The request object
+     * @param res - The response object
+     * @returns The content for the course
+     */
+    async getCourseContentForACourse(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseIdUnknown = req.params?.courseId as unknown;
+        if (!checkUUID(courseIdUnknown)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        const courseId = courseIdUnknown as string;
+
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Get content
+        const contentItems = await this.contentRepo.find({where: { course: { courseId: courseId } }, relations: ["parent", "course"] });
+
+        // Make any content that has a parentId, into a subContent of that content
+        const contentItemsList = formatContentListToTree(contentItems);
+
+        // Return content
+        res.status(200).json(contentItemsList);
+    }
 
     // ----- TOOLS -----
+
     
     /**
      * Checks if the course structure is valid or not
@@ -308,7 +352,7 @@ export class CourseController {
         // Check if the course has any extra keys
         const courseKeys = ["name", "courseCode", "isOpen", "description", "startDate", "endDate"];
         for (const key of Object.keys(course)) {
-            if (!courseKeys.includes(key) && !(key === "userId" && _creation)) return false;
+            if (!courseKeys.includes(key)) return false;
         }
 
         // Make a Course object that is partial (all fields optional)

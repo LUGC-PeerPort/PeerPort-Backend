@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, BeforeRemove } from "typeorm";
 import { AssignmentSubmissions } from "./AssignmentSubmissions.js";
 import { Assignments } from "./Assignments.js";
 import { Content } from "./Content.js";
+import * as fs from "fs";
 
 
 /**
@@ -21,20 +22,32 @@ export class Files {
         type: "text",
         nullable: false,
     })
-    	location!: string;
+        location!: string;
 
     @CreateDateColumn()
         uploadedOn!: string;
 
-    @ManyToOne(() => AssignmentSubmissions, (submission) => submission.files)
+    @ManyToOne(() => AssignmentSubmissions, (submission) => submission.files, { onDelete: "CASCADE" })
     @JoinColumn({ name: "submissionId" })
         submission!: AssignmentSubmissions;
 
-    @ManyToOne(() => Content, (content) => content.files)
+    @ManyToOne(() => Content, (content) => content.files, { onDelete: "CASCADE" })
     @JoinColumn({ name: "contentId" })
         content!: Content;
 
-    @ManyToOne(() => Assignments, (assignment) => assignment.files)
+    @ManyToOne(() => Assignments, (assignment) => assignment.files, { onDelete: "CASCADE" })
     @JoinColumn({ name: "assignmentId" })
         assignment!: Assignments;
+
+    /**
+     * Removes the file from the filesystem when the database entry is removed
+     */
+    @BeforeRemove()
+    async RemoveFiles(): Promise<void> {
+        try {
+            await fs.promises.unlink(this.location);
+        } catch (err) {
+            console.error(`\x1b[31m[ERROR] Removing file ${this.location} failed: ${err}\x1b[0m`);
+        }
+    }
 }

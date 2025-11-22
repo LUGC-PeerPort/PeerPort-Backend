@@ -10,30 +10,30 @@ import { Files } from "./Files.js";
 @Entity("Assignments")
 export class Assignments {
     @PrimaryGeneratedColumn("uuid")
-    	assignmentId!: string;
+        assignmentId!: string;
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
-    	name!: string;
+        name!: string;
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
-    	description!: string;
+        description!: string;
     @Column({
-    	type: "text",
-    	nullable: false,
+        type: "text",
+        nullable: false,
     })
-    	dueDate!: string;
+        dueDate!: string;
 
 	@OneToMany(() => Files, (files) => files.assignment)
-    	files!: Files[];
+	    files!: Files[];
 
-    @ManyToOne(() => Course, (course) => course.assignments)
+    @ManyToOne(() => Course, (course) => course.assignments, { onDelete: "CASCADE" })
 	@JoinColumn({ name: "courseId" })
-    	course!: Course;
+        course!: Course;
 
     @OneToMany(() => AssignmentSubmissions, (assignmentSubmissions) => assignmentSubmissions.assignment)
-    	assignmentSubmissions!: AssignmentSubmissions[];
+        assignmentSubmissions!: AssignmentSubmissions[];
 }

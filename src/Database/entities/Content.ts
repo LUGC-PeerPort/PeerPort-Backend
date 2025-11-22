@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, OneToOne, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Files } from "./Files.js";
 import { Course } from "./Course.js";
 
@@ -37,10 +37,11 @@ export class Content {
     @OneToMany(() => Files, (files) => files.content)
     	files!: Files[];
 
-	@OneToOne(() => Content, (content) => content.contentId)
+	@ManyToOne(() => Content, (content) => content.contentId, { onDelete: "CASCADE" })
+	@JoinColumn({ name: "parentId" })
 	    parent?: Content;
 
-	@ManyToOne(() => Course, (course) => course.content)
+	@ManyToOne(() => Course, (course) => course.content, { onDelete: "CASCADE" })
 	@JoinColumn({ name: "courseId" })
 	    course?: Course;
 }

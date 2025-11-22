@@ -4,10 +4,15 @@ export default {
     testMatch: ["**/tests/**/*.test.ts"],
     moduleFileExtensions: ["ts", "js", "json", "node"],
     transform: {
-        "^.+\\.(t|j)sx?$": ["ts-jest", { useESM: true }],
+        "^.+\\.(t|j)sx?$": ["ts-jest", { useESM: true, tsconfig: { module: 'esnext' }, diagnostics: false }],
     },
     extensionsToTreatAsEsm: [".ts"],
+    // Note: ts-jest config is provided in the transform entry (above) to avoid
+    // using the deprecated `globals.ts-jest` configuration.
     moduleNameMapper: {
+        // Map imports of '../app.js' (used by controllers) to a lightweight mock
+        // so tests don't execute the full Express app with side effects.
+        "^\\.\\./app\\.js$": "<rootDir>/tests/__mocks__/appMock.ts",
         "^(\\.{1,2}/.*)\\.js$": "$1", // strip .js for TS imports in tests
     },
 
