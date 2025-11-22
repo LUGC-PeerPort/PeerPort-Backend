@@ -197,19 +197,19 @@ AppDataSource.initialize().then(() => {
     app.get("/grades/by-id/:gradeId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getGrade(req, res)));
     app.put("/grades/by-id/:gradeId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res)));
     app.delete("/grades/by-id/:gradeId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res)));
-    app.post("/grades/:userId/:courseId",                           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
-    app.post("/grades/:userId/:courseId/:assignmentSubmissionId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
     app.get("/grades/by-user/:userId",                              (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
     app.get("/grades/by-course/:courseId",                          (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
-    app.get("/grades/:userId/:courseId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
-    app.get("/grades/calculated/:userId/:courseId",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
     app.get("/grades/average/:courseId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
+    app.get("/grades/calculated/:userId/:courseId",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
+    app.post("/grades/:userId/:courseId",                           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
+    app.post("/grades/:userId/:courseId/:assignmentSubmissionId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
+    app.get("/grades/:userId/:courseId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
     
     // Content controller
     app.get("/content",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
+    app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.get("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
     app.post("/content/:courseId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
-    app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
 
