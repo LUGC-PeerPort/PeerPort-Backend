@@ -19,11 +19,30 @@ import { SubmissionController } from "./Controllers/SubmissionController.js";
 import fs from "fs";
 import multer from "multer";
 
-console.log("Starting PeerPort Backend...");
+console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
+// Check if the environment variables are set
+const VARS = [
+    ["DB_HOST", process.env.DB_HOST], 
+    ["DB_USER", process.env.DB_USER], 
+    ["DB_PASSWORD", process.env.DB_PASSWORD], 
+    ["DB_NAME", process.env.DB_NAME],
+    ["CLIENT_URL", process.env.CLIENT_URL]
+];
+let fail = false;
+for (const [name, data] of VARS) {
+    if (data === undefined) {
+        console.error(`\x1b[31m[ERROR] Environment variable ${name} is not set.\x1b[0m`);
+        fail = true;
+    }
+}
+if (fail) process.exit(1);
+
+// Initialize Express app
 const app = express();
 app.use(express.json());
 
+// Setup CORS
 app.use(cors({
     origin: process.env.CLIENT_URL,
     methods: "GET,POST,PUT,DELETE,HEAD,OPTIONS",
@@ -31,29 +50,24 @@ app.use(cors({
     allowedHeaders: "Content-Type,Authorization"
 }));
 
-// // Setting up swagger
+
+// Setting up swagger
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const swaggerDocument = YAML.load(path.resolve(__dirname, "../../oapi.yaml"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
-// Check if the environment variables are set
-if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
-    console.error("Database environment variables are not set.");
-    process.exit(1);
-}
-
 // Initialize file upload middleware
 let uploadDir: string;
 if (!process.env.UPLOAD_DIR) {
     uploadDir = path.resolve(__dirname, "./uploads");
     if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
-    console.warn(`UPLOAD_DIR environment variable not set, defaulting to '${uploadDir}'`);
+    console.warn(`\x1b[33m[WARNING] UPLOAD_DIR environment variable not set, defaulting to '${uploadDir}'\x1b[0m`);
 } else {
     uploadDir = path.resolve(__dirname, process.env.UPLOAD_DIR);
     if (!fs.existsSync(uploadDir)) {fs.mkdirSync(uploadDir, { recursive: true });}
-    console.log(`Uploads will be stored in: ${uploadDir}`);
+    console.log(`\x1b[32m[INFO] Uploads will be stored in: ${uploadDir}\x1b[0m`);
 }
 
 const storage = multer.diskStorage({
@@ -82,7 +96,7 @@ AppDataSource.initialize().then(() => {
                 role = new Role();
                 role.name = roleName;
                 await roleRepository.save(role);
-                console.log(`Created default role: ${roleName}`);
+                console.log(`\x1b[32m[INFO] Created default role: ${roleName}\x1b[0m`);
             }
         }
     };
@@ -197,12 +211,12 @@ AppDataSource.initialize().then(() => {
     app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
     app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
     app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
-});
 
-// Start the server
-app.listen(3000, () => {
-    console.log("Server is running on port 3000 at http://localhost:3000/");
-    console.log("API documentation available at http://localhost:3000/api-docs"); // link to api so that I don't need to find the link every time
+    // Start the server
+    app.listen(3000, () => {
+        console.log("\n\x1b[34m[INFO] Server is running on port 3000 at http://localhost:3000/\x1b[0m");
+        console.log("\x1b[34m[INFO] API documentation available at http://localhost:3000/api-docs\x1b[0m"); // link to api so that I don't need to find the link every time
+    });
 });
 
 export default app;
