@@ -5,7 +5,7 @@ import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
 import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
-import { checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToCourse, checkUUID } from "./Tools.js";
 import { Content } from "../Database/entities/Content.js";
 import { formatContentListToTree } from "./ContentController.js";
 import type { Session } from "express-session";
@@ -121,6 +121,7 @@ export class CourseController {
      * @param res - The Response object
      */
     async getCourse(req: Request, res: Response): Promise<void> {
+
         // Check the course ID
         const courseId = req.params.courseId;
         if (!checkUUID(courseId)) {
@@ -132,6 +133,12 @@ export class CourseController {
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        const isRelated = await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo);
+        if (!isRelated) {
             return;
         }
 
@@ -157,6 +164,12 @@ export class CourseController {
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        const isRelated = await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo);
+        if (!isRelated) {
             return;
         }
 
@@ -209,6 +222,12 @@ export class CourseController {
             return;
         }
 
+        // Check if the user is related to the course
+        const isRelated = await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo);
+        if (!isRelated) {
+            return;
+        }
+
         // Delete the course
         await this.courseRepo.remove(course);
         res.status(204).json({ message: "Course deleted" });
@@ -232,6 +251,12 @@ export class CourseController {
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user assigning the enrollment is related to the course
+        const isRelated = await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo);   
+        if (!isRelated) {
             return;
         }
 
@@ -287,6 +312,12 @@ export class CourseController {
             return;
         }
 
+        // Check if the user is related to the course
+        const isRelated = await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo);
+        if (!isRelated) {
+            return;
+        }
+
         // Get assignments
         const assignments = await this.assignmentsRepo.find({
             where: { course: { courseId: courseId } },
@@ -311,13 +342,18 @@ export class CourseController {
             res.status(400).json({ message: "Invalid course ID" });
             return;
         }
-
         const courseId = courseIdUnknown as string;
 
         // Check if course exists
         const course = await this.courseRepo.findOneBy({ courseId: courseId });
         if (!course) {
             res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        const isRelated = await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo);
+        if (!isRelated) {
             return;
         }
 

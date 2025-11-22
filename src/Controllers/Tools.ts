@@ -1,3 +1,9 @@
+import type { Session } from "express-session";
+import type { Request, Response } from "express";
+import type { Repository } from "typeorm";
+import type { User } from "../Database/entities/User.js";
+import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+
 /**
  * Checks if the UUID is valid
  * @param id - The  UUID
@@ -17,4 +23,45 @@ export function checkUUID(id: unknown): string | void {
     
     // Return the ID
     return newId;
+}
+
+/**
+ * Checks if the user is related to the course that is given in the params
+ * @param req - The request object
+ * @param res - The response object
+ * @param userRepo - The user DB
+ * @param usersToCoursesRepo - The users to courses DB
+ * @returns Whether the user is related to the course
+ */
+export async function checkIfUserRelatedToCourse(req: Request, res: Response, userRepo: Repository<User>, usersToCoursesRepo: Repository<UsersToCourses>): Promise<boolean> {
+    // Check if the user is related to this course
+    const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+    if (!session || session.passport === undefined || session.passport.user === undefined) {
+        res.status(401).json({ message: "Unauthorized: User not logged in." });
+        return false;
+    }
+    const userId = session.passport.user;
+
+    // Get the user
+    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["roles"] });
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return false;
+    }
+
+    // Check if the user is connected to the course
+    const courseConnection = await usersToCoursesRepo.findOne({
+        where: {
+            user: { userId: userId },
+            course: { courseId: req.params.courseId }
+        }
+    });
+    if (!courseConnection) {
+        // Check if the user is an admin
+        if (typeof user.role === "undefined" || user.role.name !== "admin") {
+            res.status(403).json({ message: "Forbidden: User not enrolled in this course." });
+            return false;
+        }
+    }
+    return true;
 }
