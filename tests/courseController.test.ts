@@ -320,9 +320,9 @@ describe("CourseController test:", () => {
                 name: "testCourse",
                 courseCode: "tes-st01",
                 isOpen: true,
-                description: null,
+                description: undefined,
                 startDate: "2024-01-01",
-                endDate: null,
+                endDate: undefined,
             });
         });
 
@@ -357,7 +357,7 @@ describe("CourseController test:", () => {
                 isOpen: true,
                 description: "A test course",
                 startDate: "2024-01-01",
-                endDate: null,
+                endDate: undefined,
             });
         });
 
@@ -389,9 +389,9 @@ describe("CourseController test:", () => {
                 name: "testCourse",
                 courseCode: "tes-st01",
                 isOpen: true,
-                description: null,
+                description: undefined,
                 startDate: "2024-01-01",
-                endDate: null,
+                endDate: undefined,
             });
         });
     });
@@ -795,7 +795,7 @@ describe("CourseController test:", () => {
                 isOpen: false,
                 description: "An updated test course",
                 startDate: "2024-02-01",
-                endDate: null,
+                endDate: undefined,
             });
         });
 
@@ -1279,9 +1279,9 @@ describe("CourseController test:", () => {
                     name: "Course 1",
                     courseCode: "C101",
                     isOpen: true,
-                    description: null,
+                    description: undefined,
                     startDate: "2024-01-01",
-                    endDate: null,
+                    endDate: undefined,
                 }
             },
             {

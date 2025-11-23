@@ -15,9 +15,9 @@ export interface CourseReturn {
     name: string;
     courseCode: string;
     isOpen: boolean;
-    description: string | null;
-    startDate: Date | string | null;
-    endDate: Date | string | null;
+    description: string | undefined;
+    startDate: Date | string;
+    endDate: Date | string | undefined;
 };
 
 
@@ -468,9 +468,9 @@ export class CourseController {
             name: courseData.name,
             courseCode: courseData.courseCode,
             isOpen: courseData.isOpen,
-            description: courseData.description ?? null,
+            description: courseData.description ?? undefined,
             startDate: courseData.startDate,
-            endDate: courseData.endDate ?? null,
+            endDate: courseData.endDate ?? undefined,
         };
     }
 

@@ -1123,9 +1123,9 @@ describe("UserController test:", () => {
                                 name: courseBase.course.name,
                                 courseCode: courseBase.course.courseCode,
                                 isOpen: courseBase.course.isOpen,
-                                description: null,
-                                startDate: (courseBase.course as any).startDate ?? null,
-                                endDate: (courseBase.course as any).endDate ?? null,
+                                description: undefined,
+                                startDate: (courseBase.course as any).startDate,
+                                endDate: (courseBase.course as any).endDate ?? undefined,
                                 enrolledOn: courseBase.enrolledOn,
                             }
                         ]
@@ -1149,61 +1149,9 @@ describe("UserController test:", () => {
                                 name: courseBase.course.name,
                                 courseCode: courseBase.course.courseCode,
                                 isOpen: courseBase.course.isOpen,
-                                description: null,
-                                startDate: (courseBase.course as any).startDate ?? null,
-                                endDate: (courseBase.course as any).endDate ?? null,
-                                enrolledOn: courseBase.enrolledOn,
-                            }
-                        ]
-                    }
-                },
-                {
-                    name: "Should handle undefined startDate in courses",
-                    data: {
-                        ...baseData,
-                        courses: [
-                            { ...courseBase, course: { ...courseBase.course, startDate: undefined } }
-                        ]
-                    },
-                    expected: {
-                        ...baseData,
-                        profilePictureUrl: null,
-                        role: undefined,
-                        courses: [
-                            {
-                                courseId: courseBase.course.courseId,
-                                name: courseBase.course.name,
-                                courseCode: courseBase.course.courseCode,
-                                isOpen: courseBase.course.isOpen,
-                                description: (courseBase.course as any).description ?? null,
-                                startDate: null,
-                                endDate: (courseBase.course as any).endDate ?? null,
-                                enrolledOn: courseBase.enrolledOn,
-                            }
-                        ]
-                    }
-                },
-                {
-                    name: "Should handle null startDate in courses",
-                    data: {
-                        ...baseData,
-                        courses: [
-                            { ...courseBase, course: { ...courseBase.course, startDate: null } }
-                        ]
-                    },
-                    expected: {
-                        ...baseData,
-                        profilePictureUrl: null,
-                        role: undefined,
-                        courses: [
-                            {
-                                courseId: courseBase.course.courseId,
-                                name: courseBase.course.name,
-                                courseCode: courseBase.course.courseCode,
-                                isOpen: courseBase.course.isOpen,
-                                description: (courseBase.course as any).description ?? null,
-                                startDate: null,
-                                endDate: (courseBase.course as any).endDate ?? null,
+                                description: undefined,
+                                startDate: (courseBase.course as any).startDate,
+                                endDate: (courseBase.course as any).endDate ?? undefined,
                                 enrolledOn: courseBase.enrolledOn,
                             }
                         ]
@@ -1227,9 +1175,9 @@ describe("UserController test:", () => {
                                 name: courseBase.course.name,
                                 courseCode: courseBase.course.courseCode,
                                 isOpen: courseBase.course.isOpen,
-                                description: (courseBase.course as any).description ?? null,
-                                startDate: (courseBase.course as any).startDate ?? null,
-                                endDate: null,
+                                description: (courseBase.course as any).description ?? undefined,
+                                startDate: (courseBase.course as any).startDate,
+                                endDate: undefined,
                                 enrolledOn: courseBase.enrolledOn,
                             }
                         ]
@@ -1253,9 +1201,9 @@ describe("UserController test:", () => {
                                 name: courseBase.course.name,
                                 courseCode: courseBase.course.courseCode,
                                 isOpen: courseBase.course.isOpen,
-                                description: (courseBase.course as any).description ?? null,
-                                startDate: (courseBase.course as any).startDate ?? null,
-                                endDate: null,
+                                description: (courseBase.course as any).description ?? undefined,
+                                startDate: (courseBase.course as any).startDate,
+                                endDate: undefined,
                                 enrolledOn: courseBase.enrolledOn,
                             }
                         ]
@@ -1302,10 +1250,10 @@ describe("UserController test:", () => {
                 enrolledOn: new Date("2023-01-01"),
             };
             it.each([
-                { name: "Should handle undefined description", data: { ...baseData, description: undefined }, expected: { ...baseData, description: null, endDate: null } },
-                { name: "Should handle null description", data: { ...baseData, description: null }, expected: { ...baseData, description: null, endDate: null } },
-                { name: "Should handle undefined endDate", data: { ...baseData, endDate: undefined }, expected: { ...baseData, description: (baseData as any).description ?? null, endDate: null } },
-                { name: "Should handle null endDate", data: { ...baseData, endDate: null }, expected: { ...baseData, description: (baseData as any).description ?? null, endDate: null } },
+                { name: "Should handle undefined description", data: { ...baseData, description: undefined }, expected: { ...baseData, description: undefined, endDate: undefined } },
+                { name: "Should handle null description", data: { ...baseData, description: null }, expected: { ...baseData, description: undefined, endDate: undefined } },
+                { name: "Should handle undefined endDate", data: { ...baseData, endDate: undefined }, expected: { ...baseData, description: (baseData as any).description ?? undefined, endDate: undefined } },
+                { name: "Should handle null endDate", data: { ...baseData, endDate: null }, expected: { ...baseData, description: (baseData as any).description ?? undefined, endDate: undefined } },
             ])("$name", ({ name: _name, data, expected }) => {
                 expect((controller as any).courseReturn(data)).toEqual(expected);
             });

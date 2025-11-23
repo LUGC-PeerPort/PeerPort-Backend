@@ -421,9 +421,9 @@ export class UserController {
                     name: cls.course.name,
                     courseCode: cls.course.courseCode,
                     isOpen: cls.course.isOpen,
-                    description: cls.course.description ?? null,
-                    startDate: cls.course.startDate ?? null,
-                    endDate: cls.course.endDate ?? null,
+                    description: cls.course.description ?? undefined,
+                    startDate: cls.course.startDate,
+                    endDate: cls.course.endDate ?? undefined,
                 }))
                 : [],
         };
@@ -440,9 +440,9 @@ export class UserController {
             name: courseData.name,
             courseCode: courseData.courseCode,
             isOpen: courseData.isOpen,
-            description: courseData.description ?? null,
+            description: courseData.description ?? undefined,
             startDate: courseData.startDate,
-            endDate: courseData.endDate ?? null,
+            endDate: courseData.endDate ?? undefined,
             enrolledOn: courseData.enrolledOn,
         };
     }
