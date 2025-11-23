@@ -132,12 +132,16 @@ export function loadFiles(files: Files[] | undefined): { fileId: string; fileNam
     // Process the files into a string
     const loadedFiles: { fileId: string; fileName: string; file: string; }[] = [];
     for (const file of files) {
-        const fileData = fs.readFileSync(file.location, { encoding: "base64" });
-        loadedFiles.push({
-            fileId: file.fileId,
-            fileName: file.fileName,
-            file: fileData
-        });
+        try {
+            const fileData = fs.readFileSync(file.location, { encoding: "base64" });
+            loadedFiles.push({
+                fileId: file.fileId,
+                fileName: file.fileName,
+                file: fileData
+            });
+        } catch (err) {
+            console.error(`\x1b[31m[ERROR] Loading file ${file.location} failed: ${err}\x1b[0m`);
+        }
     }
 
     // Return the files
