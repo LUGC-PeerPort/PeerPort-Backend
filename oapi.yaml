@@ -1907,7 +1907,7 @@ components:
         description: "Slides covering advanced concepts."
         viewable: true
         files:
-          - "Base64EncodedFileDataHere"
+          - "BinaryFileDataHere"
     
     AssignmentPostExample:
       summary: Example assignment creation payload
@@ -1917,7 +1917,7 @@ components:
         dueDate: "2025-09-15T23:59:59Z"
         courseId: "66666666-7777-8888-9999-000000000000"
         files:
-          - "Base64EncodedFileDataHere"
+          - "BinaryFileDataHere"
     AssignmentUpdateExample:
       summary: Example assignment update payload
       value:
@@ -1929,7 +1929,7 @@ components:
       value:
         comment: "Please find my submission attached."
         files:
-          - "Base64EncodedFileDataHere"
+          - "BinaryFileDataHere"
     
     GradesUpdateExample:
       summary: Example grade update payload
