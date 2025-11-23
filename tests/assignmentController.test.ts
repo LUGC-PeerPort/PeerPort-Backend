@@ -90,6 +90,7 @@ describe("AssignmentController test:", () => {
                 description: assignment.description,
                 dueDate: assignment.dueDate,
                 courseId: course.courseId,
+                files: [],
             }]);
         });
 
@@ -120,12 +121,14 @@ describe("AssignmentController test:", () => {
                 description: assignment1.description,
                 dueDate: assignment1.dueDate,
                 courseId: course.courseId,
+                files: [],
             }, {
                 assignmentId: assignment2.assignmentId,
                 name: assignment2.name,
                 description: assignment2.description,
                 dueDate: assignment2.dueDate,
                 courseId: course.courseId,
+                files: [],
             }]);
         });
     });
@@ -455,6 +458,7 @@ describe("AssignmentController test:", () => {
                 description: "This is a test assignment",
                 dueDate: "3030-01-01",
                 courseId: course.courseId,
+                files: [],
             });
         });
     });
@@ -525,6 +529,7 @@ describe("AssignmentController test:", () => {
                 description: assignment.description,
                 dueDate: assignment.dueDate,
                 courseId: course.courseId,
+                files: [],
             });
         });
     });
@@ -732,6 +737,7 @@ describe("AssignmentController test:", () => {
                 dueDate: assignment.dueDate,
                 courseId: course.courseId,
                 assignmentId: assignment.assignmentId,
+                files: [],
             });
         });
 
@@ -764,6 +770,7 @@ describe("AssignmentController test:", () => {
                 description: "This is an updated test assignment",
                 dueDate: "3030-06-02",
                 courseId: course.courseId,
+                files: [],
             });
         });
     });
@@ -925,6 +932,7 @@ describe("AssignmentController test:", () => {
                 timeSubmitted: submission.timeSubmitted,
                 assignmentId: assignment.assignmentId,
                 userId: user.userId,
+                files: [],
             }]);
         });
     });
@@ -1106,6 +1114,7 @@ describe("AssignmentController test:", () => {
                 timeSubmitted: expect.any(Date),
                 assignmentId: assignment.assignmentId,
                 userId: user.userId,
+                files: [],
             });
         });
 

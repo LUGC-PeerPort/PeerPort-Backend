@@ -6,6 +6,13 @@ import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import type { Grade } from "../Database/entities/Grade.js";
 import type { Content } from "../Database/entities/Content.js";
 import type { Assignments } from "../Database/entities/Assignments.js";
+import { uploader } from "../app.js";
+import multer from "multer";
+import * as fs from "fs";
+import type { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
+import type { Files } from "../Database/entities/Files.js";
+
+
 
 /**
  * Checks if the UUID is valid
@@ -26,6 +33,119 @@ export function checkUUID(id: unknown): string | void {
     
     // Return the ID
     return newId;
+}
+
+/**
+ * Check the file upload and handle errors
+ * @param req - The request object
+ * @param res - The response object
+ * @returns If the checks passed
+ */
+export async function handleFileUpload(req: Request, res: Response): Promise<boolean> {
+    /* istanbul ignore next */
+    try {
+        await new Promise<void>((resolve, reject) => {
+            uploader.array("files")(req, res, async (err: unknown) => {
+                if (err) {
+                    if (err instanceof multer.MulterError) {
+                        if (err.code === "LIMIT_FILE_SIZE") {
+                            // File too large
+                            res.status(400).json({ message: "One or more files exceed the size limit of 10MB." });
+
+                            // resolve so we can handle cleanup after the await
+                            return reject("file size limit exceeded");
+                        }
+                    }
+                    // Multer error occurred
+                    console.error(`\x1b[31m[ERROR] Multer error: ${err}\x1b[0m`);
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
+    
+    /* istanbul ignore next */
+    } catch (err) {
+        if (err === "file size limit exceeded") {
+            console.error("\x1b[33m[WARNING] A file exceeded the size limit of 10MB.\x1b[0m");
+            // Files already handled in the multer error case
+            removeFiles(req);
+            return false;
+        } else {
+            // Unexpected upload error
+            console.error(`\x1b[31m[ERROR] Upload failed: ${err}\x1b[0m`);
+            res.status(500).json({ message: "File upload failed." });
+            removeFiles(req);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Save files locally and in the database
+ * @param req - The request object
+ * @param saveData - The object containing which data to save
+ * @param fileRepo - The file DB
+ */
+export async function saveFiles(req: Request, saveData: { submission: AssignmentSubmissions } | { content: Content } | { assignment: Assignments }, fileRepo: Repository<Files>): Promise<void> {
+    const files = (req.files as Express.Multer.File[]) || [];
+    for (const file of files) {
+        const fileEntry = fileRepo.create({
+            fileName: file.originalname,
+            location: file.path,
+            ...saveData
+        });
+        await fileRepo.save(fileEntry); //save files to db
+    }
+}
+
+/**
+ * Remove uploaded files from the request
+ * @param req - The request object
+ * @returns Nothing
+ */
+export function removeFiles(req: Request): void {
+    if (req.files === undefined) return;
+    const files = req.files as Express.Multer.File[] | undefined;
+    if (files) {
+        for (const file of files) {
+            /* istanbul ignore next */
+            fs.unlink(file.path, (err) => {
+                if (err) {
+                    console.error(`\x1b[31m[ERROR] Removing file ${file.path} failed: ${err}\x1b[0m`);
+                }
+            });
+        }
+    }
+}
+
+/**
+ * Get the files and parse them into a usable format
+ * @param files - A list of file objects
+ * @returns A parsed list of file objects or an empty list
+ */
+export function loadFiles(files: Files[] | undefined): { fileId: string; fileName: string; file: string; }[] | [] {
+    if (!files || files.length === 0) return [];
+
+    // Process the files into a string
+    const loadedFiles: { fileId: string; fileName: string; file: string; }[] = [];
+    for (const file of files) {
+        try {
+            const fileData = fs.readFileSync(file.location, { encoding: "base64" });
+            loadedFiles.push({
+                fileId: file.fileId,
+                fileName: file.fileName,
+                file: fileData
+            });
+        } catch (err) {
+            console.error(`\x1b[31m[ERROR] Loading file ${file.location} failed: ${err}\x1b[0m`);
+        }
+    }
+
+    // Return the files
+    return loadedFiles;
 }
 
 /**

@@ -200,6 +200,7 @@ describe("SubmissionController test:", () => {
                 userId: user.userId,
                 assignmentId: assignment.assignmentId,
                 submissionId: submission.assignmentSubmissionId,
+                files: []
             });
         });
     });

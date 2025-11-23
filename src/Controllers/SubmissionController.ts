@@ -1,8 +1,7 @@
 import type { DataSource, Repository } from "typeorm";
 import type { Request, Response } from "express";
 import { AssignmentSubmissions } from "../Database/entities/AssignmentSubmissions.js";
-import { checkIfUserRelatedToUser, checkUUID } from "./Tools.js";
-import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import { checkIfUserRelatedToUser, checkUUID, loadFiles } from "./Tools.js";
 import { User } from "../Database/entities/User.js";
 
 /**
@@ -11,7 +10,6 @@ import { User } from "../Database/entities/User.js";
 export class SubmissionController {
     private submissionRepo: Repository<AssignmentSubmissions>;
     private userRepo: Repository<User>;
-    private userToCourseRepo: Repository<UsersToCourses>;
     
     /**
      * Constructor for SubmissionController.
@@ -20,7 +18,6 @@ export class SubmissionController {
     constructor(dataSource: DataSource) {
         this.submissionRepo = dataSource.getRepository(AssignmentSubmissions);
         this.userRepo = dataSource.getRepository(User);
-        this.userToCourseRepo = dataSource.getRepository(UsersToCourses);
     }
 
     /**
@@ -64,7 +61,7 @@ export class SubmissionController {
         try {
             const submission = await this.submissionRepo.findOne({
                 where: { assignmentSubmissionId: submissionId },
-                relations: ["user", "assignment"],
+                relations: ["user", "assignment", "files"],
             });
             if (!submission) {
                 res.status(404).json({ message: "Submission not found" });
@@ -85,6 +82,7 @@ export class SubmissionController {
                 userId: submission.user.userId,
                 assignmentId: submission.assignment.assignmentId,
                 submissionId: submission.assignmentSubmissionId,
+                files: loadFiles(submission.files),
             });
         } catch (error) {
             /* istanbul ignore next */

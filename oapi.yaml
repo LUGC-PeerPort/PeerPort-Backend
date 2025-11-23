@@ -510,6 +510,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
+  /courses/{courseId}/classList:
+    get:
+      tags:
+        - Courses
+        - Users
+      summary: Retrieve the class list for a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A list of users enrolled in the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseClassList'
+        '400':
+          description: Bad request - Invalid course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
 
   /content:
     get:
@@ -731,9 +765,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AssignmentBasicWithCourseId'
+              $ref: '#/components/schemas/AssignmentPost'
             examples:
               payload:
                 $ref: '#/components/examples/AssignmentPostExample'
@@ -1532,6 +1566,30 @@ components:
               type: string
               format: date
               description: Date when the User started the course
+    CourseClassList:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        name:
+          type: string
+          description: Name of the user
+        email:
+          type: string
+          format: email
+          description: Email of the user
+        profilePictureUrl:
+          type: string
+          format: uri
+          description: URL to the user's profile picture
+        idNumber:
+          type: string
+          description: Institution-specific ID number
+        role:
+          type: string
+          description: Role of the user in the course (e.g., user, teacher, admin)
 
     AssignmentBasic:
       type: object
@@ -1560,6 +1618,38 @@ components:
               type: string
               format: uuid
               description: Unique identifier for the course
+            files:
+              type: array
+              items:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the file
+                  fileName:
+                    type: string
+                    description: Name of the file
+                  file:
+                    type: string
+                    format: base64
+                    description: Base64 encoded content of the file
+    AssignmentPost:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AssignmentBasic'
+        - type: object
+          properties:
+            courseId:
+              type: string
+              format: uuid
+              description: Unique identifier for the course
+            files:
+              type: array
+              items:
+                type: string
+                format: binary
+                description: Binary file upload(s)
     AssignmentBasicWithId:
       type: object
       allOf:
@@ -1612,6 +1702,34 @@ components:
               type: string
               format: uuid
               description: Unique identifier for the submission
+            files:
+              type: array
+              items:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the file
+                  fileName:
+                    type: string
+                    description: Name of the submitted file
+                  file:
+                    type: string
+                    format: base64
+                    description: Base64 encoded content of the submitted file
+    SubmissionPost:
+      type: object
+      properties:
+        comment:
+          type: string
+          description: Comment or feedback for the submission
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+            description: Binary file upload(s)
 
     GradeBasic:
       type: object
@@ -1695,6 +1813,23 @@ components:
       allOf:
         - $ref: '#/components/schemas/ContentBasic'
         - type: object
+          properties:
+            files:
+              type: array
+              items:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the file
+                  fileName:
+                    type: string
+                    description: Name of the file
+                  file:
+                    type: string
+                    format: binary
+                    description: Binary encoded content of the file (uploaded via multipart/form-data)
     ContentPatch:
       type: object
       properties:
@@ -1720,6 +1855,22 @@ components:
             dateUpdated:
               type: string
               format: date-time
+            files:
+              type: array
+              items:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the file
+                  fileName:
+                    type: string
+                    description: Name of the file
+                  file:
+                    type: string
+                    format: base64
+                    description: Base64 encoded content of the file
             subContent:
               type: array
               items:
@@ -1759,6 +1910,8 @@ components:
         name: "Lecture 2 — Advanced Topics"
         description: "Slides covering advanced concepts."
         viewable: true
+        files:
+          - "BinaryFileDataHere"
     
     AssignmentPostExample:
       summary: Example assignment creation payload
@@ -1767,6 +1920,8 @@ components:
         description: "First homework assignment."
         dueDate: "2025-09-15T23:59:59Z"
         courseId: "66666666-7777-8888-9999-000000000000"
+        files:
+          - "BinaryFileDataHere"
     AssignmentUpdateExample:
       summary: Example assignment update payload
       value:
@@ -1778,7 +1933,7 @@ components:
       value:
         comment: "Please find my submission attached."
         files:
-          - "Base64EncodedFileDataHere"
+          - "BinaryFileDataHere"
     
     GradesUpdateExample:
       summary: Example grade update payload

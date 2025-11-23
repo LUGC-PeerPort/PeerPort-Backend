@@ -370,6 +370,49 @@ export class CourseController {
         res.status(200).json(contentItemsList);
     }
 
+    // /api/v1/courses/:courseId/classList
+    /**
+     * Retrieves the classlist for a specific course
+     * @param req - The request object
+     * @param res - The response object
+     * @returns The classlist for a course
+     */
+    async getCourseClassList(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseId = req.params.courseId;
+        if (!checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
+        // Get all users related to the course
+        const users = await this.usersToCoursesRepo.find({  where: { course: { courseId: courseId } }, relations: ["user", "user.role"] });
+        const classList = users.map(link => {
+            return {
+                userId: link.user.userId,
+                name: link.user.name,
+                email: link.user.email,
+                profilePictureUrl: link.user.profilePictureUrl,
+                idNumber: link.user.idNumber,
+                role: link.user.role.name,
+            };
+        });
+        res.status(200).json(classList);
+    }
+
     // ----- TOOLS -----
 
     

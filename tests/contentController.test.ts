@@ -92,6 +92,7 @@ describe("ContentController test:", () => {
                     dateUpdated: expect.any(Date),
                     parentId: undefined,
                     courseId: course.courseId,
+                    files: [],
                     subContent: []
                 }, 
                 {
@@ -103,6 +104,7 @@ describe("ContentController test:", () => {
                     dateUpdated: expect.any(Date),
                     parentId: undefined,
                     courseId: course.courseId,
+                    files: [],
                     subContent: [
                         {
                             contentId: content3.contentId,
@@ -113,6 +115,7 @@ describe("ContentController test:", () => {
                             dateUpdated: expect.any(Date),
                             parentId: content3.parent.contentId,
                             courseId: course.courseId,
+                            files: [],
                             subContent: []
                         }
                     ]
@@ -132,7 +135,7 @@ describe("ContentController test:", () => {
             { name: "fails when content Id is not a valid UUID",    data: { params: { contentId: "123-33333" } },                               expectedStatus: 400, expectedData: { message: "Invalid content ID" } },
             { name: "fails when content Id does not exist",         data: { params: { contentId: "123e4567-e89b-12d3-a456-426614174000" } },    expectedStatus: 404, expectedData: { message: "Content not found" } },
 
-            { name: "succeeds when content Id is valid",            data: { params: { contentId: contentId } },                                 expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: name, description: description, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, subContent: [] } },
+            { name: "succeeds when content Id is valid",            data: { params: { contentId: contentId } },                                 expectedStatus: 200, expectedData: { courseId: courseId, contentId: contentId, name: name, description: description, viewable: viewable, dateCreated: expect.anything, dateUpdated: expect.anything, subContent: [], files: [] } },
         ])("Getting specific content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(data, expectedData);
 
@@ -233,10 +236,10 @@ describe("ContentController test:", () => {
             { name: "fails when description is a number",           data: { params: { contentId: contentId }, body: { description: 23 } },                                          expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
             { name: "fails when viewable is a string",              data: { params: { contentId: contentId }, body: { viewable: "damn", description: "test", name: "tester" } },     expectedStatus: 400, expectedData: { message: "Invalid content structure" } },
 
-            { name: "succeeds when all data is valid",              data: { params: { contentId: contentId }, body: { name: "new name", description: "new description" } },         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: "new name", description: "new description", subContent: [] } },
-            { name: "succeeds without description present",         data: { params: { contentId: contentId }, body: { name: "new name" } },                                         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: "new name", description: description, subContent: [] } },
-            { name: "succeeds when only description is present",    data: { params: { contentId: contentId }, body: { description: "new description" } },                           expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: name, description: "new description", subContent: [] } },
-            { name: "succeeds when no values updated",              data: { params: { contentId: contentId }, body: { } },                                                          expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: name, description: description, subContent: [] } },
+            { name: "succeeds when all data is valid",              data: { params: { contentId: contentId }, body: { name: "new name", description: "new description" } },         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: "new name", description: "new description", subContent: [], files: [] } },
+            { name: "succeeds without description present",         data: { params: { contentId: contentId }, body: { name: "new name" } },                                         expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: "new name", description: description, subContent: [], files: [] } },
+            { name: "succeeds when only description is present",    data: { params: { contentId: contentId }, body: { description: "new description" } },                           expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: name, description: "new description", subContent: [], files: [] } },
+            { name: "succeeds when no values updated",              data: { params: { contentId: contentId }, body: { } },                                                          expectedStatus: 200, expectedData: { parentId: undefined, courseId: courseId, contentId: contentId, viewable: viewable, dateCreated: expect.any(Date), dateUpdated: expect.any(Date), name: name, description: description, subContent: [], files: [] } },
         ])("Updating content $name", async ({ name: _name, data, expectedStatus, expectedData }) => {
             const { fixedValue, fixedExpectedResult } = generateParameters(data, expectedData);
             
