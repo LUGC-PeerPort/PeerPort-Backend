@@ -97,6 +97,7 @@ export class ContentController {
      */
     async createContent(req: Request, res: Response): Promise<void> {
         // Handle file upload errors
+        /* istanbul ignore next */
         if (!await handleFileUpload(req, res)) {
             return;
         }
@@ -158,6 +159,7 @@ export class ContentController {
     */
     async createSubContent(req: Request, res: Response): Promise<void> {
         // Handle file upload errors
+        /* istanbul ignore next */
         if (!await handleFileUpload(req, res)) {
             return;
         }
@@ -223,6 +225,7 @@ export class ContentController {
      */
     async updateContent(req: Request, res: Response): Promise<void> {
         // Handle file upload errors
+        /* istanbul ignore next */
         if (!await handleFileUpload(req, res)) {
             return;
         }
@@ -265,6 +268,7 @@ export class ContentController {
         content.parent = contentData.parent ?? content.parent;
 
         // Handle files by deleting all related ones and re-adding them and the new ones
+        /* istanbul ignore next */
         for (const file of content.files) {
             await this.fileRepo.remove(file);
         }

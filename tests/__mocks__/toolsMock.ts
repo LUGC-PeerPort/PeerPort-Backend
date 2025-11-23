@@ -5,6 +5,8 @@ import type { UsersToCourses } from "../../src/Database/entities/UsersToCourses.
 import type { Grade } from "../../src/Database/entities/Grade.js";
 import type { Content } from "../../src/Database/entities/Content.js";
 import type { Assignments } from "../../src/Database/entities/Assignments.js";
+import { Files } from "../../src/Database/entities/Files.js";
+import { AssignmentSubmissions } from "../../src/Database/entities/AssignmentSubmissions.js";
 
 /**
  * Checks if the UUID is valid
@@ -26,6 +28,59 @@ export function checkUUID(id: unknown): string | void {
     // Return the ID
     return newId;
 }
+
+/**
+ * Check the file upload and handle errors
+ * @param req - The request object
+ * @param res - The response object
+ * @returns If the checks passed
+ */
+export async function handleFileUpload(req: Request, res: Response): Promise<boolean> {
+    return true;
+}
+
+/**
+ * Save files locally and in the database
+ * @param req - The request object
+ * @param saveData - The object containing which data to save
+ * @param fileRepo - The file DB
+ */
+export async function saveFiles(req: Request, saveData: { submission: AssignmentSubmissions } | { content: Content } | { assignment: Assignments }, fileRepo: Repository<Files>): Promise<void> {
+    return;
+}
+
+/**
+ * Remove uploaded files from the request
+ * @param req - The request object
+ * @returns Nothing
+ */
+export function removeFiles(req: Request): void {
+    return;
+}
+
+
+/**
+ * Get the files and parse them into a usable format
+ * @param files - A list of file objects
+ * @returns A parsed list of file objects or an empty list
+ */
+export function loadFiles(files: Files[] | undefined): { fileId: string; fileName: string; file: string; }[] | [] {
+    if (!files || files.length === 0) return [];
+    
+    // Process the files into a string
+    const loadedFiles: { fileId: string; fileName: string; file: string; }[] = [];
+    for (const file of files) {
+        loadedFiles.push({
+            fileId: file.fileId,
+            fileName: file.fileName,
+            file: ""
+        });
+    }
+
+    // Return the files
+    return loadedFiles;
+}
+
 
 /**
  * Checks if the user is related to the course that is given in the params
