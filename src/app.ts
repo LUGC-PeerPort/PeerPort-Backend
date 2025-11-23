@@ -178,6 +178,7 @@ AppDataSource.initialize().then(() => {
     app.post("/courses/:courseId/enroll/:userId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res)));
     app.get("/courses/:courseId/assignments",       (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
     app.get("/courses/:courseId/content",           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseContentForACourse(req, res)));
+    app.get("/courses/:courseId/classList",         (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseClassList(req, res)));
 
     // Assignment controller
     app.get("/assignments/:assignmentId",               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
