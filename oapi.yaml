@@ -1828,8 +1828,8 @@ components:
                     description: Name of the file
                   file:
                     type: string
-                    format: base64
-                    description: Base64 encoded content of the file
+                    format: binary
+                    description: Binary encoded content of the file (uploaded via multipart/form-data)
     ContentPatch:
       type: object
       properties:
