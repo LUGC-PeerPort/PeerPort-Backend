@@ -1637,9 +1637,13 @@ components:
     AssignmentPost:
       type: object
       allOf:
-        - $ref: '#/components/schemas/AssignmentBasicWithCourseId'
+        - $ref: '#/components/schemas/AssignmentBasic'
         - type: object
           properties:
+            courseId:
+              type: string
+              format: uuid
+              description: Unique identifier for the course
             files:
               type: array
               items:
