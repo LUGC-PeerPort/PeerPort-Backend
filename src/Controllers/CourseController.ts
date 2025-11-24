@@ -281,6 +281,14 @@ export class CourseController {
         // Check if the user is already enrolled
         const existingEnrollment = await this.usersToCoursesRepo.findOneBy({ user: { userId: userId }, course: { courseId: courseId } });
         if (existingEnrollment) {
+            if (existingEnrollment.droppedOn !== null) {
+                // Re-enroll the user
+                existingEnrollment.droppedOn = null;
+                await this.usersToCoursesRepo.save(existingEnrollment);
+                res.status(200).json({ message: "User re-enrolled in course" });
+                return;
+            }
+            
             res.status(409).json({ message: "User is already enrolled in this course" });
             return;
         }
