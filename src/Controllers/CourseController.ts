@@ -407,9 +407,7 @@ export class CourseController {
         }
 
         // Get assignments
-        const assignments = await this.assignmentsRepo.find({
-            where: { course: { courseId: courseId } },
-        });
+        const assignments = await this.assignmentsRepo.find({ where: { course: { courseId: courseId } }, relations: ["files"]});
 
         // Parse assignments
         const assignmentReturns = assignments.map(assignment => this.assignmentReturn(assignment));
@@ -446,7 +444,7 @@ export class CourseController {
         }
 
         // Get content
-        const contentItems = await this.contentRepo.find({where: { course: { courseId: courseId } }, relations: ["parent", "course"] });
+        const contentItems = await this.contentRepo.find({where: { course: { courseId: courseId } }, relations: ["parent", "course", "files"] });
 
         // Make any content that has a parentId, into a subContent of that content
         const contentItemsList = formatContentListToTree(contentItems);

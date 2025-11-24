@@ -198,8 +198,11 @@ export class ContentController {
             removeFiles(req);
             return;
         }
-
         const contentData = unknownContent as Content;
+
+        if (typeof contentData.viewable === "string" && contentData.viewable !== undefined) {
+            contentData.viewable = (contentData.viewable as string).toLowerCase() === "true";
+        }
 
         // Create the sub-content
         const subContent = this.contentRepo.create({
@@ -262,17 +265,28 @@ export class ContentController {
         }
         const contentData = unknownContent as Partial<Content>;
 
+        // Convert string "true"/"false" to boolean for viewable
+        if (typeof contentData.viewable === "string" && contentData.viewable !== undefined) {
+            contentData.viewable = (contentData.viewable as string).toLowerCase() === "true";
+        }
+
+
         // Update the content
         content.name = contentData.name ?? content.name;
         content.description = contentData.description ?? content.description;
         content.parent = contentData.parent ?? content.parent;
+        content.viewable = contentData.viewable ?? content.viewable;
 
-        // Handle files by deleting all related ones and re-adding them and the new ones
+        // Handle files
         /* istanbul ignore next */
-        for (const file of content.files) {
-            await this.fileRepo.remove(file);
+        if ((req.files as Array<Express.Multer.File>).length >= 1) {
+            console.warn(`\x1b[33m[WARNING] [CONTENT] Updating content files. Removing ${content.files.length} files.\x1b[0m`);
+            for (const file of content.files) {
+                await this.fileRepo.remove(file);
+            }
+            await saveFiles(req, { content: content }, this.fileRepo);
+            content.files = await this.fileRepo.find({ where: { content: { contentId: content.contentId } } });
         }
-        await saveFiles(req, { content: content }, this.fileRepo);
 
         await this.contentRepo.save(content);
 
@@ -340,7 +354,7 @@ export class ContentController {
         } else if (typeof contentTyped.name !== "undefined" && _updating) return false;
         else if (!_updating) return false;
 
-        if (typeof contentTyped.viewable !== "boolean") {
+        if (typeof contentTyped.viewable !== "boolean" && typeof contentTyped.viewable !== "string") {
             if (typeof contentTyped.viewable !== "undefined" && _updating) return false;
             else if (!_updating) return false;
         }
