@@ -491,10 +491,10 @@ export class CourseController {
         for (const link of users) {
             // If the user is not a teacher or admin, skip the ones that have dropped the course
             /* istanbul ignore next */
-            if (!isTeacherOrAdmin && link.droppedOn) {
+            if (!isTeacherOrAdmin && link.droppedOn !== null) {
                 continue;
             }
-            
+
             classList.push({
                 userId: link.user.userId,
                 name: link.user.name,
