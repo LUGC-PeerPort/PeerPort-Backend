@@ -621,9 +621,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ContentPost'
+              $ref: '#/components/schemas/ContentPostBasic'
             examples:
               payload:
                 $ref: '#/components/examples/ContentPostExample'
@@ -759,9 +759,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ContentPost'
+              $ref: '#/components/schemas/ContentPostBasic'
             examples:
               payload:
                 $ref: '#/components/examples/ContentPostExample'
@@ -1854,27 +1854,24 @@ components:
         courseId:
           type: string
           description: Course ID associated with the content
-    ContentPost:
-      allOf:
-        - $ref: '#/components/schemas/ContentBasic'
-        - type: object
-          properties:
-            files:
-              type: array
-              items:
-                type: object
-                properties:
-                  fileId:
-                    type: string
-                    format: uuid
-                    description: Unique identifier for the file
-                  fileName:
-                    type: string
-                    description: Name of the file
-                  file:
-                    type: string
-                    format: binary
-                    description: Binary encoded content of the file (uploaded via multipart/form-data)
+    ContentPostBasic:
+      type: object
+      required:
+        - name
+        - viewable
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        viewable:
+          type: boolean
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+            description: Binary file upload(s)
     ContentPatch:
       type: object
       properties:
