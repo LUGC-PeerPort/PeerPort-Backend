@@ -483,16 +483,18 @@ export class CourseController {
             return;
         }
 
-        // Get all users related to the course if they are a teacher or 
-        // admin get the ones that dropped it as well
+        // Get all users related to the course
         /* istanbul ignore next */
         const isTeacherOrAdmin = await isUserTeacherOrAdmin(req, this.userRepo);
         const users = await this.usersToCoursesRepo.find({ where: { course: { courseId: courseId } }, relations: ["user", "user.role"] });
         const classList = [];
         for (const link of users) {
+            // If the user is not a teacher or admin, skip the ones that have dropped the course
+            /* istanbul ignore next */
             if (!isTeacherOrAdmin && link.droppedOn) {
                 continue;
             }
+            
             classList.push({
                 userId: link.user.userId,
                 name: link.user.name,
