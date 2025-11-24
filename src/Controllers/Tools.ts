@@ -148,6 +148,31 @@ export function loadFiles(files: Files[] | undefined): { fileId: string; fileNam
     return loadedFiles;
 }
 
+
+/**
+ * Checks if the user is a teacher or an admin
+ * @param req - The request object
+ * @param userRepo - The user DB
+ * @returns Whether the user is a teacher or an admin
+ */
+export async function isUserTeacherOrAdmin(req: Request, userRepo: Repository<User>): Promise<boolean> {
+    // Get the session
+    const session = (req as Request & { session?: Session & { passport?: { user: string } } }).session;
+    if (!session || session.passport === undefined || session.passport.user === undefined) {
+        return false;
+    }
+    const userId = session.passport.user;
+
+    // Get the user
+    const user = await userRepo.findOne({ where: { userId: userId }, relations: ["role"] });
+    if (!user) {
+        return false;
+    }
+    // Check if the user is an admin or teacher
+    return user.role.name === "admin" || user.role.name === "teacher";
+}
+
+
 /**
  * Checks if the user is related to the course that is given in the params
  * @param req - The request object
@@ -176,7 +201,8 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
     const courseConnection = await usersToCoursesRepo.findOne({
         where: {
             user: { userId: userId },
-            course: { courseId: req.params.courseId }
+            course: { courseId: req.params.courseId },
+            droppedOn: undefined
         }
     });
     if (!courseConnection) {
@@ -294,7 +320,8 @@ export async function checkIfUserRelatedToContent(req: Request, res: Response, u
     const courseConnection = await userToCourse.findOne({
         where: {
             user: { userId: userId },
-            course: { courseId: content.course!.courseId }
+            course: { courseId: content.course!.courseId },
+            droppedOn: undefined
         }
     });
 
@@ -344,7 +371,8 @@ export async function checkIfUserRelatedToAssignment(req: Request, res: Response
     const courseConnection = await userToCourseRepo.findOne({
         where: {
             user: { userId: userId },
-            course: { courseId: assignment.course.courseId }
+            course: { courseId: assignment.course.courseId },
+            droppedOn: undefined
         }
     });
     if (!courseConnection) {
