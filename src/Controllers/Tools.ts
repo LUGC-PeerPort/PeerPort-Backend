@@ -213,8 +213,7 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
     }
 
     // Check if the user has dropped the course
-    if (!isAdmin(user) && courseConnection?.droppedOn !== null) {
-        console.log(`User ${userId} has dropped course ${req.params.courseId}, ${courseConnection?.droppedOn}`);
+    if (!isAdmin(user) && courseConnection?.droppedOn) {
         res.status(403).json({ message: "Forbidden: User has dropped this course." });
         return false;
     }
@@ -389,7 +388,7 @@ export async function checkIfUserRelatedToAssignment(req: Request, res: Response
     }
 
     // Check if the user has dropped the course
-    if (!isAdmin(user) && courseConnection?.droppedOn !== null) {
+    if (!isAdmin(user) && courseConnection?.droppedOn) {
         res.status(403).json({ message: "Forbidden: User has dropped this course." });
         return false;
     }
