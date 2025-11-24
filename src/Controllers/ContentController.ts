@@ -193,8 +193,9 @@ export class ContentController {
 
         // Check the structure
         const unknownContent = req.body as unknown;
+        try {(unknownContent as Content).viewable = Boolean((unknownContent as Content).viewable);} catch {/* ignore */}
         if (!this.checkContentStructure(unknownContent, false)) {
-            res.status(400).json({ message: "Invalid content structure" });
+            res.status(400).json({ message: `Invalid content structure ${JSON.stringify(unknownContent)}` });
             removeFiles(req);
             return;
         }
@@ -325,7 +326,7 @@ export class ContentController {
         if (typeof content !== "object" || content === null) return false;
 
         // Check if the content has extra keys
-        const contentKeys = ["name", "description", "viewable"];
+        const contentKeys = ["name", "description", "viewable", "files"];
         for (const key of Object.keys(content)) {
             if (!contentKeys.includes(key)) return false;
         }
@@ -334,17 +335,20 @@ export class ContentController {
         const contentTyped = content as Partial<Content>;
 
         // -- Required --
+        console.log("name");
         if (typeof contentTyped.name === "string") {
             if (contentTyped.name.trim() === "") return false;
         } else if (typeof contentTyped.name !== "undefined" && _updating) return false;
         else if (!_updating) return false;
 
-        if (typeof contentTyped.viewable !== "boolean") {
+        console.log("viewable");
+        if (typeof contentTyped.viewable !== "boolean" && typeof contentTyped.viewable !== "string") {
             if (typeof contentTyped.viewable !== "undefined" && _updating) return false;
             else if (!_updating) return false;
-        };
+        }
 
         // -- Optional --
+        console.log("description");
         if (typeof contentTyped.description === "string") {
             if (contentTyped.description.trim() === "") return false;
         } else if (typeof contentTyped.description !== "undefined" && _updating) return false;
