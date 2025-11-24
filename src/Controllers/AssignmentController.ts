@@ -32,7 +32,7 @@ export interface AssignmentReturn {
 export interface AssignmentSubmissionReturn {
     assignmentId: string;
     userId: string;
-    submissionId: string;
+    assignmentSubmissionId: string;
     comment: string;
     timeSubmitted: Date | string;
     files: {
@@ -522,7 +522,7 @@ export class AssignmentController {
         return {
             assignmentId: submission.assignment.assignmentId,
             userId: submission.user.userId,
-            submissionId: submission.assignmentSubmissionId,
+            assignmentSubmissionId: submission.assignmentSubmissionId,
             comment: submission.comment,
             timeSubmitted: submission.timeSubmitted,
             files: loadFiles(submission.files),
