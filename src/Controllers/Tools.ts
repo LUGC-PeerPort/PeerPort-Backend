@@ -202,7 +202,6 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
         where: {
             user: { userId: userId },
             course: { courseId: req.params.courseId },
-            droppedOn: undefined
         }
     });
     if (!courseConnection) {
@@ -212,6 +211,13 @@ export async function checkIfUserRelatedToCourse(req: Request, res: Response, us
             return false;
         }
     }
+
+    // Check if the user has dropped the course
+    if (!isAdmin(user) && courseConnection?.droppedOn !== undefined) {
+        res.status(403).json({ message: "Forbidden: User has dropped this course." });
+        return false;
+    }
+
     return true;
 }
 
@@ -321,7 +327,6 @@ export async function checkIfUserRelatedToContent(req: Request, res: Response, u
         where: {
             user: { userId: userId },
             course: { courseId: content.course!.courseId },
-            droppedOn: undefined
         }
     });
 
@@ -372,7 +377,6 @@ export async function checkIfUserRelatedToAssignment(req: Request, res: Response
         where: {
             user: { userId: userId },
             course: { courseId: assignment.course.courseId },
-            droppedOn: undefined
         }
     });
     if (!courseConnection) {
@@ -382,6 +386,13 @@ export async function checkIfUserRelatedToAssignment(req: Request, res: Response
             return false;
         }
     }
+
+    // Check if the user has dropped the course
+    if (!isAdmin(user) && courseConnection?.droppedOn !== undefined) {
+        res.status(403).json({ message: "Forbidden: User has dropped this course." });
+        return false;
+    }
+
     return true;
 }
 
