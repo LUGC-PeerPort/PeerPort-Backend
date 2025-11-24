@@ -525,8 +525,8 @@ export class GradeController {
             let totalWeight = 0;
             let weightedScoreSum = 0;
             for (const grade of userGrades) {
-                const weight = grade.weight;
-                const score = (grade.achievedScore - grade.minScore) / (grade.maxScore - grade.minScore);
+                const weight = Number(grade.weight);
+                const score = (Number(grade.achievedScore) - Number(grade.minScore)) / (Number(grade.maxScore) - Number(grade.minScore));
                 
                 if (isNaN(score) || !isFinite(score)) throw new Error(`Invalid score calculation for grade ID ${grade.gradeId}`);
 
@@ -591,13 +591,13 @@ export class GradeController {
             let gradeTotal = 0;
             let totalWeight = 0;
             for (const grade of grades) {
-                const score = grade.achievedScore - grade.minScore;
-                const maxScore = grade.maxScore - grade.minScore;
+                const score = Number(grade.achievedScore) - Number(grade.minScore);
+                const maxScore = Number(grade.maxScore) - Number(grade.minScore);
                 const gradeScore = score / maxScore;
                 if (isNaN(gradeScore) || !isFinite(gradeScore)) throw new Error(`Invalid grade calculation for grade ID ${grade.gradeId}`);
 
-                gradeTotal += gradeScore * grade.weight;
-                totalWeight += grade.weight;
+                gradeTotal += gradeScore * Number(grade.weight);
+                totalWeight += Number(grade.weight);
             }
 
             const averageGrade = gradeTotal / totalWeight;
