@@ -81,6 +81,16 @@ export function loadFiles(files: Files[] | undefined): { fileId: string; fileNam
     return loadedFiles;
 }
 
+/**
+ * Checks if the user is a teacher or an admin
+ * @param req - The request object
+ * @param userRepo - The user DB
+ * @returns Whether the user is a teacher or an admin
+ */
+export async function isUserTeacherOrAdmin(req: Request, userRepo: Repository<User>): Promise<boolean> {
+    return true;
+}
+
 
 /**
  * Checks if the user is related to the course that is given in the params
