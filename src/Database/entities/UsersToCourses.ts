@@ -18,6 +18,12 @@ export class UsersToCourses {
     })
     	enrolledOn!: string;
 
+    @Column({
+    	type: "date",
+    	nullable: true
+    })
+    	droppedOn!: Date | null;
+
     @ManyToOne(() => User, (user) => user.courses, { onDelete: "CASCADE" })
     @JoinColumn({ name: "userId" })
     	user!: User;
