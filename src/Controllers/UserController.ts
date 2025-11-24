@@ -4,9 +4,9 @@ import type { Request, Response } from "express";
 import type { Course } from "../Database/entities/Course.js";
 import type { DataSource } from "typeorm";
 import type { CourseReturn } from "./CourseController.js";
-import type { UsersToCourses } from "../Database/entities/UsersToCourses.js";
+import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Role } from "../Database/entities/Role.js";
-import { checkIfUserRelatedToUser, checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToUser, checkUUID, isUserTeacherOrAdmin } from "./Tools.js";
 
 export interface UserReturn {
     userId: string | undefined;
@@ -25,6 +25,7 @@ export interface UserReturn {
  */
 export class UserController {
     private userRepo: Repository<User>;
+    private usersToCourses: Repository<UsersToCourses>;
     private roleRepo: Repository<Role>;
 
     /**
@@ -33,6 +34,7 @@ export class UserController {
 	 */
     constructor(appDataSource: DataSource) {
         this.userRepo = appDataSource.getRepository(User);
+        this.usersToCourses = appDataSource.getRepository(UsersToCourses);
         this.roleRepo = appDataSource.getRepository(Role);
     }
 
@@ -158,13 +160,7 @@ export class UserController {
         }
 
         // Get the profile from the database
-        const user = await this.userRepo
-            .createQueryBuilder("user")
-            .leftJoinAndSelect("user.role", "role")
-            .leftJoinAndSelect("user.courses", "class")
-            .leftJoinAndSelect("class.course", "course")
-            .where("user.userId = :id", { id: userID })
-            .getOne();
+        const user = await this.userRepo.findOne({ where: { userId: userID } });
         if (!user) {
             res.status(404).json({ message: "User not found" });
             return;
@@ -267,22 +263,34 @@ export class UserController {
         }
 
         // Get the profile from the database
-        const userData = await this.userRepo
-            .createQueryBuilder("user")
-            .leftJoinAndSelect("user.courses", "class")
-            .leftJoinAndSelect("class.course", "course")
-            .where("user.userId = :id", { id: userID })
-            .getOne();
-
+        const userData = await this.usersToCourses.find({ where: { user: { userId: userID } }, relations: ["course"] });
         if (!userData) {
             res.status(404).json({ message: "User not found" });
             return;
         }
 
         // Parse the return and only get the courses
-        const courses = userData.courses?.map((cls: UsersToCourses) => {
-            return this.courseReturn({ ...cls.course, enrolledOn: cls.enrolledOn } as Course & {enrolledOn: string});
-        }) ?? [];
+        const teacher = await isUserTeacherOrAdmin(req, this.userRepo);
+        const courses = [];
+        for (const data of userData) {
+            // If the user is a teacher or admin, only return courses they teach
+            if (!teacher && data.droppedOn) {
+                continue;
+            }
+
+            const courseData = {
+                name: data.course.name,
+                courseCode: data.course.courseCode,
+                isOpen: data.course.isOpen,
+                description: data.course.description,
+                startDate: data.course.startDate,
+                endDate: data.course.endDate,
+                enrolledOn: data.enrolledOn,
+                droppedOn: data.droppedOn ?? undefined,
+            };
+
+            courses.push(this.courseReturn(courseData as Course & {enrolledOn: string, droppedOn: string | undefined}));
+        }
 
         res.status(200).json(courses);
     }
@@ -432,9 +440,9 @@ export class UserController {
     /**
      * Parses the course data and make it an acceptable return value
      * @param courseData - The course data from the database
-     * @returns The course data acceptable for a return
+     * @returns The course data acceptable for a return value
      */
-    private courseReturn(courseData: Course & {enrolledOn: string }): CourseReturn & {enrolledOn: string} {
+    private courseReturn(courseData: Course & {enrolledOn: string, droppedOn?: string }): CourseReturn & {enrolledOn: string, droppedOn?: string} {
         return {
             courseId: courseData.courseId,
             name: courseData.name,
@@ -444,6 +452,7 @@ export class UserController {
             startDate: courseData.startDate,
             endDate: courseData.endDate ?? undefined,
             enrolledOn: courseData.enrolledOn,
+            droppedOn: courseData.droppedOn ?? undefined,
         };
     }
 }
