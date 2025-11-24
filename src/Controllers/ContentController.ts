@@ -335,20 +335,17 @@ export class ContentController {
         const contentTyped = content as Partial<Content>;
 
         // -- Required --
-        console.log("name");
         if (typeof contentTyped.name === "string") {
             if (contentTyped.name.trim() === "") return false;
         } else if (typeof contentTyped.name !== "undefined" && _updating) return false;
         else if (!_updating) return false;
 
-        console.log("viewable");
         if (typeof contentTyped.viewable !== "boolean" && typeof contentTyped.viewable !== "string") {
             if (typeof contentTyped.viewable !== "undefined" && _updating) return false;
             else if (!_updating) return false;
         }
 
         // -- Optional --
-        console.log("description");
         if (typeof contentTyped.description === "string") {
             if (contentTyped.description.trim() === "") return false;
         } else if (typeof contentTyped.description !== "undefined" && _updating) return false;
