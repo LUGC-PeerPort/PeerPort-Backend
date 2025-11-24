@@ -442,6 +442,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
+    delete:
+      tags:
+        - Courses
+        - Users
+      summary: Un-enroll a user from a specific course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User un-enrolled from course successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User dropped successfully
+        '400':
+          description: Bad request - Invalid user ID or course ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        '404':
+          description: User or course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
   /courses/{courseId}/assignments:
     get:
       tags:
@@ -1590,6 +1631,10 @@ components:
         role:
           type: string
           description: Role of the user in the course (e.g., user, teacher, admin)
+        droppedOn:
+          type: string
+          format: date
+          description: Date when the user dropped the course (undefined if still enrolled only visible to admins/teachers)
 
     AssignmentBasic:
       type: object

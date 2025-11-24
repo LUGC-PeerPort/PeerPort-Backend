@@ -176,6 +176,7 @@ AppDataSource.initialize().then(() => {
     app.delete("/courses/:courseId",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.deleteCourse(req, res)));
     app.get("/courses/:courseId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
     app.post("/courses/:courseId/enroll/:userId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res)));
+    app.delete("/courses/:courseId/enroll/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.unenrollUserFromCourse(req, res)));
     app.get("/courses/:courseId/assignments",       (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
     app.get("/courses/:courseId/content",           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseContentForACourse(req, res)));
     app.get("/courses/:courseId/classList",         (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseClassList(req, res)));

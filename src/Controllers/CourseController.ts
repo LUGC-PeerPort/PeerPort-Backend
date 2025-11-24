@@ -5,7 +5,7 @@ import { User } from "../Database/entities/User.js";
 import { UsersToCourses } from "../Database/entities/UsersToCourses.js";
 import { Assignments } from "../Database/entities/Assignments.js";
 import type { AssignmentReturnWithoutCourseId } from "./AssignmentController.js";
-import { checkIfUserRelatedToCourse, checkUUID } from "./Tools.js";
+import { checkIfUserRelatedToCourse, checkUUID, isUserTeacherOrAdmin } from "./Tools.js";
 import { Content } from "../Database/entities/Content.js";
 import { formatContentListToTree } from "./ContentController.js";
 import type { Session } from "express-session";
@@ -236,7 +236,7 @@ export class CourseController {
         res.status(204).json({ message: "Course deleted" });
     }
 
-    // /api/v1/courses/:courseId/enroll/:userId
+    // POST /api/v1/courses/:courseId/enroll/:userId
     /**
      * Enrolls a user in a course
      * @param req - The Request object
@@ -291,6 +291,91 @@ export class CourseController {
 
         // Send response
         res.status(201).json({ message: "User enrolled in course" });
+    }
+
+    // DELETE /api/v1/courses/:courseId/enroll/:userId
+    /**
+     * Un-enrolls a user from a course
+     * @param req - The request object
+     * @param res - The response object
+     * @returns Whether the user was un-enrolled or not
+     */
+    async unenrollUserFromCourse(req: Request, res: Response): Promise<void> {
+        // Check course ID
+        const courseId = req.params.courseId;
+        if (!checkUUID(courseId)) {
+            res.status(400).json({ message: "Invalid course ID" });
+            return;
+        }
+
+        // Check if course exists
+        const course = await this.courseRepo.findOneBy({ courseId: courseId });
+        if (!course) {
+            res.status(404).json({ message: "Course not found" });
+            return;
+        }
+
+        // Check if the user assigning the un-enrollment is related to the course
+        /* istanbul ignore next */
+        if (!await checkIfUserRelatedToCourse(req, res, this.userRepo, this.usersToCoursesRepo)) {
+            return;
+        }
+
+        // Check if the user is a teacher or admin
+        /* istanbul ignore next */
+        if (!await isUserTeacherOrAdmin(req, this.userRepo)) {
+            res.status(403).json({ message: "Forbidden: User does not have permission to unenroll a user from the course." });
+            return;
+        }
+
+        // Get the user
+        const userId = req.params.userId;
+        if (!checkUUID(userId)) {
+            res.status(400).json({ message: "Invalid user ID" });
+            return;
+        }
+
+        const userWithRole = await this.userRepo.find({ where: { userId: userId }, relations: ["role"] });
+        if (!userWithRole) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        
+        // Make sure we only have one user
+        if (userWithRole.length > 1) {
+            res.status(500).json({ message: "Multiple users found with the same ID" });
+            return;
+        }
+        const user = userWithRole[0];
+
+        // Get all enrolled users for the course
+        const enrollment = await this.usersToCoursesRepo.find({ where: { course: course }, relations: ["user", "user.role"] });
+        if (!enrollment) {
+            res.status(404).json({ message: "User is not enrolled in this course" });
+            return;
+        }
+
+        // Check if the user is enrolled in the course
+        const enrollmentToRemove = enrollment.find(enroll => enroll.user.userId === user.userId);
+        if (!enrollmentToRemove) {
+            res.status(404).json({ message: "User is not enrolled in this course" });
+            return;
+        }
+
+        // Check if this is the last teacher/admin in the course they are trying to remove
+        if (enrollmentToRemove.user.role.name === "teacher") {
+            const teachers = enrollment.filter(enroll => enroll.user.role.name === "teacher").length;
+            const admins = enrollment.filter(enroll => enroll.user.role.name === "admin").length;
+            if ((teachers+admins)-1 < 1) {
+                res.status(400).json({ message: "Cannot unenroll the last teacher/admin from the course" });
+                return;
+            }
+        }
+
+        // Unenroll the user
+        enrollmentToRemove.droppedOn = new Date();
+        await this.usersToCoursesRepo.save(enrollmentToRemove);
+        res.status(200).json({ message: "User dropped successfully" });
     }
 
     // /api/v1/courses/:courseId/assignments
@@ -398,20 +483,29 @@ export class CourseController {
             return;
         }
 
-        // Get all users related to the course
-        const users = await this.usersToCoursesRepo.find({  where: { course: { courseId: courseId } }, relations: ["user", "user.role"] });
-        const classList = users.map(link => {
-            return {
+        // Get all users related to the course if they are a teacher or 
+        // admin get the ones that dropped it as well
+        /* istanbul ignore next */
+        const isTeacherOrAdmin = await isUserTeacherOrAdmin(req, this.userRepo);
+        const users = await this.usersToCoursesRepo.find({ where: { course: { courseId: courseId } }, relations: ["user", "user.role"] });
+        const classList = [];
+        for (const link of users) {
+            if (!isTeacherOrAdmin && link.droppedOn) {
+                continue;
+            }
+            classList.push({
                 userId: link.user.userId,
                 name: link.user.name,
                 email: link.user.email,
                 profilePictureUrl: link.user.profilePictureUrl,
                 idNumber: link.user.idNumber,
                 role: link.user.role.name,
-            };
-        });
+                droppedOn: link.droppedOn ?? undefined,
+            });
+        }
         res.status(200).json(classList);
     }
+
 
     // ----- TOOLS -----
 
