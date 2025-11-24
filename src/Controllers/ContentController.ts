@@ -335,6 +335,7 @@ export class ContentController {
         const contentTyped = content as Partial<Content>;
 
         // -- Required --
+        
         if (typeof contentTyped.name === "string") {
             if (contentTyped.name.trim() === "") return false;
         } else if (typeof contentTyped.name !== "undefined" && _updating) return false;
