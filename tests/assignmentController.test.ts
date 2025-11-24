@@ -927,7 +927,7 @@ describe("AssignmentController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith([{
-                submissionId: submission.assignmentSubmissionId,
+                assignmentSubmissionId: submission.assignmentSubmissionId,
                 comment: submission.comment,
                 timeSubmitted: submission.timeSubmitted,
                 assignmentId: assignment.assignmentId,
@@ -1109,7 +1109,7 @@ describe("AssignmentController test:", () => {
 
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith({
-                submissionId: expect.any(String),
+                assignmentSubmissionId: expect.any(String),
                 comment: "This is a test submission",
                 timeSubmitted: expect.any(Date),
                 assignmentId: assignment.assignmentId,

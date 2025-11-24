@@ -160,7 +160,10 @@ export class UserController {
         }
 
         // Get the profile from the database
-        const user = await this.userRepo.findOne({ where: { userId: userID } });
+        const user = await this.userRepo.findOne({
+            where: { userId: userID },
+            relations: ["role", "courses", "courses.course"],
+        });
         if (!user) {
             res.status(404).json({ message: "User not found" });
             return;
@@ -250,12 +253,20 @@ export class UserController {
      * @param res - The Response object
      */
     async getCourses(req: Request, res: Response): Promise<void> {
-        const userID = checkUUID(req.params.userId);
-        if (userID == undefined) {
+        const userID = req.params.userId as unknown;
+        if (!checkUUID(userID)) {
             res.status(400).json({ message: "Invalid user ID" });
             return;
         }
-        
+        const userId = userID as string;
+
+        // Get the user
+        const user = await this.userRepo.findOne({ where: { userId: userId } });
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
         // Make sure the user is getting their own courses
         /* istanbul ignore next */
         if (!await checkIfUserRelatedToUser(req, res, this.userRepo)) {
@@ -263,11 +274,7 @@ export class UserController {
         }
 
         // Get the profile from the database
-        const userData = await this.usersToCourses.find({ where: { user: { userId: userID } }, relations: ["course"] });
-        if (!userData) {
-            res.status(404).json({ message: "User not found" });
-            return;
-        }
+        const userData = await this.usersToCourses.find({ where: { user: { userId: userId } }, relations: ["course"] });
 
         // Parse the return and only get the courses
         const teacher = await isUserTeacherOrAdmin(req, this.userRepo);
@@ -279,6 +286,7 @@ export class UserController {
             }
 
             const courseData = {
+                courseId: data.course.courseId,
                 name: data.course.name,
                 courseCode: data.course.courseCode,
                 isOpen: data.course.isOpen,

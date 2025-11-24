@@ -625,7 +625,7 @@ describe("UserController test:", () => {
         it("Should not get courses for a user that does not exist", async () => {
             const req: any = {
                 params: {
-                    userId: "123e4567-e89b-12d3-a456-426614174000"
+                    userId: "123e4567-e89b-12d3-a456-426614174070"
                 }
             };
 
@@ -634,8 +634,8 @@ describe("UserController test:", () => {
             res.json = jest.fn().mockReturnValue(res);
             await controller.getCourses(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+            expect(res.status).toHaveBeenCalledWith(404);
         });
 
         it("Should get courses for a user that does exist", async () => {

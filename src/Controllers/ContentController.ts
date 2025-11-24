@@ -193,9 +193,8 @@ export class ContentController {
 
         // Check the structure
         const unknownContent = req.body as unknown;
-        try {(unknownContent as Content).viewable = Boolean((unknownContent as Content).viewable);} catch {/* ignore */}
         if (!this.checkContentStructure(unknownContent, false)) {
-            res.status(400).json({ message: `Invalid content structure ${JSON.stringify(unknownContent)}` });
+            res.status(400).json({ message: "Invalid content structure" });
             removeFiles(req);
             return;
         }
@@ -335,13 +334,13 @@ export class ContentController {
         const contentTyped = content as Partial<Content>;
 
         // -- Required --
-        
+
         if (typeof contentTyped.name === "string") {
             if (contentTyped.name.trim() === "") return false;
         } else if (typeof contentTyped.name !== "undefined" && _updating) return false;
         else if (!_updating) return false;
 
-        if (typeof contentTyped.viewable !== "boolean" && typeof contentTyped.viewable !== "string") {
+        if (typeof contentTyped.viewable !== "boolean") {
             if (typeof contentTyped.viewable !== "undefined" && _updating) return false;
             else if (!_updating) return false;
         }
