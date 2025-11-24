@@ -247,12 +247,17 @@ export class AssignmentController {
         assignment.description = assignmentTyped.description ?? assignment.description;
         assignment.dueDate = assignmentTyped.dueDate ?? assignment.dueDate;
         
+        
         // Handle files by deleting all related ones and re-adding them and the new ones
         /* istanbul ignore next */
-        for (const file of assignment.files) {
-            await this.fileRepo.remove(file);
+        if ((req.files as Array<Express.Multer.File>).length >= 1) {
+            console.warn(`\x1b[33m[WARNING] [ASSIGNMENT] Updating content files. Removing ${assignment.files.length} files.\x1b[0m`);
+            for (const file of assignment.files) {
+                await this.fileRepo.remove(file);
+            }
+            await saveFiles(req, { assignment: assignment }, this.fileRepo);
+            assignment.files = await this.fileRepo.find({ where: { assignment: { assignmentId: assignment.assignmentId } } });
         }
-        await saveFiles(req, { assignment: assignment }, this.fileRepo);
 
         // Save updated assignment
         await this.assignmentRepo.save(assignment);
