@@ -279,7 +279,7 @@ export class ContentController {
 
         // Handle files
         /* istanbul ignore next */
-        if ((req.files as Array<Express.Multer.File>).length >= 1) {
+        if ((req.files as Array<Express.Multer.File>)?.length >= 1) {
             console.warn(`\x1b[33m[WARNING] [CONTENT] Updating content files. Removing ${content.files.length} files.\x1b[0m`);
             for (const file of content.files) {
                 await this.fileRepo.remove(file);
