@@ -1916,7 +1916,8 @@ components:
             subContent:
               type: array
               items:
-                $ref: '#/components/schemas/ContentGet'
+                allOf:
+                  - $ref: '#/components/schemas/ContentGet'
 
     BasicError:
       type: object
