@@ -14,7 +14,7 @@ npm-debug.log*
 .env
 .env.*
 
-# Editor shit
+# IDE / Editor specific files
 .vscode/
 .idea/
 *.swp
