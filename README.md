@@ -1,13 +1,12 @@
 # PeerPort backend
-
 This repository contains the backend code for PeerPort.
+
 ## Table of Contents
 1. [Structure](#1-structure)
 2. [Installation](#2-installation)
 3. [Usage](#3-usage)
 4. [Project Overview](#4-project-overview)
-
-
+---
 ## 1. Structure
 The Project folder is organized as follows:
 ```
@@ -72,7 +71,7 @@ peerport-backend/                       Project Root Directory
     ├── README.md                           This file - project documentation
     └── tsconfig.json                       TypeScript configuration file
 ```
-
+---
 ## 2. Installation
 To set up the PeerPort backend locally, follow these steps:
 1. **Clone the repository:**
@@ -90,7 +89,7 @@ To set up the PeerPort backend locally, follow these steps:
    ```bash
    npm run start
    ```
-   
+---
 ## 3. Usage
 - **Start the server:**
 
@@ -104,7 +103,7 @@ To set up the PeerPort backend locally, follow these steps:
     ```
 - **API Documentation:**
      The API documentation is available in the `oapi.yaml` file and can be viewed using Swagger UI or similar tools, also available at at http://localhost:3000/api-docs when the server is running.
-
+---
 ## 4. Project Overview
 PeerPort's backend was designed using TypeScript, using the Express framework for handling HTTP requests and TypeORM for database interactions.
 
@@ -113,7 +112,6 @@ The backend provides API endpoints for managing users, courses, assignments, sub
 The project is structured to promote modularity and maintainability, with separate controllers for different resource types and a dedicated database module for entity definitions and connection management. 
 
 Unit tests are implemented using Jest to ensure code reliability and correctness.
-
 ### Code Examples
 Here are some code snippets illustrating key parts of the backend:
 
