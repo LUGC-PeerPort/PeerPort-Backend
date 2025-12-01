@@ -6,7 +6,7 @@ import { AppDataSource } from "./Database/DB.js";
 import { UserController } from "./Controllers/UserController.js";
 import { CourseController } from "./Controllers/CourseController.js";
 import { AssignmentController } from "./Controllers/AssignmentController.js";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { dirname } from "path";
 import passport from "passport";
 import {User} from "./Database/entities/User.js";
@@ -19,7 +19,34 @@ import { SubmissionController } from "./Controllers/SubmissionController.js";
 import fs from "fs";
 import multer from "multer";
 import type { Request, Response } from "express";
+import { checkIfUpdateAvailable } from "./updateDetection.js";
 
+
+/**
+ * Runs the update check process
+ */
+function runUpdateCheck(): void {
+    // Only run in development mode
+    if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "production") {
+        console.log("\x1b[33m[NOTICE] Skipping update check in test/production environment.\x1b[0m");
+        return;
+    }
+    console.log("\x1b[32m[NOTICE] Checking for updates...\x1b[0m");
+    if (!checkIfUpdateAvailable({disable: false})) { // Set to 'true' to disable update checks. Enable before you push.
+        console.error("Update check failed or updates are available. Exiting...");
+        process.exit(1);
+    }
+    // Give a message to say checks are complete
+    console.log("\x1b[32m[SUCCESS] Checks complete...\x1b[0m\n");
+}
+
+// Only run update check if this file is the entry point (ESM-compatible)
+if (typeof process !== "undefined" && process.argv && pathToFileURL(process.argv[1]).href === import.meta.url) {
+    runUpdateCheck();
+}
+
+
+// Start of the PeerPort Backend
 console.log("\x1b[32m[NOTICE] Starting PeerPort Backend...\x1b[0m");
 
 // Check if the environment variables are set
