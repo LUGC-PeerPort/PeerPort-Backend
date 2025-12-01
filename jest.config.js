@@ -4,7 +4,7 @@ export default {
     testMatch: ["**/tests/**/*.test.ts"],
     moduleFileExtensions: ["ts", "js", "json", "node"],
     transform: {
-        "^.+\\.(t|j)sx?$": ["ts-jest", { useESM: true, tsconfig: { module: 'esnext' }, diagnostics: false }],
+        "^.+\\.(t|j)sx?$": ["ts-jest", {useESM: true, tsconfig: {module: 'esnext'}, diagnostics: false}],
     },
     extensionsToTreatAsEsm: [".ts"],
     // Note: ts-jest config is provided in the transform entry (above) to avoid
@@ -25,11 +25,11 @@ export default {
         "default",
         [
             "jest-ctrf-json-reporter", {
-                outputFile: "ctrf-report.json",
-                outputDir: "tests",
-                appName: "PeerPort",
-                appVersion: "1.0.0",
-            }
+            outputFile: "ctrf-report.json",
+            outputDir: "tests",
+            appName: "PeerPort",
+            appVersion: "1.0.0",
+        }
         ],
         ["github-actions", {silent: false}],
         ["jest-junit", {outputDirectory: "tests/coverage", outputName: "junit.xml"}]

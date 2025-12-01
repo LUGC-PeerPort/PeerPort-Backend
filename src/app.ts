@@ -160,9 +160,9 @@ AppDataSource.initialize().then(() => {
     app.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
     // User controller
-    app.get("/auth/currentUser",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, async () => { userController.getCurrentUser(req, res);}));
-    app.get("/users",                           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.getAllUsers(req, res)));
-    app.post("/users",                          (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => userController.create(req, res)));
+    app.get("/auth/currentUser",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => { userController.getCurrentUser(req, res);}));
+    app.get("/users",                           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getAllUsers(req, res)));
+    //app.post("/users",                          (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.create(req, res))); UNUSED - Users are created on first login via Google OAuth
     app.get("/users/:userId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.getProfile(req, res)));
     app.put("/users/:userId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.updateProfile(req, res)));
     app.delete("/users/:userId",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res, () => userController.deleteProfile(req, res)));
@@ -171,12 +171,12 @@ AppDataSource.initialize().then(() => {
 
     // Course controller
     app.get("/courses",                             (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getAllCourses(req, res)));
-    app.post("/courses",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.createCourse(req, res)));
-    app.put("/courses/:courseId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.updateCourse(req, res)));
-    app.delete("/courses/:courseId",                (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.deleteCourse(req, res)));
+    app.post("/courses",                            (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => courseController.createCourse(req, res))); // Only teachers and admins can create courses
+    app.put("/courses/:courseId",                   (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => courseController.updateCourse(req, res))); // Only teachers and admins can update courses
+    app.delete("/courses/:courseId",                (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => courseController.deleteCourse(req, res))); // Only teachers and admins can delete courses
     app.get("/courses/:courseId",                   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourse(req, res)));
-    app.post("/courses/:courseId/enroll/:userId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res)));
-    app.delete("/courses/:courseId/enroll/:userId", (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.unenrollUserFromCourse(req, res)));
+    app.post("/courses/:courseId/enroll/:userId",   (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => courseController.enrollUserInCourse(req, res))); // Only teachers and admins can enroll users
+    app.delete("/courses/:courseId/enroll/:userId", (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => courseController.unenrollUserFromCourse(req, res))); // Only teachers and admins can unenroll users
     app.get("/courses/:courseId/assignments",       (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseAssignments(req, res)));
     app.get("/courses/:courseId/content",           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseContentForACourse(req, res)));
     app.get("/courses/:courseId/classList",         (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => courseController.getCourseClassList(req, res)));
@@ -184,36 +184,36 @@ AppDataSource.initialize().then(() => {
     // Assignment controller
     app.get("/assignments/:assignmentId",               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAssignment(req, res)));
     app.get("/assignments",                             (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getAllAssignments(req, res)));
-    app.post("/assignments",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res)));
-    app.put("/assignments/:assignmentId",               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res)));
-    app.delete("/assignments/:assignmentId",            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res)));
-    app.post("/assignments/:assignmentId/submissions",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res)));
+    app.post("/assignments",                            (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => assignmentController.createAssignment(req, res))); // Only teachers and admins can create assignments
+    app.put("/assignments/:assignmentId",               (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => assignmentController.updateAssignment(req, res))); // Only teachers and admins can update assignments
+    app.delete("/assignments/:assignmentId",            (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => assignmentController.deleteAssignment(req, res))); // Only teachers and admins can delete assignments
+    app.post("/assignments/:assignmentId/submissions",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.createSubmissionForAssignment(req, res))); // All roles can submit assignments
     app.get("/assignments/:assignmentId/submissions",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => assignmentController.getSubmissionsForAssignment(req, res)));
 
     // Submission controller
-    app.get("/submissions",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => submissionController.getAllSubmissions(req, res)));
+    app.get("/submissions",                 (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => submissionController.getAllSubmissions(req, res))); // Only teachers and admins can view all submissions
     app.get("/submissions/:submissionId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => submissionController.getSubmission(req, res)));
 
     // Grade controller
     app.get("/grades",                                              (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGrades(req, res)));
     app.get("/grades/by-id/:gradeId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getGrade(req, res)));
-    app.put("/grades/by-id/:gradeId",                               (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res)));
-    app.delete("/grades/by-id/:gradeId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res)));
+    app.put("/grades/by-id/:gradeId",                               (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => gradeController.updateGrade(req, res))); // Only teachers and admins can update grades
+    app.delete("/grades/by-id/:gradeId",                            (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => gradeController.deleteGrade(req, res))); // Only teachers and admins can delete grades
     app.get("/grades/by-user/:userId",                              (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUser(req, res)));
     app.get("/grades/by-course/:courseId",                          (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForCourse(req, res)));
     app.get("/grades/average/:courseId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAverageGradeForCourse(req, res)));
     app.get("/grades/calculated/:userId/:courseId",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getCalculatedGradeForUserInCourse(req, res)));
-    app.post("/grades/:userId/:courseId",                           (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
-    app.post("/grades/:userId/:courseId/:assignmentSubmissionId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.createGrade(req, res)));
+    app.post("/grades/:userId/:courseId",                           (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => gradeController.createGrade(req, res))); // Only teachers and admins can create grades
+    app.post("/grades/:userId/:courseId/:assignmentSubmissionId",   (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => gradeController.createGrade(req, res))); // Only teachers and admins can create grades (Note - assignmentSubmissionId is optional, but separate routes are required to be defined in express)
     app.get("/grades/:userId/:courseId",                            (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => gradeController.getAllGradesForUserInCourse(req, res)));
     
     // Content controller
     app.get("/content",                 (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getAllContent(req, res)));
-    app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createSubContent(req, res)));
+    app.post("/content/sub/:parentId",  (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => contentController.createSubContent(req, res))); // Only teachers and admins can create sub-content
     app.get("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.getContentById(req, res)));
-    app.post("/content/:courseId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.createContent(req, res)));
-    app.put("/content/:contentId",      (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.updateContent(req, res)));
-    app.delete("/content/:contentId",   (req, res) => ifAuthed(["user", "teacher", "admin"], req, res,  () => contentController.deleteContent(req, res)));
+    app.post("/content/:courseId",      (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => contentController.createContent(req, res))); // Only teachers and admins can create content
+    app.put("/content/:contentId",      (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => contentController.updateContent(req, res))); // Only teachers and admins can update content
+    app.delete("/content/:contentId",   (req, res) => ifAuthed(["teacher", "admin"], req, res,  () => contentController.deleteContent(req, res))); // Only teachers and admins can delete content
 
     // Custom error handler
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
