@@ -152,7 +152,7 @@ Key technologies include:
 - **[PostgreSQL](https://www.postgresql.org/)**: Relational database management system used for data storage. 
 - **[Passport.js](http://www.passportjs.org/)**: Authentication middleware for Node.js, used for implementing Google OAuth 2.0 authentication. 
 - **[Jest](https://jestjs.io/)**: Testing framework for JavaScript and TypeScript, used for unit testing the backend code.
-- **[Swagger](https://swagger.io/)**: Framework for API documentation, utilizes the [OpenAPI Specification](https://oapenapi.org/) to define API endpoints and schemas. (see `oapi.yaml`)
+- **[Swagger](https://swagger.io/)**: Framework for API documentation, utilizes the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md) to define API endpoints and schemas. (see `oapi.yaml`)
 - **[SQLite](https://www.sqlite.org/)**: Lightweight, file-based database used for in-memory testing during unit tests. 
 - **[ESLint](https://eslint.org/)**: Linting tool for identifying and fixing code quality issues in JavaScript and TypeScript.
 
