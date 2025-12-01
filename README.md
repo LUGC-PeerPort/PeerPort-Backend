@@ -8,9 +8,11 @@ This repository contains the backend code for PeerPort.
 2. [Installation](#2-installation)
 3. [Usage](#3-usage)
 4. [Project Overview](#4-project-overview)
-   1. Modular Route Definition
-   2. Entity Definition with TypeORM
-   3. Dependency Injection for Testability
+   1. Technologies Used
+   2. Code Examples
+      1. Modular Route Definition
+      2. Entity Definition with TypeORM
+      3. Dependency Injection for Testability
 
 ---
 
@@ -138,7 +140,25 @@ types and a dedicated database module for entity definitions and connection mana
 
 Unit tests are implemented using Jest to ensure code reliability and correctness.
 
-### Code Examples
+### 1. Technologies Used
+    
+The PeerPort backend utilizes a variety of 3rd party technologies and libraries. <br>
+Key technologies include:
+
+- **[Node.JS](https://nodejs.org/)**: JavaScript runtime environment for executing server-side code.
+- **[Express.js](https://expressjs.com/)**: Web application framework for building RESTful APIs. 
+- **[TypeScript](https://www.typescriptlang.org/)**: Superset of JavaScript that adds static typing for improved code quality and maintainability.
+- **[TypeORM](https://typeorm.io/)**: Object Relational Mapper (ORM) for TypeScript and JavaScript that simplifies database interactions. 
+- **[PostgreSQL](https://www.postgresql.org/)**: Relational database management system used for data storage. 
+- **[Passport.js](http://www.passportjs.org/)**: Authentication middleware for Node.js, used for implementing Google OAuth 2.0 authentication. 
+- **[Jest](https://jestjs.io/)**: Testing framework for JavaScript and TypeScript, used for unit testing the backend code.
+- **[Swagger](https://swagger.io/)**: Framework for API documentation, utilizes the [OpenAPI Specification](https://oapenapi.org/) to define API endpoints and schemas. (see `oapi.yaml`)
+- **[SQLite](https://www.sqlite.org/)**: Lightweight, file-based database used for in-memory testing during unit tests. 
+- **[ESLint](https://eslint.org/)**: Linting tool for identifying and fixing code quality issues in JavaScript and TypeScript.
+
+For a complete list of dependencies, refer to the `package.json` file in the project root.
+
+### 2. Code Examples
 
 Here are some code snippets illustrating key parts of the backend:
 
